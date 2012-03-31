@@ -7,7 +7,7 @@
 var clientSessions = require('client-sessions'),
     config = require('../lib/configuration'),
     express = require('express'),
-    passport_google = require('../lib/passport_google'),
+    passport_google = require('../lib/passport_google_oauth2'),
     path = require('path'),
     routes = require('../lib/routes');
 
