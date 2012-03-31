@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var clientSessions = require('client-sessions'),
+    config = require('../lib/configuration'),
+    express = require('express'),
+    passport_google = require('../lib/passport_google'),
+    path = require('path'),
+    routes = require('../lib/routes');
+
+var app = express.createServer();
+
+
+app.set('views', path.join(__dirname, '..', 'views'));
+app.set('view engine', 'ejs');
+app.use(express.bodyParser());
+app.use(express.methodOverride());
+
+
+var sess_config = config.get('client_sessions');
+console.log('sess_config=', sess_config);
+app.use(clientSessions({
+        cookieName: sess_config.cookie_name,
+        secret:     sess_config.secret,
+        duration:   sess_config.duration
+}));
+
+passport_google.init(app);
+app.use(app.router);
+routes.init(app);
+
+var static_root = path.join(__dirname, '..', '..', 'client');
+app.use(express.static(static_root));
+
+app.listen(3030, '0.0.0.0');
+console.log('Everyone is welcome in the Persona ID Big Tent, listening on port 3030');
