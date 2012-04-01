@@ -5,9 +5,11 @@
 var convict = require('convict');
 
 var conf = module.exports = convict({
+    browserid_server: 'string = "https://browserid.org"',
   client_sessions: {
     cookie_name: 'string = "session_state"',
     secret: 'string = "YOU MUST CHANGE ME"',
     duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
-  }
+  },
+  issuer: 'string = "dev.bigtent.nutria.org"'
 });

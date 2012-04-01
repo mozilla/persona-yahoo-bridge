@@ -7,9 +7,10 @@
 var clientSessions = require('client-sessions'),
     config = require('../lib/configuration'),
     express = require('express'),
-    passport_google = require('../lib/passport_google_oauth2'),
+    passport_google = require('../lib/passport_google'),
+    //passport_google = require('../lib/passport_google_oauth2'),
     path = require('path'),
-    routes = require('../lib/routes');
+    routes = require('../routes');
 
 var app = express.createServer();
 
@@ -19,18 +20,24 @@ app.set('view engine', 'ejs');
 app.use(express.bodyParser());
 app.use(express.methodOverride());
 
-
 var sess_config = config.get('client_sessions');
 console.log('sess_config=', sess_config);
 app.use(clientSessions({
-        cookieName: sess_config.cookie_name,
-        secret:     sess_config.secret,
-        duration:   sess_config.duration
+  cookieName: sess_config.cookie_name,
+  secret:     sess_config.secret,
+  duration:   sess_config.duration
 }));
+
+app.use(express.csrf());
+app.use(function (req, resp, next) {
+  resp.local('csrf_token', req.session._csrf);
+  next();
+});
 
 passport_google.init(app);
 app.use(app.router);
 routes.init(app);
+passport_google.views(app);
 
 var static_root = path.join(__dirname, '..', '..', 'client');
 app.use(express.static(static_root));
