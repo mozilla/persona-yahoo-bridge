@@ -1,7 +1,7 @@
 # BigTent
 A ProxyIdP service for bridging major IdPs who lack support for the BrowserID protocol.
 
-Goals
+# Goals
 * Be promiscuous in bridging the top identity providers technologies
 to work with the BrowserID protocol
 * Support only the top N email providers in the world, so users
