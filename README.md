@@ -21,8 +21,8 @@ x) provision
 x) sign in
 5) browserid.org whitelist
 6) Multiple auths coexisting
-x) awsbox
-x) Add statsd monitoring points
+7) awsbox
+8) Add statsd monitoring points
 
 
 Gmail
