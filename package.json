@@ -14,6 +14,7 @@
   "dependencies": {
     "client-sessions": "0.0.5",
     "convict": "0.0.6",
+    "ejs": "*",
     "express": "2.5.8",
     "jwcrypto": "0.1.1",
     "passport": "0.1.8",
