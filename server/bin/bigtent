@@ -42,5 +42,5 @@ passport_google.views(app);
 var static_root = path.join(__dirname, '..', '..', 'client');
 app.use(express.static(static_root));
 
-app.listen(3030, '0.0.0.0');
+app.listen(process.env['PORT'] || 3030, '0.0.0.0');
 console.log('Everyone is welcome in the Persona ID Big Tent, listening on port 3030');

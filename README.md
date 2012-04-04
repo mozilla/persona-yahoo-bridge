@@ -15,11 +15,13 @@ A: Nope, please implement that BrowserID Primary protocol for your users
 Not ready for produciton use!
 
 == Process ==
-1) Auth via Google
-2) Maintain email address in session
-3) provision
-4) sign in
+x) Auth via Google
+x) Maintain email address in session
+x) provision
+x) sign in
 5) browserid.org whitelist
+6) Multiple auths coexisting
+x) awsbox
 x) Add statsd monitoring points
 
 
