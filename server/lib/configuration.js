@@ -12,7 +12,8 @@ var conf = module.exports = convict({
     secret: 'string = "YOU MUST CHANGE ME"',
     duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
   },
-  issuer: 'string = "dev.bigtent.nutria.org"'
+  issuer: 'string = "dev.bigtent.nutria.org"',
+  protocol: 'string = "http"'
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

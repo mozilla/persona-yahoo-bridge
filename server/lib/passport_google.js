@@ -2,10 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var GoogleStrategy = require('passport-google').Strategy,
-    passport = require('passport');
+var config = require('../lib/configuration'),
+    GoogleStrategy = require('passport-google').Strategy,
+    passport = require('passport'),
+    util = require('util');
 
-var sessions;
+var sessions,
+    hostname = util.format("%s://%s", config.get('protocol'), config.get('issuer')),
+    return_url = util.format("%s/auth/google/return", hostname),
+    realm = util.format("%s/", hostname);
+
+console.log('hostname', hostname);
+console.log('return_url', return_url);
+console.log('realm', realm);
 
 // TODO when do these get called? Can we axe them if we don't have server side store
 passport.serializeUser(function(user, done) {
@@ -23,8 +32,8 @@ passport.deserializeUser(function(obj, done) {
 //   credentials (in this case, an OpenID identifier and profile), and invoke a
 //   callback with a user object.
 passport.use(new GoogleStrategy({
-    returnURL: 'http://192.168.186.138:3030/auth/google/return',
-    realm: 'http://192.168.186.138:3030/'
+    returnURL: return_url,
+    realm: realm
   },
   function(identifier, profile, done) {
     // asynchronous verification, for effect...
