@@ -18,7 +18,8 @@
     <div id="content">
       <%- body %>
     </div><!-- #content -->
-<script src="https://browserid.org/authentication_api.js"></script>
+    <!-- TODO use browserid_server from config -->
+<script src="http://192.168.186.138:10002/authentication_api.js"></script>
 <script src="/js/lib/jquery.min.js"></script>
 <script>
 $('form').submit(function (e) {

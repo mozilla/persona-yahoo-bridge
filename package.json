@@ -18,10 +18,11 @@
     "express": "2.5.8",
     "jwcrypto": "0.1.1",
     "passport": "0.1.8",
-    "passport-google": "0.1.1"
+    "passport-google": "0.1.1",
+    "winston": "0.5.11"
   },
   "devDependencies": {
-    "awsbox": "*"
+    "awsbox": "git://github.com/lloyd/awsbox.git#nginx_to_http_proxy"
   },
   "optionalDependencies": {},
   "engines": {

@@ -4,15 +4,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var clientSessions = require('client-sessions'),
-    config = require('../lib/configuration'),
-    express = require('express'),
-    passport_google = require('../lib/passport_google'),
-    //passport_google = require('../lib/passport_google_oauth2'),
-    path = require('path'),
-    routes = require('../routes');
+const clientSessions = require('client-sessions'),
+      config = require('../lib/configuration'),
+      express = require('express'),
+      fs = require('fs'),
+      passport_google = require('../lib/passport_google'),
+      //passport_google = require('../lib/passport_google_oauth2'),
+      path = require('path'),
+      routes = require('../routes'),
+      util = require('util'),
+      logger = require('../lib/logging').logger;
 
-var app = express.createServer();
+var app;
+
+// ./server is our current working directory
+process.chdir(path.dirname(__dirname));
+
+logger.debug("config.get('use_https')=", config.get('use_https'));
+if (config.get('use_https')) {
+  try {
+    var privateKey = fs.readFileSync('etc/privatekey.pem').toString();
+    var certificate = fs.readFileSync('etc/certificate.pem').toString();
+    app = express.createServer({key: privateKey, cert: certificate});
+  } catch (e) {
+    logger.error('You must setup etc/privatekey.pem and etc/certificate.pem');
+    logger.error('See docs/DEV_NOTES.md for details.');
+    throw e;
+  }
+} else {
+  app = express.createServer();
+}
 
 
 app.set('views', path.join(__dirname, '..', 'views'));
@@ -21,7 +42,7 @@ app.use(express.bodyParser());
 app.use(express.methodOverride());
 
 var sess_config = config.get('client_sessions');
-console.log('sess_config=', sess_config);
+logger.debug('sess_config=', sess_config);
 app.use(clientSessions({
   cookieName: sess_config.cookie_name,
   secret:     sess_config.secret,
@@ -34,6 +55,8 @@ app.use(function (req, resp, next) {
   next();
 });
 
+logger.debug(config.get('browserid_server'));
+
 passport_google.init(app);
 app.use(app.router);
 routes.init(app);
@@ -42,5 +65,11 @@ passport_google.views(app);
 var static_root = path.join(__dirname, '..', '..', 'client');
 app.use(express.static(static_root));
 
-app.listen(process.env['PORT'] || 3030, '0.0.0.0');
-console.log('Everyone is welcome in the Persona ID Big Tent, listening on port 3030');
+if (config.get('use_https')) {
+  app.listen(443);
+  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listing on https://%s', config.get('issuer')));
+} else {
+  var port = process.env['PORT'] || 3030;
+  app.listen(port, '0.0.0.0');
+  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listing on http://%s:%s', config.get('issuer'), port));
+}

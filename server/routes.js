@@ -1,14 +1,17 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-var config = require('./lib/configuration'),
-    crypto = require('./lib/crypto.js');
-    passport = require('passport'),
-    proxy = require('./lib/idp_proxy');
+
+const config = require('./lib/configuration'),
+      crypto = require('./lib/crypto.js'),
+      logger = require('./lib/logging').logger,
+      passport = require('passport'),
+      proxy = require('./lib/idp_proxy');
 
 exports.init = function (app) {
+    var well_known_last_mod = new Date().getTime();
     app.get('/proxy/:email', function(req, res, next){
-      console.log("About to proxy email=", req.params.email);
+      logger.info("About to proxy email=", req.params.email);
       // TODO multiple strategies
       // https://gist.github.com/1732068
       var service = proxy.service(req.params.email);
@@ -16,7 +19,7 @@ exports.init = function (app) {
       // Abusing middleware like a function?
       // TODO stuff these is an associative array by service
       (passport.authenticate('google', function(err, user, info) {
-         console.log('/proxy/:email auth/google/return callback');
+         logger.info('/proxy/:email auth/google/return callback');
       }))(req, res, next); // passport.authenticate
     });
 
@@ -25,8 +28,12 @@ exports.init = function (app) {
     app.get('/sign_in', function (req, res) {
       var ctx = {
           layout: false,
-          browserid_server: config.get('browserid_server')
+          browserid_server: config.get('browserid_server'),
+          current_user: null
         };
+      if (req.session && req.session.email) {
+        ctx.current_user = req.session.email;
+      }
       res.render('signin', ctx);
     });
     app.get('/provision', function(req, res){
@@ -38,14 +45,14 @@ exports.init = function (app) {
     });
 
     app.post('/provision', function(req, res){
-      console.log('provisioning key', req.body.pubkey);
+      logger.info('provisioning key', req.body.pubkey);
       if (!req.session || !req.session.email) {
-        resp.writeHead(401);
-        return resp.end();
+        res.writeHead(401);
+        return res.end();
       }
       if (!req.body.pubkey || !req.body.duration) {
-        resp.writeHead(400);
-        return resp.end();
+        res.writeHead(400);
+        return res.end();
       }
 
       crypto.cert_key(
@@ -54,10 +61,10 @@ exports.init = function (app) {
         req.body.duration,
         function(err, cert) {
           if (err) {
-            resp.writeHead(500);
-            resp.end();
+            res.writeHead(500);
+            res.end();
           } else {
-            resp.json({ cert: cert });
+            res.json({ cert: cert });
           }
         });
     });
@@ -74,7 +81,7 @@ exports.init = function (app) {
         if (req.session.email) {
           ctx.email = req.session.email;
         } else {
-          console.error("GET provision ERROR - req is authenticated, but no email in session");
+          logger.error("GET provision ERROR - req is authenticated, but no email in session");
         }
       }
       res.render('provision_js', ctx);
@@ -93,5 +100,40 @@ exports.init = function (app) {
       req.session.reset();
       req.logout(); // passportism
       res.redirect('/');
+    });
+    app.get('/.well-known/browserid', function (req, res) {
+      // 6 hours in seconds
+      var timeout = 120 ; //6 * 60 * 60; // in seconds
+      logger.info(req.headers);
+      if (req.headers['if-modified-since'] !== undefined) {
+        var since = new Date(req.headers['if-modified-since']);
+        if (isNaN(since.getTime())) {
+          logger.error('======== Bad date in If-Modified-Since header');
+        } else {
+          util.puts(since);
+          //TODO these are both true...
+          logger.info('========= since', '>', since, (well_known_last_mod < since), ' and < ', (since < well_known_last_mod));
+          logger.info('since==', since, 'well-known', new Date(well_known_last_mod));
+          // Does the client already have the latest copy?
+          if (since >= well_known_last_mod) {
+            logger.info('Use the Cache, luke');
+            // TODO move above?
+            res.setHeader('Cache-Control', 'max-age=' + timeout);
+            return res.send(304);
+          } else {
+            logger.info('=============== NO 304 FOR YOU =============');
+          }
+        }
+      }
+      // On startup, keys need to be pulled from memcache or some such
+      var pk = JSON.stringify(crypto.pubKey);
+      logger.info('======= CACHE HEADERS ========');
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'max-age=' + timeout);
+      res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
+      res.render('well_known_browserid', {
+        public_key: pk,
+        layout: false
+      });
     });
 };

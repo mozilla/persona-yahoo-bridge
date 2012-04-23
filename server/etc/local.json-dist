@@ -1,8 +1,10 @@
 {
+  "browserid_server": "http://127.0.0.1:10002",
   "client_sessions": {
     "cookie_name": "session_state",
     "secret": "YOU MUST CHANGE ME",
     "duration": 86400000
   },
-  "issuer": "localhost"
+  "issuer": "localhost",
+  "user_https": false
 }

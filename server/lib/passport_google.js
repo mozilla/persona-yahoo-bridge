@@ -4,26 +4,32 @@
 
 var config = require('../lib/configuration'),
     GoogleStrategy = require('passport-google').Strategy,
+    logger = require('./logging').logger,
     passport = require('passport'),
     util = require('util');
 
+var protocol = 'http';
+if (config.get('use_https')) {
+  protocol = 'https';
+}
 var sessions,
-    hostname = util.format("%s://%s", config.get('protocol'), config.get('issuer')),
+    hostname = util.format("%s://%s", protocol, config.get('issuer')),
     return_url = util.format("%s/auth/google/return", hostname),
     realm = util.format("%s/", hostname);
 
-console.log('hostname', hostname);
-console.log('return_url', return_url);
-console.log('realm', realm);
+
+logger.debug('hostname', hostname);
+logger.debug('return_url', return_url);
+logger.debug('realm', realm);
 
 // TODO when do these get called? Can we axe them if we don't have server side store
 passport.serializeUser(function(user, done) {
-  console.log('passport.serializeUser user=', user);
+  logger.debug('passport.serializeUser user=', user);
   done(null, user);
 });
 
 passport.deserializeUser(function(obj, done) {
-  console.log('passport.deserializeUser obj=', obj);
+  logger.debug('passport.deserializeUser obj=', obj);
   done(null, obj);
 });
 
@@ -37,7 +43,7 @@ passport.use(new GoogleStrategy({
   },
   function(identifier, profile, done) {
     // asynchronous verification, for effect...
-    console.log('passport.use(new GoogleStrategy identifier=', identifier, 'profile=', profile);
+    logger.debug('passport.use(new GoogleStrategy identifier=', identifier, 'profile=', profile);
     process.nextTick(function () {
 
       // To keep the example simple, the user's Google profile is returned to
@@ -82,18 +88,18 @@ exports.views = function (app) {
   app.get('/auth/google/return',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function(req, res) {
-      console.log('/auth/google/return callback');
+      logger.debug('/auth/google/return callback');
       // Are we who we said we are?
       // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?
       var match = false;
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function (email_obj, i) {
           if (! email_obj.value) {
-            console.warn("Google should have had list of emails with a value property on each " + email_obj);
+            logger.warn("Google should have had list of emails with a value property on each " + email_obj);
           }
           var email = email_obj.value;
           if (! match) {
-            console.log((typeof email), email);
+            logger.debug((typeof email), email);
             if (email.toLowerCase() === req.session.claim.toLowerCase()) {
               match = true;
               delete req.session.claim;
@@ -104,9 +110,9 @@ exports.views = function (app) {
           }
         });
       } else {
-        console.warn("Google should have had user and user.emails" + req.user);
+        logger.warn("Google should have had user and user.emails" + req.user);
       }
-      console.log("hmmm do something sign_in like here...");
+      logger.debug("hmmm do something sign_in like here...");
       res.redirect('/sign_in');
   });
 }
