@@ -9,6 +9,7 @@ const clientSessions = require('client-sessions'),
       express = require('express'),
       fs = require('fs'),
       passport_google = require('../lib/passport_google'),
+      passport_yahoo = require('../lib/passport_yahoo'),
       //passport_google = require('../lib/passport_google_oauth2'),
       path = require('path'),
       routes = require('../routes'),
@@ -58,9 +59,11 @@ app.use(function (req, resp, next) {
 logger.debug(config.get('browserid_server'));
 
 passport_google.init(app);
+passport_yahoo.init(app);
 app.use(app.router);
 routes.init(app);
 passport_google.views(app);
+passport_yahoo.views(app);
 
 var static_root = path.join(__dirname, '..', '..', 'client');
 app.use(express.static(static_root));

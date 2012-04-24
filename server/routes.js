@@ -18,9 +18,16 @@ exports.init = function (app) {
       req.session.claim = req.params.email;
       // Abusing middleware like a function?
       // TODO stuff these is an associative array by service
-      (passport.authenticate('google', function(err, user, info) {
-         logger.info('/proxy/:email auth/google/return callback');
-      }))(req, res, next); // passport.authenticate
+      if (service == 'gmail.com') {
+        (passport.authenticate('google', function(err, user, info) {
+           logger.info('/proxy/:email auth/google/return callback');
+        }))(req, res, next); // passport.authenticate
+      } else if (service == 'yahoo.com') {
+        (passport.authenticate('yahoo', function(err, user, info) {
+         logger.info('/proxy/:email auth/yahoo/return callback');
+        }))(req, res, next); // passport.authenticate
+      }
+
     });
 
     // Call back urls are in each service library (passport_google, etc)
