@@ -1,1 +1,6 @@
 node_modules
+server/etc/certificate.pem
+server/etc/certrequest.csr
+server/etc/local.json
+server/etc/privatekey.pem
+server/var
