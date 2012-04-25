@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var config = require('../lib/configuration'),
-    GoogleStrategy = require('passport-google').Strategy,
-    logger = require('./logging').logger,
-    passport = require('passport'),
-    util = require('util');
+const config = require('../lib/configuration'),
+      GoogleStrategy = require('passport-google').Strategy,
+      logger = require('./logging').logger,
+      passport = require('passport'),
+      qs = require('qs'),
+      util = require('util');
+
+const RETURN_URL = '/auth/google/return';
 
 var protocol = 'http';
 if (config.get('use_https')) {
@@ -14,7 +17,7 @@ if (config.get('use_https')) {
 }
 var sessions,
     hostname = util.format("%s://%s", protocol, config.get('issuer')),
-    return_url = util.format("%s/auth/google/return", hostname),
+    return_url = util.format("%s%s", hostname, RETURN_URL),
     realm = util.format("%s/", hostname);
 
 
@@ -24,12 +27,12 @@ logger.debug('realm', realm);
 
 // TODO when do these get called? Can we axe them if we don't have server side store
 passport.serializeUser(function(user, done) {
-  logger.debug('passport.serializeUser user=', user);
+  //logger.debug('passport.serializeUser user=', user);
   done(null, user);
 });
 
 passport.deserializeUser(function(obj, done) {
-  logger.debug('passport.deserializeUser obj=', obj);
+  //logger.debug('passport.deserializeUser obj=', obj);
   done(null, obj);
 });
 
@@ -68,25 +71,17 @@ exports.views = function (app) {
   //   request.  The first step in Google authentication will involve redirecting
   //   the user to google.com.  After authenticating, Google will redirect the
   //   user back to this application at /auth/google/return
-  app.get('/auth/google', function (req, res, next) {
-      // TODO we'll have a route like
-      // /proxy/:email which BID will send us too. Then we'll
-      // look at the domain name and dispatch to the correct authentication
-      req.session.claim = 'austin.ok@gmail.com';
-      next();
-    },
-    passport.authenticate('google', { failureRedirect: '/login' }),
+  app.get('/auth/google', passport.authenticate('google', { failureRedirect: '/login' }),
     function(req, res) {
-      res.redirect('/');
+      res.redirect('/error');
     });
 
-  // GET /auth/google/return
+  // /auth/google/return
   //   Use passport.authenticate() as route middleware to authenticate the
   //   request.  If authentication fails, the user will be redirected back to the
   //   login page.  Otherwise, the primary route function function will be called,
   //   which, in this example, will redirect the user to the home page.
-  app.get('/auth/google/return',
-    passport.authenticate('google', { failureRedirect: '/login' }),
+  app.get(RETURN_URL, passport.authenticate('google', { failureRedirect: '/error' }),
     function(req, res) {
       logger.debug('/auth/google/return callback');
       // Are we who we said we are?
@@ -104,6 +99,10 @@ exports.views = function (app) {
               match = true;
               delete req.session.claim;
               req.session.email = email;
+              res.redirect('/sign_in?' + qs.stringify(req.session.bid_state));
+              //TODO delete bid_state from the session?
+              // Security implications of adding this qs?
+
               // req.user.displayName
               // req.user.identifier - profile URL
             }
@@ -112,7 +111,9 @@ exports.views = function (app) {
       } else {
         logger.warn("Google should have had user and user.emails" + req.user);
       }
-      logger.debug("hmmm do something sign_in like here...");
-      res.redirect('/sign_in');
+      if (!match) {
+        logger.error('No email matched...');
+        res.redirect('/error');
+      }
   });
 }

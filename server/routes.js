@@ -10,8 +10,14 @@ const config = require('./lib/configuration'),
 
 exports.init = function (app) {
     var well_known_last_mod = new Date().getTime();
+
     app.get('/proxy/:email', function(req, res, next){
-      logger.info("About to proxy email=", req.params.email);
+
+      // BrowserID puts some state in the URL which authentication_api.js depends on
+      // Store this in the session and restore it during redirects, etc.
+      req.session.bid_state = req.query;
+      // TODO validate email with a util.validate_email liberated fn
+
       // TODO multiple strategies
       // https://gist.github.com/1732068
       var service = proxy.service(req.params.email);
@@ -20,14 +26,23 @@ exports.init = function (app) {
       // TODO stuff these is an associative array by service
       if (service == 'gmail.com') {
         (passport.authenticate('google', function(err, user, info) {
-           logger.info('/proxy/:email auth/google/return callback');
+          if (err) {
+            logger.error('ERROR:' + err);
+          }
+           logger.info('/proxy/:email auth/google/return callback user=' + user + ' info=' + info);
         }))(req, res, next); // passport.authenticate
       } else if (service == 'yahoo.com') {
         (passport.authenticate('yahoo', function(err, user, info) {
+          if (err) {
+            logger.error('ERROR:' + err);
+          }
          logger.info('/proxy/:email auth/yahoo/return callback');
         }))(req, res, next); // passport.authenticate
+      } else if (service == 'hotmail.com') {
+        (passport.authenticate('hotmail', function(err, user, info) {
+         logger.info('/proxy/:email auth/hotmail/return callback');
+        }))(req, res, next); // passport.authenticate
       }
-
     });
 
     // Call back urls are in each service library (passport_google, etc)
@@ -40,9 +55,13 @@ exports.init = function (app) {
         };
       if (req.session && req.session.email) {
         ctx.current_user = req.session.email;
+        logger.info("Setting current user" + ctx.current_user);
+      } else {
+        logger.info("No active session");
       }
       res.render('signin', ctx);
     });
+
     app.get('/provision', function(req, res){
         var ctx = {
           layout: false,

@@ -2,11 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var config = require('../lib/configuration'),
-    YahooStrategy = require('passport-yahoo').Strategy,
-    logger = require('./logging').logger,
-    passport = require('passport'),
-    util = require('util');
+const config = require('../lib/configuration'),
+      YahooStrategy = require('passport-yahoo').Strategy,
+      logger = require('./logging').logger,
+      passport = require('passport'),
+      qs = require('qs'),
+      util = require('util');
+
+const RETURN_URL = '/auth/yahoo/return';
+
+logger.info("Setting up passport_yahoo.js");
 
 var protocol = 'http';
 if (config.get('use_https')) {
@@ -14,7 +19,7 @@ if (config.get('use_https')) {
 }
 var sessions,
     hostname = util.format("%s://%s", protocol, config.get('issuer')),
-    return_url = util.format("%s/auth/yahoo/return", hostname),
+    return_url = util.format("%s%s", hostname, RETURN_URL),
     realm = util.format("%s/", hostname);
 
 
@@ -63,17 +68,10 @@ exports.init = function (app, clientSessions) {
 }
 
 exports.views = function (app) {
-  // GET /auth/yahoo
-  app.get('/auth/yahoo', function (req, res, next) {
-      // TODO we'll have a route like
-      // /proxy/:email which BID will send us too. Then we'll
-      // look at the domain name and dispatch to the correct authentication
-      req.session.claim = 'eozten@yahoo.com';
-      next();
-    },
-    passport.authenticate('yahoo', { failureRedirect: '/login' }),
+
+  app.get('/auth/yahoo', passport.authenticate('yahoo', { failureRedirect: '/login' }),
     function(req, res) {
-      res.redirect('/');
+      res.redirect('/error');
     });
 
   // GET /auth/yahoo/return
@@ -81,8 +79,8 @@ exports.views = function (app) {
   //   request.  If authentication fails, the user will be redirected back to the
   //   login page.  Otherwise, the primary route function function will be called,
   //   which, in this example, will redirect the user to the home page.
-  app.get('/auth/yahoo/return',
-    passport.authenticate('yahoo', { failureRedirect: '/login' }),
+  app.get(RETURN_URL,
+    passport.authenticate('yahoo', { failureRedirect: '/error' }),
     function(req, res) {
       logger.debug('/auth/yahoo/return callback');
       // Are we who we said we are?
@@ -102,13 +100,20 @@ exports.views = function (app) {
               req.session.email = email;
               // req.user.displayName
               // req.user.identifier - profile URL
+              res.redirect('/sign_in?' + qs.stringify(req.session.bid_state));
+            } else {
+              logger.error('Claimed email mis-match ' + email.toLowerCase() +
+                ' !== ' + req.session.claim.toLowerCase());
             }
           }
         });
       } else {
         logger.warn("Yahoo should have had user and user.emails" + req.user);
       }
-      logger.debug("hmmm do something sign_in like here...");
-      res.redirect('/sign_in');
+      if (!match) {
+        logger.error('No email matched...');
+        res.redirect('/error');
+      }
+
   });
 }

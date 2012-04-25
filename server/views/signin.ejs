@@ -5,18 +5,20 @@
   <title>signin</title>
 </head>
 <body>
-    <%= current_user %>
+    <blink>Processing</blink>
+<!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script -->
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <script>
-navigator.id.beginAuthentication(function(email) {
+//$(document).ready(function() {
+  navigator.id.beginAuthentication(function(email) {
     if (email == "<%= current_user %>") {
         navigator.id.completeAuthentication();
     } else {
         navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
     }
 
-});
-
+  });
+//});
 </script>
 </body>
 </html>
