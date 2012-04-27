@@ -72,7 +72,7 @@ passport_google.views(app);
 //passport_hotmail.views(app);
 passport_yahoo.views(app);
 
-var static_root = path.join(__dirname, '..', '..', 'client');
+var static_root = path.join(__dirname, '..', '..', 'static');
 app.use(express.static(static_root));
 
 if (config.get('use_https')) {

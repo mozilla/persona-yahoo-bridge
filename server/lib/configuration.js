@@ -6,6 +6,7 @@ const convict = require('convict'),
       fs = require('fs'),
       path = require('path');
 
+// TODO protocol - BigTent ism, should use just use 'use_https' instead?
 var conf = module.exports = convict({
   browserid_server: 'string = "https://browserid.org"',
   client_sessions: {
@@ -23,6 +24,12 @@ var conf = module.exports = convict({
   },
 
 });
+
+var dev_config_path = path.join(process.cwd(), 'etc', 'local.json');
+if (! process.env['CONFIG_FILES'] &&
+    path.existsSync(dev_config_path)) {
+  process.env['CONFIG_FILES'] = dev_config_path;
+}
 
 // handle configuration files.  you can specify a CSV list of configuration
 // files to process, which will be overlayed in order, in the CONFIG_FILES
