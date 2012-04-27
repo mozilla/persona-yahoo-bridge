@@ -24,7 +24,7 @@
     "winston": "0.5.11"
   },
   "devDependencies": {
-    "awsbox": "git://github.com/lloyd/awsbox.git#nginx_to_http_proxy"
+    "awsbox": "0.0.10"
   },
   "optionalDependencies": {},
   "engines": {
