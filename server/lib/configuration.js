@@ -25,7 +25,7 @@ var conf = module.exports = convict({
 
 });
 
-var dev_config_path = path.join(process.cwd(), 'etc', 'local.json');
+var dev_config_path = path.join(process.cwd(), 'server', 'config', 'local.json');
 if (! process.env['CONFIG_FILES'] &&
     path.existsSync(dev_config_path)) {
   process.env['CONFIG_FILES'] = dev_config_path;

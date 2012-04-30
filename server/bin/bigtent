@@ -25,11 +25,11 @@ process.chdir(path.dirname(__dirname));
 logger.debug("config.get('use_https')=", config.get('use_https'));
 if (config.get('use_https')) {
   try {
-    var privateKey = fs.readFileSync('etc/privatekey.pem').toString();
-    var certificate = fs.readFileSync('etc/certificate.pem').toString();
+    var privateKey = fs.readFileSync('config/privatekey.pem').toString();
+    var certificate = fs.readFileSync('config/certificate.pem').toString();
     app = express.createServer({key: privateKey, cert: certificate});
   } catch (e) {
-    logger.error('You must setup etc/privatekey.pem and etc/certificate.pem');
+    logger.error('You must setup config/privatekey.pem and config/certificate.pem');
     logger.error('See docs/DEV_NOTES.md for details.');
     throw e;
   }
