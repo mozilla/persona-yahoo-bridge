@@ -119,7 +119,10 @@ exports.init = function (app) {
         if (req.user === undefined) {
             req.user = "None";
         }
-        res.render('home', {email: req.user});
+        res.render('home', {
+          email: req.user,
+          browserid_server: config.get('browserid_server')
+        } );
     });
 
     app.get('/logout', function(req, res){
