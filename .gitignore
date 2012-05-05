@@ -1,6 +1,6 @@
 node_modules
-server/etc/certificate.pem
-server/etc/certrequest.csr
-server/etc/local.json
-server/etc/privatekey.pem
+server/config/certificate.pem
+server/config/certrequest.csr
+server/config/local.json
+server/config/privatekey.pem
 server/var
