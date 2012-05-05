@@ -10,7 +10,19 @@
   <body><!-- TODO temporary during development, I don't think BigTent will use any layout.ejs -->
     <nav>
   <ul>
-    <li>Current Email: <%= email %></li>
+    <li>Current Email: <%= current %></li>
+    <% if (active_emails.length > 1) { %>
+    <li><h4>Other Active Emails:</h4><ul>
+      <%
+         for (var i=0; i < active_emails.length; i++) {
+           if (active_emails[i] == current) {
+             continue;
+           }
+      %>
+          <li><%= active_emails[i] %></li>
+      <% } %>
+      </ul></li>
+      <% } %>
     <li><a href="/logout">Log out</a></li>
     <li><form><input type="email" id="email" /><input type="submit" value="Sign in" /></form>
   </ul>

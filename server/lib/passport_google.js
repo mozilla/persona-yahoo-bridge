@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('../lib/configuration'),
+const config = require('./configuration'),
       GoogleStrategy = require('passport-google').Strategy,
       logger = require('./logging').logger,
       passport = require('passport'),
-      qs = require('qs'),
+      session = require('./session_context'),
       util = require('util');
 
 const RETURN_URL = '/auth/google/return';
@@ -19,11 +19,6 @@ var sessions,
     hostname = util.format("%s://%s", protocol, config.get('issuer')),
     return_url = util.format("%s%s", hostname, RETURN_URL),
     realm = util.format("%s/", hostname);
-
-
-logger.debug('hostname', hostname);
-logger.debug('return_url', return_url);
-logger.debug('realm', realm);
 
 // TODO when do these get called? Can we axe them if we don't have server side store
 passport.serializeUser(function(user, done) {
@@ -91,20 +86,21 @@ exports.views = function (app) {
         req.user.emails.forEach(function (email_obj, i) {
           if (! email_obj.value) {
             logger.warn("Google should have had list of emails with a value property on each " + email_obj);
+            return;
           }
           var email = email_obj.value;
           if (! match) {
             logger.debug((typeof email), email);
-            if (email.toLowerCase() === req.session.claim.toLowerCase()) {
+            if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
+              var redirect_url = session.getBidUrl(req);
               match = true;
-              delete req.session.claim;
-              req.session.email = email;
-              res.redirect('/sign_in?' + qs.stringify(req.session.bid_state));
-              //TODO delete bid_state from the session?
-              // Security implications of adding this qs?
 
-              // req.user.displayName
-              // req.user.identifier - profile URL
+              session.clearClaimedEmail(req);
+              session.clearBidUrl(req);
+
+              session.setCurrentUser(req, email);
+
+              res.redirect(redirect_url);
             }
           }
         });

@@ -6,12 +6,10 @@ const config = require('../lib/configuration'),
       YahooStrategy = require('passport-yahoo').Strategy,
       logger = require('./logging').logger,
       passport = require('passport'),
-      qs = require('qs'),
+      session = require('./session_context'),
       util = require('util');
 
 const RETURN_URL = '/auth/yahoo/return';
-
-logger.info("Setting up passport_yahoo.js");
 
 var protocol = 'http';
 if (config.get('use_https')) {
@@ -94,16 +92,19 @@ exports.views = function (app) {
           var email = email_obj.value;
           if (! match) {
             logger.debug((typeof email), email);
-            if (email.toLowerCase() === req.session.claim.toLowerCase()) {
+            if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
+              var redirect_url = session.getBidUrl(req);
               match = true;
-              delete req.session.claim;
-              req.session.email = email;
-              // req.user.displayName
-              // req.user.identifier - profile URL
-              res.redirect('/sign_in?' + qs.stringify(req.session.bid_state));
+
+              session.clearClaimedEmail(req);
+              session.clearBidUrl(req);
+
+              session.setCurrentUser(req, email);
+              res.redirect(redirect_url);
+
             } else {
               logger.error('Claimed email mis-match ' + email.toLowerCase() +
-                ' !== ' + req.session.claim.toLowerCase());
+                ' !== ' + session.getClaimedEmail(req).toLowerCase());
             }
           }
         });
