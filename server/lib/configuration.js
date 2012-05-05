@@ -15,15 +15,29 @@ var conf = module.exports = convict({
     duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
   },
   issuer: 'string = "dev.bigtent.mozilla.org"',
+  process_type: 'string',
   protocol: 'string = "http"',
+  statsd: {
+    enabled: {
+      doc: "enable UDP based statsd reporting",
+      format: 'boolean = true',
+      env: 'ENABLE_STATSD'
+    },
+    host: "string?",
+    port: "integer{1,65535}?"
+  },
   use_https: 'boolean = false',
   var_path: {
     doc: "The path where deployment specific resources will be sought (keys, etc), and logs will be kept.",
     format: 'string?',
     env: 'VAR_PATH'
-  },
-
+  }
 });
+
+// At the time this file is required, we'll determine the "process name" for this proc
+// if we can determine what type of process it is (browserid or verifier) based
+// on the path, we'll use that, otherwise we'll name it 'ephemeral'.
+conf.set('process_type', path.basename(process.argv[1], ".js"));
 
 var dev_config_path = path.join(process.cwd(), 'server', 'config', 'local.json');
 if (! process.env['CONFIG_FILES'] &&

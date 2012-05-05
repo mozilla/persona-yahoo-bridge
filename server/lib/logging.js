@@ -32,7 +32,7 @@ function mkdir_p(p) {
 
 mkdir_p(log_path);
 
-var filename = path.join(log_path, 'bigtent.log');
+var filename = path.join(log_path, configuration.get('process_type') + ".log");
 
 exports.logger = new (winston.Logger)({
   transports: [new (winston.transports.File)({
