@@ -9,7 +9,7 @@ var provision = function (active_users, num_users) {
     console.log('callback');
     console.log('begining provisioning ' + email + ' ' + cert_duration);
 
-    if (! active_users || num_users == 0) {
+    if (! active_users || num_users === 0) {
       console.log('no session, failing');
       navigator.id.raiseProvisioningFailure(msg);
     } else {
@@ -47,6 +47,13 @@ var provision = function (active_users, num_users) {
     }
   }); //beginProvisioning
 };
+
+// If we do resizing on BID side, this will break, but for now, it helps fix
+// Issue #8 yahoo resizing.
+if (window.sessionStorage && sessionStorage.setItem) {
+  sessionStorage.setItem('dialog-width', window.outerWidth);
+  sessionStorage.setItem('dialog-height', window.outerHeight);
+}
 
 provision(<%- JSON.stringify(emails) %>, <%= num_emails %>);
 

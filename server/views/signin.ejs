@@ -9,16 +9,20 @@
 <!-- script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script -->
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <script>
-//$(document).ready(function() {
-  navigator.id.beginAuthentication(function(email) {
-    if (email == "<%= current_user %>") {
-        navigator.id.completeAuthentication();
-    } else {
-        navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
-    }
-
-  });
-//});
+navigator.id.beginAuthentication(function(email) {
+  if (email == "<%= current_user %>") {
+      if (window.sessionStorage && sessionStorage.getItem) {
+        var width = parseInt(sessionStorage.getItem('dialog-width'), 10),
+            height = parseInt(sessionStorage.getItem('dialog-height'), 10);
+        if (! isNaN(width) && ! isNaN(height)) {
+          window.resizeTo(width, height);
+        }
+      }
+      navigator.id.completeAuthentication();
+  } else {
+      navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
+  }
+});
 </script>
 </body>
 </html>
