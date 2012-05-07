@@ -31,6 +31,10 @@ var conf = module.exports = convict({
     doc: "The path where deployment specific resources will be sought (keys, etc), and logs will be kept.",
     format: 'string?',
     env: 'VAR_PATH'
+  },
+  windows_live: {
+    client_id: 'string = "00000000440BCC94"',
+    client_secret: 'string = "NgepFX4ectJP-l-5XOymSqk4aLy7DJrE"'
   }
 });
 
@@ -39,7 +43,7 @@ var conf = module.exports = convict({
 // on the path, we'll use that, otherwise we'll name it 'ephemeral'.
 conf.set('process_type', path.basename(process.argv[1], ".js"));
 
-var dev_config_path = path.join(process.cwd(), 'server', 'config', 'local.json');
+var dev_config_path = path.join(process.cwd(), 'config', 'local.json');
 if (! process.env['CONFIG_FILES'] &&
     path.existsSync(dev_config_path)) {
   process.env['CONFIG_FILES'] = dev_config_path;

@@ -7,16 +7,23 @@ const WindowsLiveStrategy = require('passport-windowslive').Strategy;
 const logger = require('./logging').logger;
 const passport = require('passport');
 const session = require('./session_context');
+const util = require('util');
 
-// TODO: These should probably come out of some config file somewhere.
 // TODO: Delete the registration for the testing app...
-const CLIENT_ID = '00000000440BCC94';
-const CLIENT_SECRET = 'NgepFX4ectJP-l-5XOymSqk4aLy7DJrE';
-const RETURN_URL = 'https://dev.bigtent.mozilla.org/auth/windowslive/callback';
+const RETURN_URL = '/auth/windowslive/callback';
+
+var live_config = config.get('windows_live');
+    protocol = 'http';
+
+if (config.get('use_https')) {
+  protocol = 'https';
+}
+var hostname = util.format("%s://%s", protocol, config.get('issuer')),
+    return_url = util.format("%s%s", hostname, RETURN_URL);
 
 passport.use(new WindowsLiveStrategy({
-    clientID: CLIENT_ID,
-    clientSecret: CLIENT_SECRET,
+    clientID: live_config['client_id'],
+    clientSecret: live_config['client_secret'],
     callbackURL: RETURN_URL
   },
   function(accessToken, refreshToken, profile, done) {
