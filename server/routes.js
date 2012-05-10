@@ -28,18 +28,21 @@ exports.init = function (app) {
           if (err) {
             logger.error('ERROR:' + err);
           }
-           logger.info('/proxy/:email auth/google/return callback user=' + user + ' info=' + info);
+          logger.info('/proxy/:email auth/google/return callback user=' + user + ' info=' + info);
         }))(req, res, next); // passport.authenticate
       } else if (service == 'yahoo.com') {
         (passport.authenticate('yahoo', function(err, user, info) {
           if (err) {
             logger.error('ERROR:' + err);
           }
-         logger.info('/proxy/:email auth/yahoo/return callback');
+          logger.info('/proxy/:email auth/yahoo/return callback');
         }))(req, res, next); // passport.authenticate
       } else if (service == 'hotmail.com') {
-        (passport.authenticate('hotmail', function(err, user, info) {
-         logger.info('/proxy/:email auth/hotmail/return callback');
+        (passport.authenticate('windowslive', { scope: 'wl.emails' }, function(err, user, info) {
+          if (err) {
+            logger.error('ERROR:' + err);
+          }
+          logger.info('/proxy/:email auth/hotmail/return callback');
         }))(req, res, next); // passport.authenticate
       }
     });

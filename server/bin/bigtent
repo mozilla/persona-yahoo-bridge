@@ -9,7 +9,7 @@ const clientSessions = require('client-sessions'),
       express = require('express'),
       fs = require('fs'),
       passport_google = require('../lib/passport_google'),
-      //passport_hotmail = require('../lib/passport_hotmail'),
+      passport_windowslive = require('../lib/passport_windowslive'),
       passport_yahoo = require('../lib/passport_yahoo'),
       //passport_google = require('../lib/passport_google_oauth2'),
       path = require('path'),
@@ -64,12 +64,12 @@ app.use(function (req, res, next) {
 });
 
 passport_google.init(app);
-//passport_hotmail.init(app);
+passport_windowslive.init(app);
 passport_yahoo.init(app);
 app.use(app.router);
 routes.init(app);
 passport_google.views(app);
-//passport_hotmail.views(app);
+passport_windowslive.views(app);
 passport_yahoo.views(app);
 
 var static_root = path.join(__dirname, '..', '..', 'static');
