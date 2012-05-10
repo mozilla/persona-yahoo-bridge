@@ -2,19 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('../lib/configuration');
+const config = require('./configuration');
 const WindowsLiveStrategy = require('passport-windowslive').Strategy;
 const logger = require('./logging').logger;
 const passport = require('passport');
-const qs = require('qs');
+const session = require('./session_context');
 
 // TODO: These should probably come out of some config file somewhere.
 // TODO: Delete the registration for the testing app...
 const CLIENT_ID = '00000000440BCC94';
 const CLIENT_SECRET = 'NgepFX4ectJP-l-5XOymSqk4aLy7DJrE';
 const RETURN_URL = 'https://dev.bigtent.mozilla.org/auth/windowslive/callback';
-
-var sessions;
 
 passport.use(new WindowsLiveStrategy({
     clientID: CLIENT_ID,
@@ -32,7 +30,6 @@ passport.use(new WindowsLiveStrategy({
 exports.init = function(app, clientSessions) {
   app.use(passport.initialize());
   app.use(passport.session());
-  sessions = clientSessions;
 };
 
 exports.views = function(app) {
@@ -46,7 +43,7 @@ exports.views = function(app) {
       logger.debug('/auth/windowslive/return callback');
 
       var match = false;
-      var claimedEmail = req.session.claim;
+      var claimedEmail = session.getClaimedEmail(req);
       var email;
       var emailType;
 
@@ -58,14 +55,15 @@ exports.views = function(app) {
             email = req.user.emails[emailType];
             if (email && email.toLowerCase() === claimedEmail.toLowerCase()) {
               match = true;
-              delete req.session.claim;
-              req.session.email = email;
-              res.redirect('/sign_in?' + qs.stringify(req.session.bid_state));
+              session.clearClaimedEmail(req);
+              session.setCurrentUser(req, email);
+              res.redirect(session.getBidUrl(req));
             }
           }
         }
       } else {
         logger.warn('Windows Live should have user and user.emails' + req.user);
+        return;
       }
 
       if (!match) {
