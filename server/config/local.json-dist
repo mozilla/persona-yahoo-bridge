@@ -6,5 +6,5 @@
     "duration": 86400000
   },
   "issuer": "localhost",
-  "user_https": false
+  "use_https": false
 }

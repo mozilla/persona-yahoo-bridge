@@ -77,9 +77,9 @@ app.use(express.static(static_root));
 
 if (config.get('use_https')) {
   app.listen(443);
-  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listing on https://%s', config.get('issuer')));
+  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on https://%s', config.get('issuer')));
 } else {
   var port = process.env['PORT'] || 3030;
   app.listen(port, '0.0.0.0');
-  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listing on http://%s:%s', config.get('issuer'), port));
+  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on http://%s:%s', config.get('issuer'), port));
 }
