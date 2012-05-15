@@ -11,13 +11,8 @@
 <script>
 navigator.id.beginAuthentication(function(email) {
   if (email == "<%= current_user %>") {
-      if (window.sessionStorage && sessionStorage.getItem) {
-        var width = parseInt(sessionStorage.getItem('dialog-width'), 10),
-            height = parseInt(sessionStorage.getItem('dialog-height'), 10);
-        if (! isNaN(width) && ! isNaN(height)) {
-          window.resizeTo(width, height);
-        }
-      }
+      // From mozilla/browserid resources/static/pages/page_helpers.js
+      window.resizeTo(700, 375);
       navigator.id.completeAuthentication();
   } else {
       navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
