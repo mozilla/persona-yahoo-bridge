@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "awsbox": "0.0.10",
+    "request": "2.9.202",
     "vows": "0.5.13"
   },
   "optionalDependencies": {},
