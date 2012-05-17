@@ -10,4 +10,20 @@ Although it has a ``/.well-known/browserid`` file, _only the ``public-key`` fiel
 Most IdPs we proxy use OpenID, but Windows Live requires an API Key. This means two things - domain name and API key must match, API key must be registred with Microsoft. Real keys are managed by Ops.
 
 ## External Requests
-BigTent current does not make any http or https requests to external resources.
+Documented in [Issue 23](https://github.com/mozilla/browserid-bigtent/issues/23).
+
+## Monitoring
+BigTent has statsd prefixed to ``bigtent`` for the following:
+
+Counters:
+* HTTP Requests at the start of a route
+* Things we log warnings on
+* Things we log errors on
+* [Things that make you go Hmmm](http://en.wikipedia.org/wiki/Things_That_Make_You_Go_Hmmm...)
+
+Timers:
+* HTTP Requests amount of time spent servicing request
+
+### Heartbeats
+
+You can make a request to ``/__heartbeat__``.

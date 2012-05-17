@@ -23,8 +23,8 @@ var conf = module.exports = convict({
       format: 'boolean = true',
       env: 'ENABLE_STATSD'
     },
-    host: "string?",
-    port: "integer{1,65535}?"
+    host: 'string = "localhost"',
+    port: "integer{1,65535} = 8125"
   },
   use_https: 'boolean = false',
   var_path: {

@@ -7,6 +7,7 @@ const config = require('./configuration'),
       logger = require('./logging').logger,
       passport = require('passport'),
       session = require('./session_context'),
+      statsd = require('./statsd'),
       util = require('util');
 
 const RETURN_URL = '/auth/google/return';
@@ -78,38 +79,47 @@ exports.views = function (app) {
   //   which, in this example, will redirect the user to the home page.
   app.get(RETURN_URL, passport.authenticate('google', { failureRedirect: '/error' }),
     function(req, res) {
-      logger.debug('/auth/google/return callback');
       // Are we who we said we are?
       // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?
-      var match = false;
+      var start = new Date(),
+          metric = 'routes.auth.google.return',
+          match = false;
+      statsd.increment('routes.auth.google.return.get');
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function (email_obj, i) {
+          if (match) return;
+
           if (! email_obj.value) {
+            statsd.increment('warn.routes.auth.google.return.no_email_value');
             logger.warn("Google should have had list of emails with a value property on each " + email_obj);
             return;
           }
           var email = email_obj.value;
-          if (! match) {
-            logger.debug((typeof email), email);
-            if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
-              var redirect_url = session.getBidUrl(req);
-              match = true;
 
-              session.clearClaimedEmail(req);
-              session.clearBidUrl(req);
+          logger.debug((typeof email), email);
+          if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
+            statsd.increment('routes.auth.google.return.email_matched');
+            var redirect_url = session.getBidUrl(req);
+            match = true;
 
-              session.setCurrentUser(req, email);
+            session.clearClaimedEmail(req);
+            session.clearBidUrl(req);
 
-              res.redirect(redirect_url);
-            }
+            session.setCurrentUser(req, email);
+            res.redirect(redirect_url);
+            statsd.timing(metric, new Date() - start);
+            return;
           }
-        });
+        });// forEach emails
       } else {
         logger.warn("Google should have had user and user.emails" + req.user);
+        statsd.increment('warn.routes.auth.google.return.no_emails');
       }
       if (!match) {
+        statsd.increment('error.routes.auth.google.return.no_emails_matched');
         logger.error('No email matched...');
         res.redirect('/error');
+        statsd.timing(metric, new Date() - start);
       }
   });
 }

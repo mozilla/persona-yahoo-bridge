@@ -2,22 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./configuration');
-const WindowsLiveStrategy = require('passport-windowslive').Strategy;
-const logger = require('./logging').logger;
-const passport = require('passport');
-const session = require('./session_context');
-const util = require('util');
+const config = require('./configuration'),
+      WindowsLiveStrategy = require('passport-windowslive').Strategy,
+      logger = require('./logging').logger,
+      passport = require('passport'),
+      session = require('./session_context'),
+      statsd = require('./statsd'),
+      util = require('util');
 
 // TODO: Delete the registration for the testing app...
 const RETURN_URL = '/auth/windowslive/callback';
 
-var live_config = config.get('windows_live');
+var live_config = config.get('windows_live'),
     protocol = 'http';
 
 if (config.get('use_https')) {
   protocol = 'https';
 }
+
 var hostname = util.format("%s://%s", protocol, config.get('issuer')),
     return_url = util.format("%s%s", hostname, RETURN_URL);
 
@@ -47,12 +49,14 @@ exports.views = function(app) {
   app.get('/auth/windowslive/callback',
     passport.authenticate('windowslive', { failureRedirect: '/error' }),
     function(req, res) {
-      logger.debug('/auth/windowslive/return callback');
+      var start = new Date(),
+          metric = 'routes.auth.windowslive.callback',
+          match = false,
+          claimedEmail = session.getClaimedEmail(req),
+          email,
+          emailType;
 
-      var match = false;
-      var claimedEmail = session.getClaimedEmail(req);
-      var email;
-      var emailType;
+      statsd.increment('routes.auth.windowslive.callback.get');
 
       // TODO: How should we handle the user authing as a different address than
       // we expect or want?
@@ -62,20 +66,25 @@ exports.views = function(app) {
             email = req.user.emails[emailType];
             if (email && email.toLowerCase() === claimedEmail.toLowerCase()) {
               match = true;
+              statsd.increment('routes.auth.windowslive.callback.email_matched');
               session.clearClaimedEmail(req);
               session.setCurrentUser(req, email);
               res.redirect(session.getBidUrl(req));
+              statsd.timing(metric, new Date() - start);
             }
           }
         }
       } else {
+        statsd.increment('warn.routes.auth.windowslive.callback.no_emails');
         logger.warn('Windows Live should have user and user.emails' + req.user);
         return;
       }
 
       if (!match) {
+        statsd.increment('warn.routes.auth.windowslive.callback.no_emails_matched');
         logger.error('No email matched...');
         res.redirect('/error');
+        statsd.timing(metric, new Date() - start);
       }
     }
   );

@@ -7,13 +7,15 @@ const config = require('./lib/configuration'),
       logger = require('./lib/logging').logger,
       passport = require('passport'),
       proxy = require('./lib/idp_proxy'),
+      statsd = require('./lib/statsd'),
       session = require('./lib/session_context');
 
 exports.init = function (app) {
     var well_known_last_mod = new Date().getTime();
 
     app.get('/proxy/:email', function(req, res, next){
-
+      var start = new Date();
+      statsd.increment('routes.proxy.get');
       session.initialBidUrl(req);
 
       // TODO validate email with a util.validate_email liberated fn
@@ -45,46 +47,62 @@ exports.init = function (app) {
           logger.info('/proxy/:email auth/hotmail/return callback');
         }))(req, res, next); // passport.authenticate
       }
+      statsd.timing('routes.proxy', new Date() - start);
     });
 
     // Call back urls are in each service library (passport_google, etc)
     // Then if all goes well
     app.get('/sign_in', function (req, res) {
-      var ctx = {
-          layout: false,
-          browserid_server: config.get('browserid_server'),
-          current_user: null
-        };
-      var current = session.getCurrentUser(req);
+      var start = new Date(),
+          ctx = {
+            layout: false,
+            browserid_server: config.get('browserid_server'),
+            current_user: null
+          },
+          current = session.getCurrentUser(req);
+
+      statsd.increment('routes.sign_in.get');
+
       if (current) {
         ctx.current_user = current;
       } else {
         logger.debug("No active session");
       }
       res.render('signin', ctx);
+      statsd.timing('routes.sign_in', new Date() - start);
     });
 
     app.get('/provision', function(req, res){
-        var ctx = {
-          layout: false,
-          browserid_server: config.get('browserid_server')
-        };
+        var start = new Date(),
+            ctx = {
+              layout: false,
+              browserid_server: config.get('browserid_server')
+            };
+
+        statsd.increment('routes.provision.get');
+
         res.render('provision', ctx);
+        statsd.timing('routes.provision', new Date() - start);
     });
 
     app.post('/provision', function(req, res){
-      var current_user = session.getCurrentUser(req),
+      var start = new Date(),
+          current_user = session.getCurrentUser(req),
           authed_email = req.body.authed_email;
 
       if (! current_user) {
         res.writeHead(401);
+        statsd.increment('routes.provision.no_current_user');
         return res.end();
       }
 
       if (!req.body.pubkey || !req.body.duration) {
         res.writeHead(400);
+        statsd.increment('routes.provision.invalid_post');
         return res.end();
       }
+
+      statsd.increment('routes.provision_get.post');
 
       // If user doesn't go through OpenID / OAuth flow, they maybe switching
       // from another active email
@@ -94,6 +112,7 @@ exports.init = function (app) {
           logger.debug('User has switched current email from ' + current_user + 'to ' + authed_email);
           current_user = authed_email;
           session.setCurrentUser(req, authed_email);
+          statsd.increment('routes.provision.email_flopped');
         }
       }
 
@@ -103,32 +122,39 @@ exports.init = function (app) {
         req.body.duration,
         function(err, cert) {
           if (err) {
+            statsd.increment('routes.provision.err.crypto');
             res.writeHead(500);
             res.end();
           } else {
             res.json({ cert: cert });
           }
+          statsd.timing('routes.provision_post', new Date() - start);
         });
     });
 
     app.get('/provision.js', function(req, res){
+      var start = new Date(),
+          ctx = {
+            emails: [],
+            num_emails: 0,
+            layout: false
+          };
       // TODO
       // Dynamic JavaScript will allow us to support CSP
+      statsd.increment('routes.provision_js.get');
       res.contentType('js');
-      var ctx = {
-        emails: [],
-        num_emails: 0,
-        layout: false
-      };
       if (req.isAuthenticated()) {
           ctx.emails = session.getActiveEmails(req);
           ctx.num_emails = Object.keys(ctx.emails).length;
       }
       res.render('provision_js', ctx);
+      statsd.timing('routes.provision_js', new Date() - start);
     });
 
     // Useful for dev/test
     app.get('/', function(req, res){
+      var start = new Date();
+      statsd.increment('routes.homepage.get');
         req.user = session.getCurrentUser(req);
         if (req.user === null) {
             req.user = "None";
@@ -139,17 +165,23 @@ exports.init = function (app) {
           current: req.user,
           active_emails: active,
           browserid_server: config.get('browserid_server')
-        } );
+        });
+        statsd.timing('routes.homepage', new Date() - start);
     });
 
     app.get('/logout', function(req, res){
+      var start = new Date();
+      statsd.increment('routes.logout.get');
       req.session.reset();
       req.logout(); // passportism
       res.redirect('/');
+      statsd.timing('routes.homepage', new Date() - start);
     });
     app.get('/.well-known/browserid', function (req, res) {
       // 6 hours in seconds
-      var timeout = 120 ; //6 * 60 * 60; // in seconds
+      var timeout = 120, //6 * 60 * 60; // in seconds
+          start = new Date();
+      statsd.increment('routes.wellknown.get');
 
       if (req.headers['if-modified-since'] !== undefined) {
         var since = new Date(req.headers['if-modified-since']);
@@ -174,5 +206,6 @@ exports.init = function (app) {
         public_key: pk,
         layout: false
       });
+      statsd.timing('routes.wellknown', new Date() - start);
     });
 };

@@ -6,7 +6,7 @@ const
 StatsD = require("node-statsd").StatsD,
 config = require('./configuration');
 
-const PREFIX = "browserid." + config.get('process_type') + ".";
+const PREFIX = "bigtent." + config.get('process_type') + ".";
 
 var statsd = undefined;
 
@@ -24,8 +24,8 @@ var statsd_config = config.get('statsd');
 
 if (statsd_config && statsd_config.enabled) {
   var options = {};
-  options["host"] = config.get('host') || "localhost";
-  options["port"] = config.get('port') || 8125;
+  options["host"] = config['host'] || "localhost";
+  options["port"] = config['port'] || 8125;
 
   statsd = new StatsD(options["host"], options["port"]);
 }

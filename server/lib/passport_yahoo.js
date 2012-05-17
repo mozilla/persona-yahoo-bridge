@@ -7,6 +7,7 @@ const config = require('../lib/configuration'),
       logger = require('./logging').logger,
       passport = require('passport'),
       session = require('./session_context'),
+      statsd = require('./statsd'),
       util = require('util');
 
 const RETURN_URL = '/auth/yahoo/return';
@@ -80,19 +81,25 @@ exports.views = function (app) {
   app.get(RETURN_URL,
     passport.authenticate('yahoo', { failureRedirect: '/error' }),
     function(req, res) {
-      logger.debug('/auth/yahoo/return callback');
       // Are we who we said we are?
       // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?
-      var match = false;
+      var start = new Date(),
+          metric = 'routes.auth.yahoo.return',
+          match = false;
+      statsd.increment('routes.auth.yahoo.return.get');
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function (email_obj, i) {
+          if (match) return;
+
           if (! email_obj.value) {
+            statsd.increment('warn.routes.auth.yahoo.return.no_email_value');
             logger.warn("Yahoo should have had list of emails with a value property on each " + email_obj);
           }
           var email = email_obj.value;
           if (! match) {
             logger.debug((typeof email), email);
             if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
+              statsd.increment('routes.auth.yahoo.return.email_matched');
               var redirect_url = session.getBidUrl(req);
               match = true;
 
@@ -101,19 +108,21 @@ exports.views = function (app) {
 
               session.setCurrentUser(req, email);
               res.redirect(redirect_url);
-
-            } else {
-              logger.error('Claimed email mis-match ' + email.toLowerCase() +
-                ' !== ' + session.getClaimedEmail(req).toLowerCase());
+              statsd.timing(metric, new Date() - start);
+              return;
             }
           }
-        });
+        }); //forEach emails
       } else {
         logger.warn("Yahoo should have had user and user.emails" + req.user);
+        statsd.increment('warn.routes.auth.yahoo.return.no_emails');
       }
+
       if (!match) {
+        statsd.increment('warn.routes.auth.yahoo.return.no_emails_matched');
         logger.error('No email matched...');
         res.redirect('/error');
+        statsd.timing(metric, new Date() - start);
       }
 
   });

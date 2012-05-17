@@ -17,6 +17,7 @@ const clientSessions = require('client-sessions'),
       passport_yahoo = require('../lib/passport_yahoo'),
       //passport_google = require('../lib/passport_google_oauth2'),
       routes = require('../routes'),
+      statsd = require('../lib/statsd'),
       util = require('util'),
       logger = require('../lib/logging').logger;
 
@@ -88,6 +89,7 @@ if (config.get('use_https')) {
   app.listen(port, '0.0.0.0');
   lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
 }
+statsd.increment('server.started');
 process.nextTick(function () {
   // 1) Line is used by test/lib/start_stop.js
   // 2) Dev/Ops feedback
