@@ -26,7 +26,8 @@
     "winston": "0.5.11"
   },
   "devDependencies": {
-    "awsbox": "0.0.10"
+    "awsbox": "0.0.10",
+    "vows": "0.5.13"
   },
   "optionalDependencies": {},
   "engines": {

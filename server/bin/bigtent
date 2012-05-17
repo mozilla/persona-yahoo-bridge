@@ -72,14 +72,24 @@ passport_google.views(app);
 passport_windowslive.views(app);
 passport_yahoo.views(app);
 
+// Ops
+app.get('/__heartbeat__', function (req, res) { res.send('ok')});
+
 var static_root = path.join(__dirname, '..', '..', 'static');
 app.use(express.static(static_root));
 
+var lstnUrl;
 if (config.get('use_https')) {
+  port = 443;
   app.listen(443);
-  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on https://%s', config.get('issuer')));
+  lstnUrl = util.format('https://%s', config.get('issuer'));
 } else {
-  var port = process.env['PORT'] || 3030;
+  port = process.env['PORT'] || 3030;
   app.listen(port, '0.0.0.0');
-  logger.debug(util.format('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on http://%s:%s', config.get('issuer'), port));
+  lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
 }
+process.nextTick(function () {
+  // 1) Line is used by test/lib/start_stop.js
+  // 2) Dev/Ops feedback
+  console.log('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on ' + lstnUrl);
+});
