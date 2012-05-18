@@ -8,7 +8,8 @@ const config = require('./lib/configuration'),
       passport = require('passport'),
       proxy = require('./lib/idp_proxy'),
       statsd = require('./lib/statsd'),
-      session = require('./lib/session_context');
+      session = require('./lib/session_context'),
+      valid_email = require('./lib/validation/email');
 
 exports.init = function (app) {
     var well_known_last_mod = new Date().getTime();
@@ -21,6 +22,12 @@ exports.init = function (app) {
       // TODO validate email with a util.validate_email liberated fn
 
       var service = proxy.service(req.params.email);
+
+      // Issue #18 - Verify user input for email
+      if (valid_email(req.params.email) === false) {
+        return resp.send('Email is bad input', 400);
+      }
+
       session.setClaimedEmail(req);
 
       // Abusing middleware like a function?
