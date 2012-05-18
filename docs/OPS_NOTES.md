@@ -9,6 +9,22 @@ Although it has a ``/.well-known/browserid`` file, _only the ``public-key`` fiel
 ## Windows Live API Key
 Most IdPs we proxy use OpenID, but Windows Live requires an API Key. This means two things - domain name and API key must match, API key must be registred with Microsoft. Real keys are managed by Ops.
 
+## Public and Secret Keypair
+This server does cryptographic operations as part of the Persona Primary protocol.
+
+You must have public/secret keys. There are several ways to achieve this:
+* Using the following environment variables: ``PUBLIC_KEY`` ``PRIVATE_KEY``
+* Using scripts/gen_keys.js to create ``server/var/server_secret_key.json``  ``server/var/server_public_key.json``
+* Letting the server automatically create ``ephemeral`` keys, which change on restart
+
+Ephemeral is only appropriate in development environments. If deploying Vinz Clortho in a clustered environment, all
+servers must have the same keypair.
+
+### Protect the keys
+The server_secret_key.json key is extremely sensative, protect it!
+
+Only the public key can be shared via HTTP.
+
 ## External Requests
 Documented in [Issue 23](https://github.com/mozilla/browserid-bigtent/issues/23).
 

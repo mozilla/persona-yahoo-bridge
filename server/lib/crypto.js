@@ -5,12 +5,24 @@
 const jwk = require("jwcrypto/jwk"),
       jwcert = require("jwcrypto/jwcert"),
       config = require("./configuration"),
-      logger = require("./logging").logger;
+      logger = require("./logging").logger,
+      store = require('./keypair_store');
 
 try {
   exports.pubKey = JSON.parse(process.env['PUBLIC_KEY']);
   _privKey = JSON.parse(process.env['PRIVATE_KEY']);
 } catch(e) { }
+// or var file system cache
+if (!exports.pubKey) {
+  try {
+    store.read_files_sync(function (err, publicKey, secretKey) {
+      if (! err) {
+        exports.pubKey = publicKey;
+        _privKey = secretKey;
+      }
+    });
+  } catch (e) { }
+}
 
 if (!exports.pubKey) {
   if (exports.pubKey != exports.privKey) {
