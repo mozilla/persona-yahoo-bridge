@@ -7,6 +7,11 @@ Add a local domain name to your /etc/hosts file or deploy to a server. Localhost
 
 Copy server/config/local.json-dist to server/config/local.json.
 
+In server/config/local.json:
+
+- change `use_https` to `true`
+- change `issuer` to the domain you added to `/etc/hosts`
+
 Running BigTent directly under Node (without a web server)...
 
 This service **must** run on port 443. This is baked into the BrowserID Primary Protocol.
