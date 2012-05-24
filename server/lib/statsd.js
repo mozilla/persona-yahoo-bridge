@@ -6,7 +6,8 @@ const
 StatsD = require("node-statsd").StatsD,
 config = require('./configuration');
 
-const PREFIX = "bigtent." + config.get('process_type') + ".";
+// Per @fetep browserid.bigtent.somekey
+const PREFIX = "browserid." + config.get('process_type') + ".";
 
 var statsd = undefined;
 
