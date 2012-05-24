@@ -139,7 +139,7 @@ exports.init = function (app) {
         });
     });
 
-    app.get('/provision.js', function(req, res){
+    app.get('/provision.js', function(req, res) {
       var start = new Date(),
           ctx = {
             emails: [],
@@ -156,6 +156,16 @@ exports.init = function (app) {
       }
       res.render('provision_js', ctx);
       statsd.timing('routes.provision_js', new Date() - start);
+    });
+
+    app.get('/error', function (req, res) {
+      var start = new Date();
+      statsd.increment('routes.provision_js.get');
+      res.render('error', {
+          browserid_server: config.get('browserid_server'),
+          layout: false
+        });
+      statsd.timing('routes.error', new Date() - start);
     });
 
     // Useful for dev/test

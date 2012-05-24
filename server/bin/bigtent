@@ -12,6 +12,7 @@ const clientSessions = require('client-sessions'),
       config = require('../lib/configuration'),
       express = require('express'),
       fs = require('fs'),
+      i18n = require('i18n-abide'),
       passport_google = require('../lib/passport_google'),
       passport_windowslive = require('../lib/passport_windowslive'),
       passport_yahoo = require('../lib/passport_yahoo'),
@@ -59,10 +60,15 @@ app.use(function (req, resp, next) {
 });
 
 logger.debug(config.get('browserid_server'));
-app.use(function (req, res, next) {
-      logger.info('REQUEST:' + req.method + ' ' + req.url);
-      next();
-});
+
+// TODO config
+app.use(i18n.abide({
+  supported_languages: config.get('supported_languages'),
+  default_lang: config.get('default_lang'),
+  debug_lang: config.get('debug_lang'),
+  locale_directory: config.get('locale_directory'),
+  disable_locale_check: config.get('disable_locale_check')
+}));
 
 passport_google.init(app);
 passport_windowslive.init(app);

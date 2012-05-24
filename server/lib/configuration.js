@@ -14,6 +14,12 @@ var conf = module.exports = convict({
     secret: 'string = "YOU MUST CHANGE ME"',
     duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
   },
+  default_lang: 'string = "en-US"',
+  debug_lang: 'string = "it-CH"',
+  disable_locale_check: {
+    doc: "Skip checking for gettext .mo files for supported locales",
+    format: 'boolean = false'
+  },
   issuer: 'string = "dev.bigtent.mozilla.org"',
   process_type: 'string',
   protocol: 'string = "http"',
@@ -25,6 +31,13 @@ var conf = module.exports = convict({
     },
     host: 'string = "localhost"',
     port: "integer{1,65535} = 8125"
+  },
+
+  locale_directory: 'string = "locale"',
+  supported_languages: {
+    doc: "List of languages this deployment should detect and display localized strings.",
+    format: 'array { string }* = [ "en-US" ]',
+    env: 'SUPPORTED_LANGUAGES'
   },
   use_https: 'boolean = false',
   var_path: {

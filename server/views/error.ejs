@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= lang_dir %>">
+  <head>
+    <meta charset="utf-8">
+    <title><%= gettext("Systems Error, please try again later") %></title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="/css/stylo.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  </head>
+  <body>
+    <div id="content">
+    <%= gettext("Systems Error, please try again later") %>
+    </div>
+    <button><%= gettext("Try Again") %></button>
+<!-- TODO: We don't actually need this, right? -->
+<script src="http://<%= browserid_server %>/authentication_api.js"></script>
+<script src="/js/lib/jquery.min.js"></script>
+<script>
+$('form').submit(function (e) {
+  e.preventDefault();
+  window.location.href = '/proxy/' + encodeURIComponent($('#email').val());
+});
+</script>
+  </body>
+</html>
