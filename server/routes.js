@@ -167,7 +167,19 @@ exports.init = function (app) {
       statsd.timing('routes.error', new Date() - start);
     });
 
-    // TODO app.get('/cancel') Issue #32
+    app.get('/cancel', function (req, res) {
+      res.redirect(session.getCancelledUrl(req));
+    });
+
+    app.get('/cancelled', function (req, res) {
+      var start = new Date();
+      statsd.increment('routes.cancelled.get');
+      res.render('cancelled', {
+        browserid_server: config.get('browserid_server'),
+        layout: false
+      });
+      statsd.timing('routes.cancelled', new Date() - start);
+    });
 
     // Useful for dev/test
     app.get('/', function(req, res){

@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title><%= gettext("Systems Error, please try again later") %></title>
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="/css/stylo.css">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   </head>
   <body>
@@ -18,10 +17,6 @@
 <script>
 // From mozilla/browserid resources/static/pages/page_helpers.js
 window.resizeTo(700, 375);
-$('form').submit(function (e) {
-  e.preventDefault();
-  window.location.href = '/proxy/' + encodeURIComponent($('#email').val());
-});
 $('button').click(function () {
   //navigator.id.beginAuthentication(function(email, cert_duration) {
     navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');

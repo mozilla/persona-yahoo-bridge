@@ -37,7 +37,15 @@ exports.getErrorUrl = function (req) {
     return err;
   }
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
-}
+};
+
+exports.getCancelledUrl = function (req) {
+  var err = '/cancelled';
+  if (! req.session || ! req.session.bid_state) {
+    return err;
+  }
+  return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
+};
 
 /*
  * During authentication, a user will enter a certain email adress
