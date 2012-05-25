@@ -9,16 +9,23 @@
   </head>
   <body>
     <div id="content">
-    <%= gettext("Systems Error, please try again later") %>
-    </div>
+    <h2><%= gettext("Systems Error, please try again later") %></h2>
+    <p><%= format(gettext("Sorry, we are unable to log you in as %s"), [claimed]) %></p>
     <button><%= gettext("Try Again") %></button>
-<!-- TODO: We don't actually need this, right? -->
-<script src="http://<%= browserid_server %>/authentication_api.js"></script>
+    </div>
+<script src="<%= browserid_server %>/authentication_api.js"></script>
 <script src="/js/lib/jquery.min.js"></script>
 <script>
+// From mozilla/browserid resources/static/pages/page_helpers.js
+window.resizeTo(700, 375);
 $('form').submit(function (e) {
   e.preventDefault();
   window.location.href = '/proxy/' + encodeURIComponent($('#email').val());
+});
+$('button').click(function () {
+  //navigator.id.beginAuthentication(function(email, cert_duration) {
+    navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
+  //});
 });
 </script>
   </body>

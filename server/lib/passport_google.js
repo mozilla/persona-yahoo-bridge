@@ -21,14 +21,12 @@ var sessions,
     return_url = util.format("%s%s", hostname, RETURN_URL),
     realm = util.format("%s/", hostname);
 
-// TODO when do these get called? Can we axe them if we don't have server side store
+// Google strategy requires these, but Yahoo and Hotmail works w/o serializers...
 passport.serializeUser(function(user, done) {
-  //logger.debug('passport.serializeUser user=', user);
   done(null, user);
 });
 
 passport.deserializeUser(function(obj, done) {
-  //logger.debug('passport.deserializeUser obj=', obj);
   done(null, obj);
 });
 
@@ -40,18 +38,9 @@ passport.use(new GoogleStrategy({
     returnURL: return_url,
     realm: realm
   },
+  // Vanilla PassportJS verify callback
   function(identifier, profile, done) {
-    // asynchronous verification, for effect...
-    logger.debug('passport.use(new GoogleStrategy identifier=', identifier, 'profile=', profile);
-    process.nextTick(function () {
-
-      // To keep the example simple, the user's Google profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the Google account with a user record in your database,
-      // and return that user instead.
-      profile.identifier = identifier;
-      return done(null, profile);
-    });
+    done(null, profile);
   }
 ));
 
@@ -62,29 +51,21 @@ exports.init = function (app, clientSessions) {
 }
 
 exports.views = function (app) {
-  // GET /auth/google
-  //   Use passport.authenticate() as route middleware to authenticate the
-  //   request.  The first step in Google authentication will involve redirecting
-  //   the user to google.com.  After authenticating, Google will redirect the
-  //   user back to this application at /auth/google/return
-  app.get('/auth/google', passport.authenticate('google', { failureRedirect: '/login' }),
-    function(req, res) {
-      res.redirect('/error');
-    });
-
   // /auth/google/return
   //   Use passport.authenticate() as route middleware to authenticate the
   //   request.  If authentication fails, the user will be redirected back to the
   //   login page.  Otherwise, the primary route function function will be called,
   //   which, in this example, will redirect the user to the home page.
-  app.get(RETURN_URL, passport.authenticate('google', { failureRedirect: '/error' }),
+  app.get(RETURN_URL, passport.authenticate('google', { failureRedirect: '/cancel' }),
     function(req, res) {
       // Are we who we said we are?
       // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?
       var start = new Date(),
           metric = 'routes.auth.google.return',
           match = false;
+
       statsd.increment('routes.auth.google.return.get');
+
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function (email_obj, i) {
           if (match) return;
@@ -118,7 +99,7 @@ exports.views = function (app) {
       if (!match) {
         statsd.increment('error.routes.auth.google.return.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect('/error');
+        res.redirect(session.getErrorUrl(req));
         statsd.timing(metric, new Date() - start);
       }
   });

@@ -47,7 +47,7 @@ exports.views = function(app) {
   // request. If authentication fails, the user will be redirected to an error
   // page. Otherwise, the primary route function function will be called.
   app.get('/auth/windowslive/callback',
-    passport.authenticate('windowslive', { failureRedirect: '/error' }),
+    passport.authenticate('windowslive', { failureRedirect: '/cancel' }),
     function(req, res) {
       var start = new Date(),
           metric = 'routes.auth.windowslive.callback',
@@ -83,7 +83,7 @@ exports.views = function(app) {
       if (!match) {
         statsd.increment('warn.routes.auth.windowslive.callback.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect('/error');
+        res.redirect(session.getErrorUrl(req));
         statsd.timing(metric, new Date() - start);
       }
     }

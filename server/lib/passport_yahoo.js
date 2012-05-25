@@ -21,22 +21,6 @@ var sessions,
     return_url = util.format("%s%s", hostname, RETURN_URL),
     realm = util.format("%s/", hostname);
 
-
-logger.debug('hostname', hostname);
-logger.debug('return_url', return_url);
-logger.debug('realm', realm);
-
-// TODO when do these get called? Can we axe them if we don't have server side store
-passport.serializeUser(function(user, done) {
-  logger.debug('passport.serializeUser user=', user);
-  done(null, user);
-});
-
-passport.deserializeUser(function(obj, done) {
-  logger.debug('passport.deserializeUser obj=', obj);
-  done(null, obj);
-});
-
 // Use the YahooStrategy within Passport.
 //   Strategies in passport require a `validate` function, which accept
 //   credentials (in this case, an OpenID identifier and profile), and invoke a
@@ -46,17 +30,7 @@ passport.use(new YahooStrategy({
     realm: realm
   },
   function(identifier, profile, done) {
-    // asynchronous verification, for effect...
-    logger.debug('passport.use(new YahooStrategy identifier=', identifier, 'profile=', profile);
-    process.nextTick(function () {
-
-      // To keep the example simple, the user's Yahoo profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
-      // to associate the Yahoo account with a user record in your database,
-      // and return that user instead.
-      profile.identifier = identifier;
-      return done(null, profile);
-    });
+    return done(null, profile);
   }
 ));
 
@@ -67,26 +41,22 @@ exports.init = function (app, clientSessions) {
 }
 
 exports.views = function (app) {
-
-  app.get('/auth/yahoo', passport.authenticate('yahoo', { failureRedirect: '/login' }),
-    function(req, res) {
-      res.redirect('/error');
-    });
-
   // GET /auth/yahoo/return
   //   Use passport.authenticate() as route middleware to authenticate the
   //   request.  If authentication fails, the user will be redirected back to the
   //   login page.  Otherwise, the primary route function function will be called,
   //   which, in this example, will redirect the user to the home page.
   app.get(RETURN_URL,
-    passport.authenticate('yahoo', { failureRedirect: '/error' }),
+    passport.authenticate('yahoo', { failureRedirect: '/cancel' }),
     function(req, res) {
       // Are we who we said we are?
       // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?
       var start = new Date(),
           metric = 'routes.auth.yahoo.return',
           match = false;
+
       statsd.increment('routes.auth.yahoo.return.get');
+
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function (email_obj, i) {
           if (match) return;
@@ -121,7 +91,7 @@ exports.views = function (app) {
       if (!match) {
         statsd.increment('warn.routes.auth.yahoo.return.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect('/error');
+        res.redirect(session.getErrorUrl(req));
         statsd.timing(metric, new Date() - start);
       }
 

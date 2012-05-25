@@ -10,9 +10,9 @@
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <script>
 navigator.id.beginAuthentication(function(email) {
+  // From mozilla/browserid resources/static/pages/page_helpers.js
+  window.resizeTo(700, 375);
   if (email == "<%= current_user %>") {
-      // From mozilla/browserid resources/static/pages/page_helpers.js
-      window.resizeTo(700, 375);
       navigator.id.completeAuthentication();
   } else {
       navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');

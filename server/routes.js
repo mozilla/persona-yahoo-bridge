@@ -19,8 +19,6 @@ exports.init = function (app) {
       statsd.increment('routes.proxy.get');
       session.initialBidUrl(req);
 
-      // TODO validate email with a util.validate_email liberated fn
-
       var service = proxy.service(req.params.email);
 
       // Issue #18 - Verify user input for email
@@ -163,10 +161,13 @@ exports.init = function (app) {
       statsd.increment('routes.provision_js.get');
       res.render('error', {
           browserid_server: config.get('browserid_server'),
+          claimed: session.getClaimedEmail(req),
           layout: false
         });
       statsd.timing('routes.error', new Date() - start);
     });
+
+    // TODO app.get('/cancel') Issue #32
 
     // Useful for dev/test
     app.get('/', function(req, res){

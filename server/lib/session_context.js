@@ -12,9 +12,10 @@
    BrowserID functioning properly */
 
 // BrowserID puts some state in the URL which authentication_api.js depends on
-      // Store this in the session and restore it during redirects, etc.
-      // TODO @stomlinson suggested noting our initial URL and redirecting to that...
-      // https://github.com/mozilla/browserid/issues/1502
+// Store this in the session and restore it during redirects, etc.
+// TODO @stomlinson suggested noting our initial URL and redirecting to that...
+// https://github.com/mozilla/browserid/issues/1502
+// Remove these once 1502 is fixed
 exports.initialBidUrl = function (req) {
   req.session.bid_state = req.query;
 };
@@ -29,6 +30,14 @@ exports.clearBidUrl = function (req) {
   if (req.session && req.session.bid_state)
     delete req.session.bid_state;
 };
+
+exports.getErrorUrl = function (req) {
+  var err = '/error';
+  if (! req.session || ! req.session.bid_state) {
+    return err;
+  }
+  return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
+}
 
 /*
  * During authentication, a user will enter a certain email adress
