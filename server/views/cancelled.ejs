@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+<script src="<%= browserid_server %>/authentication_api.js"></script>
+<script>
+// From mozilla/browserid resources/static/pages/page_helpers.js
+window.resizeTo(700, 375);
+navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
+</script>
+  </body>
+</html>
