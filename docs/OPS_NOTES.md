@@ -43,3 +43,14 @@ Timers:
 ### Heartbeats
 
 You can make a request to ``/__heartbeat__``.
+
+### Version
+
+During deployment you should create
+
+    static/ver.txt
+
+This should have the last git commit and sha as well as SVN version. Example contents:
+
+943d308 bump to 0.2012.04.27.5, and document changes in .4 and .5
+locale svn r105105
