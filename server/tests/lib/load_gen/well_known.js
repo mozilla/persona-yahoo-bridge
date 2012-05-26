@@ -1,0 +1,38 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* This file is the "provision" activity, which simulates the process of a
+ * user with an active session adding a new email with browserid. */
+
+const request = require('request'),
+      client = require('../client'),
+      userdb = require('loady').userdb,
+      winston = require('winston');
+
+// Once ever two weeks, our session has expired
+exports.probability = (8 / 40.0);
+exports.startFunc = function (cfg, cb) {
+
+  /* var jar = request.jar();
+  var req = request.defaults({jar: jar});
+  */
+
+  var the_url = client.url('/.well-known/browserid', cfg);
+  var user = userdb.getExistingUser();
+  if (!user) {
+    winston.warn("can't achieve desired concurrency!  not enough users!");
+    return cb("not enough users");
+  }
+  user.request.get({
+    url: the_url
+  }, function (err, r, body) {
+    if (err) {
+        cb(err);
+    } else if (r.statusCode !== 200) {
+        cb("Non 200 status code " + r.statusCode);
+    } else {
+        cb(null);
+    }
+  });
+};
