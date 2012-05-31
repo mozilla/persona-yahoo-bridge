@@ -24,8 +24,8 @@ var hostname = util.format("%s://%s", protocol, config.get('issuer')),
     return_url = util.format("%s%s", hostname, RETURN_URL);
 
 passport.use(new WindowsLiveStrategy({
-    clientID: live_config['client_id'],
-    clientSecret: live_config['client_secret'],
+    clientID: live_config.client_id,
+    clientSecret: live_config.client_secret,
     callbackURL: RETURN_URL
   },
   function(accessToken, refreshToken, profile, done) {

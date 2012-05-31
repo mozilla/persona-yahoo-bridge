@@ -36,10 +36,10 @@ var filename = path.join(log_path, configuration.get('process_type') + ".log");
 
 exports.logger = new (winston.Logger)({
   transports: [new (winston.transports.File)({
-    timestamp: function () { return new Date().toISOString() },
+    timestamp: function () { return new Date().toISOString(); },
     filename: filename,
     colorize: true,
-    handleExceptions: !!process.env['LOG_TO_CONSOLE']
+    handleExceptions: !!process.env.LOG_TO_CONSOLE
   })]
 });
 
@@ -52,4 +52,4 @@ exports.enableConsoleLogging = function() {
 
 
 
-if (process.env['LOG_TO_CONSOLE']) exports.enableConsoleLogging();
+if (process.env.LOG_TO_CONSOLE) { exports.enableConsoleLogging(); }

@@ -25,7 +25,8 @@ suite.addBatch({
   }
 });
 
-if (process.argv[1] === __filename)
+if (process.argv[1] === __filename) {
   suite.run();
-else
+} else {
   suite.export(module);
+}

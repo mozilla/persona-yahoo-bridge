@@ -9,27 +9,27 @@ const assert = require('assert'),
       events = require('events'),
       fs = require('fs'),
       path = require('path'),
-      request = require('request');
+      request = require('request'),
       spawn = require('child_process').spawn,
       util = require('util');
 
-var proc = undefined;
+var proc;
 
 process.on('exit', function () {
   if (proc) { proc.kill(); }
 });
 
-var nextTokenFunction = undefined;
+var nextTokenFunction;
 var tokenStack = [];
 
-exports.browserid = new events.EventEmitter;
+exports.browserid = new events.EventEmitter();
 
 function setupProc(proc) {
   var m, sentReady = false;
 
   proc.stdout.on('data', function(buf) {
     buf.toString().split('\n').forEach(function(x) {
-      if (process.env['LOG_TO_CONSOLE'] || /^.*error.*:/.test(x)) {
+      if (process.env.LOG_TO_CONSOLE || /^.*error.*:/.test(x)) {
         var line = x.toString().trim();
         if (line.length) {
           console.log(x);
@@ -42,7 +42,7 @@ function setupProc(proc) {
     });
   });
   proc.stderr.on('data', function(x) {
-    if (process.env['LOG_TO_CONSOLE']) console.log(x.toString());
+    if (process.env.LOG_TO_CONSOLE) { console.log(x.toString()); }
   });
 }
 
@@ -50,8 +50,8 @@ function setupProc(proc) {
 var port = exports.port = 3031;
 var base_url = exports.base_url = util.format('http://127.0.0.1:%d', port);
 
-process.env['PORT'] = port;
-process.env['CONFIG_FILES'] = 'config/test.json';
+process.env.PORT = port;
+process.env.CONFIG_FILES = 'config/test.json';
 
 var _startupBatch = {
   "run the server": {
@@ -115,4 +115,4 @@ exports.addShutdownBatches = function(suite) {
       }
     }
   });
-}
+};

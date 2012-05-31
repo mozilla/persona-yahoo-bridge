@@ -79,18 +79,19 @@ passport_windowslive.views(app);
 passport_yahoo.views(app);
 
 // Ops
-app.get('/__heartbeat__', function (req, res) { res.send('ok')});
+app.get('/__heartbeat__', function (req, res) { res.send('ok');});
 
 var static_root = path.join(__dirname, '..', '..', 'static');
 app.use(express.static(static_root));
 
 var lstnUrl;
+var port;
 if (config.get('use_https')) {
   port = 443;
   app.listen(443);
   lstnUrl = util.format('https://%s', config.get('issuer'));
 } else {
-  port = process.env['PORT'] || 3030;
+  port = process.env.PORT || 3030;
   app.listen(port, '0.0.0.0');
   lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
 }

@@ -9,6 +9,7 @@ const config = require('./lib/configuration'),
       proxy = require('./lib/idp_proxy'),
       statsd = require('./lib/statsd'),
       session = require('./lib/session_context'),
+      util = require('util'),
       valid_email = require('./lib/validation/email');
 
 exports.init = function (app) {
@@ -23,28 +24,28 @@ exports.init = function (app) {
 
       // Issue #18 - Verify user input for email
       if (valid_email(req.params.email) === false) {
-        return resp.send('Email is bad input', 400);
+        return res.send('Email is bad input', 400);
       }
 
       session.setClaimedEmail(req);
 
       // Abusing middleware like a function?
       // TODO stuff these is an associative array by service
-      if (service == 'gmail.com') {
+      if (service === 'gmail.com') {
         (passport.authenticate('google', function(err, user, info) {
           if (err) {
             logger.error('ERROR:' + err);
           }
           logger.info('/proxy/:email auth/google/return callback user=' + user + ' info=' + info);
         }))(req, res, next); // passport.authenticate
-      } else if (service == 'yahoo.com') {
+      } else if (service === 'yahoo.com') {
         (passport.authenticate('yahoo', function(err, user, info) {
           if (err) {
             logger.error('ERROR:' + err);
           }
           logger.info('/proxy/:email auth/yahoo/return callback');
         }))(req, res, next); // passport.authenticate
-      } else if (service == 'hotmail.com') {
+      } else if (service === 'hotmail.com') {
         (passport.authenticate('windowslive', { scope: 'wl.emails' }, function(err, user, info) {
           if (err) {
             logger.error('ERROR:' + err);

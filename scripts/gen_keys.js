@@ -4,7 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* scripts/gen_keys.js creates public and private keys suitable for
-   key signing Persona Primary IdP's.
+   key signing by Persona Identity Providers (IdPs).
 
    Usage:
    scripts/gen_keys.js
@@ -26,10 +26,10 @@ const jwk = require("jwcrypto/jwk"),
       util = require('util');
 
 var error_remove_keypair = function () {
-    console.error("Old keypair detected, you must remove these files to generate new ones.")
+    console.error("Old keypair detected, you must remove these files to generate new ones.");
     console.log("Usage: gen_keys.js\n\nWill create a new keypair under var.");
     process.exit(1);
-}
+};
 
 store.files_exist(function (exists) {
   if (exists) {

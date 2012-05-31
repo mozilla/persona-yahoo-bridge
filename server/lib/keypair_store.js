@@ -73,4 +73,4 @@ exports.read_files_sync = function (callback) {
     callback(e.toString());
 
   }
-}
+};

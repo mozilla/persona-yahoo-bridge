@@ -38,7 +38,7 @@ exports.init = function (app, clientSessions) {
   app.use(passport.initialize());
   app.use(passport.session());
   sessions = clientSessions;
-}
+};
 
 exports.views = function (app) {
   // GET /auth/yahoo/return
@@ -59,7 +59,7 @@ exports.views = function (app) {
 
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function (email_obj, i) {
-          if (match) return;
+          if (match) { return; }
 
           if (! email_obj.value) {
             statsd.increment('warn.routes.auth.yahoo.return.no_email_value');
@@ -96,4 +96,4 @@ exports.views = function (app) {
       }
 
   });
-}
+};
