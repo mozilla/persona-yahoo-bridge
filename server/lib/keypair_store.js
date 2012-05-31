@@ -2,15 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const fs = require('fs'),
-      path = require('path'),
-      util = require('util');
+const
+fs = require('fs'),
+path = require('path'),
+util = require('util');
 
-const PUBLIC_KEY_FILENAME = 'server_public_key.json',
-      SECRET_KEY_FILENAME = 'server_secret_key.json';
+const
+PUBLIC_KEY_FILENAME = 'server_public_key.json',
+SECRET_KEY_FILENAME = 'server_secret_key.json';
 
-var pub_key_filename = util.format('var/%s', PUBLIC_KEY_FILENAME),
-    priv_key_filename = util.format('var/%s', SECRET_KEY_FILENAME);
+var
+pub_key_filename = util.format('var/%s', PUBLIC_KEY_FILENAME),
+priv_key_filename = util.format('var/%s', SECRET_KEY_FILENAME);
 
 /**
  * Checks to see if either server public or secret keys already exist.

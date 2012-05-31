@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const assert = require('assert'),
-      vows = require('vows'),
-      request = require('request'),
-      routes = require('../routes'),
-      start_stop = require('./lib/start-stop'),
-      util = require('util');
-
+const
+assert = require('assert'),
+vows = require('vows'),
+request = require('request'),
+routes = require('../routes'),
+start_stop = require('./lib/start-stop'),
+util = require('util');
 
 var suite = vows.describe('gmail-and-general-proxy-test');
 

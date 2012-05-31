@@ -4,23 +4,21 @@
 
 // Original code via mozilla/browserid/test/lib/start-stop.js
 
-const assert = require('assert'),
-      config = require('../../lib/configuration.js'),
-      events = require('events'),
-      fs = require('fs'),
-      path = require('path'),
-      request = require('request'),
-      spawn = require('child_process').spawn,
-      util = require('util');
+const
+assert = require('assert'),
+config = require('../../lib/configuration.js'),
+events = require('events'),
+fs = require('fs'),
+path = require('path'),
+request = require('request'),
+spawn = require('child_process').spawn,
+util = require('util');
 
 var proc;
 
 process.on('exit', function () {
   if (proc) { proc.kill(); }
 });
-
-var nextTokenFunction;
-var tokenStack = [];
 
 exports.browserid = new events.EventEmitter();
 

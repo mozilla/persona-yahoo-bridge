@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./lib/configuration'),
-      crypto = require('./lib/crypto.js'),
-      logger = require('./lib/logging').logger,
-      passport = require('passport'),
-      proxy = require('./lib/idp_proxy'),
-      statsd = require('./lib/statsd'),
-      session = require('./lib/session_context'),
-      util = require('util'),
-      valid_email = require('./lib/validation/email');
+const
+config = require('./lib/configuration'),
+crypto = require('./lib/crypto.js'),
+logger = require('./lib/logging').logger,
+passport = require('passport'),
+proxy = require('./lib/idp_proxy'),
+statsd = require('./lib/statsd'),
+session = require('./lib/session_context'),
+util = require('util'),
+valid_email = require('./lib/validation/email');
 
 exports.init = function (app) {
     var well_known_last_mod = new Date().getTime();

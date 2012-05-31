@@ -14,10 +14,11 @@
  *     logger.error("this isn't good at all.  I will probably crash soon.");
  */
 
-const winston = require("winston"),
-      configuration = require("./configuration"),
-      path = require('path'),
-      fs = require('fs');
+const
+winston = require("winston"),
+configuration = require("./configuration"),
+path = require('path'),
+fs = require('fs');
 
 // go through the configuration and determine log location
 var log_path = path.join(configuration.get('var_path'), 'log');

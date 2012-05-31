@@ -2,26 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./configuration'),
-      WindowsLiveStrategy = require('passport-windowslive').Strategy,
-      logger = require('./logging').logger,
-      passport = require('passport'),
-      session = require('./session_context'),
-      statsd = require('./statsd'),
-      util = require('util');
+const
+config = require('./configuration'),
+WindowsLiveStrategy = require('passport-windowslive').Strategy,
+logger = require('./logging').logger,
+passport = require('passport'),
+session = require('./session_context'),
+statsd = require('./statsd'),
+util = require('util');
 
 // TODO: Delete the registration for the testing app...
 const RETURN_URL = '/auth/windowslive/callback';
 
-var live_config = config.get('windows_live'),
-    protocol = 'http';
-
-if (config.get('use_https')) {
-  protocol = 'https';
-}
-
-var hostname = util.format("%s://%s", protocol, config.get('issuer')),
-    return_url = util.format("%s%s", hostname, RETURN_URL);
+var
+live_config = config.get('windows_live'),
+protocol = config.get('use_https') ? 'https' : 'http',
+hostname = util.format("%s://%s", protocol, config.get('issuer')),
+return_url = util.format("%s%s", hostname, RETURN_URL);
 
 passport.use(new WindowsLiveStrategy({
     clientID: live_config.client_id,

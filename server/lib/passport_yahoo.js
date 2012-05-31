@@ -2,24 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('../lib/configuration'),
-      YahooStrategy = require('passport-yahoo').Strategy,
-      logger = require('./logging').logger,
-      passport = require('passport'),
-      session = require('./session_context'),
-      statsd = require('./statsd'),
-      util = require('util');
+const
+config = require('../lib/configuration'),
+YahooStrategy = require('passport-yahoo').Strategy,
+logger = require('./logging').logger,
+passport = require('passport'),
+session = require('./session_context'),
+statsd = require('./statsd'),
+util = require('util');
 
 const RETURN_URL = '/auth/yahoo/return';
 
-var protocol = 'http';
-if (config.get('use_https')) {
-  protocol = 'https';
-}
-var sessions,
-    hostname = util.format("%s://%s", protocol, config.get('issuer')),
-    return_url = util.format("%s%s", hostname, RETURN_URL),
-    realm = util.format("%s/", hostname);
+var
+sessions,
+protocol = config.get('use_https') ? 'https' : 'http',
+hostname = util.format("%s://%s", protocol, config.get('issuer')),
+return_url = util.format("%s%s", hostname, RETURN_URL),
+realm = util.format("%s/", hostname);
 
 // Use the YahooStrategy within Passport.
 //   Strategies in passport require a `validate` function, which accept

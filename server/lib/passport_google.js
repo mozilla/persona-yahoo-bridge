@@ -2,24 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./configuration'),
-      GoogleStrategy = require('passport-google').Strategy,
-      logger = require('./logging').logger,
-      passport = require('passport'),
-      session = require('./session_context'),
-      statsd = require('./statsd'),
-      util = require('util');
+const
+config = require('./configuration'),
+GoogleStrategy = require('passport-google').Strategy,
+logger = require('./logging').logger,
+passport = require('passport'),
+session = require('./session_context'),
+statsd = require('./statsd'),
+util = require('util');
 
 const RETURN_URL = '/auth/google/return';
 
-var protocol = 'http';
-if (config.get('use_https')) {
-  protocol = 'https';
-}
-var sessions,
-    hostname = util.format("%s://%s", protocol, config.get('issuer')),
-    return_url = util.format("%s%s", hostname, RETURN_URL),
-    realm = util.format("%s/", hostname);
+var
+sessions,
+protocol = config.get('use_https') ? 'https' : 'http',
+hostname = util.format("%s://%s", protocol, config.get('issuer')),
+return_url = util.format("%s%s", hostname, RETURN_URL),
+realm = util.format("%s/", hostname);
 
 // Google strategy requires these, but Yahoo and Hotmail works w/o serializers...
 passport.serializeUser(function(user, done) {
