@@ -7,21 +7,18 @@ config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
 logger = require('./lib/logging').logger,
 passport = require('passport'),
-proxy = require('./lib/idp_proxy'),
 statsd = require('./lib/statsd'),
 session = require('./lib/session_context'),
 util = require('util'),
 valid_email = require('./lib/validation/email');
 
-exports.init = function (app) {
+exports.init = function(app) {
     var well_known_last_mod = new Date().getTime();
 
-    app.get('/proxy/:email', function(req, res, next){
+    app.get('/proxy/:email', function(req, res, next) {
       var start = new Date();
       statsd.increment('routes.proxy.get');
       session.initialBidUrl(req);
-
-      var service = proxy.service(req.params.email);
 
       // Issue #18 - Verify user input for email
       if (valid_email(req.params.email) === false) {
@@ -30,30 +27,23 @@ exports.init = function (app) {
 
       session.setClaimedEmail(req);
 
-      // Abusing middleware like a function?
-      // TODO stuff these is an associative array by service
-      if (service === 'gmail.com') {
-        (passport.authenticate('google', function(err, user, info) {
-          if (err) {
-            logger.error('ERROR:' + err);
-          }
-          logger.info('/proxy/:email auth/google/return callback user=' + user + ' info=' + info);
-        }))(req, res, next); // passport.authenticate
-      } else if (service === 'yahoo.com') {
-        (passport.authenticate('yahoo', function(err, user, info) {
-          if (err) {
-            logger.error('ERROR:' + err);
-          }
-          logger.info('/proxy/:email auth/yahoo/return callback');
-        }))(req, res, next); // passport.authenticate
-      } else if (service === 'hotmail.com') {
-        (passport.authenticate('windowslive', { scope: 'wl.emails' }, function(err, user, info) {
-          if (err) {
-            logger.error('ERROR:' + err);
-          }
-          logger.info('/proxy/:email auth/hotmail/return callback');
-        }))(req, res, next); // passport.authenticate
+      var strategies = {
+        'gmail.com': 'google',
+        'yahoo.com': 'yahoo',
+        'hotmail.com': 'windowslive'
+      };
+
+      var authOptions = {
+        windowslive: { scope: 'wl.emails' }
+      };
+
+      var service = req.params.email.split('@')[1];
+      var strategy = strategies[service];
+
+      if (strategy) {
+        (passport.authenticate(strategy, authOptions[strategy]))(req,res,next);
       }
+
       statsd.timing('routes.proxy', new Date() - start);
     });
 
