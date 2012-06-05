@@ -1,4 +1,5 @@
 node_modules
+rpmbuild
 server/config/certificate.pem
 server/config/certrequest.csr
 server/config/local.json
