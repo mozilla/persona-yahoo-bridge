@@ -9,6 +9,8 @@ const convict = require('convict'),
 // TODO protocol - BigTent ism, should use just use 'use_https' instead?
 var conf = module.exports = convict({
   browserid_server: 'string = "https://browserid.org"',
+  certifier_host: 'string = "127.0.0.1"',
+  certifier_port: "integer{1,65535} = 8080",
   client_sessions: {
     cookie_name: 'string = "session_state"',
     secret: 'string = "YOU MUST CHANGE ME"',

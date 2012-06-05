@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./lib/configuration'),
+const certify = require('./lib/certifier'),
+      config = require('./lib/configuration'),
       crypto = require('./lib/crypto.js'),
       logger = require('./lib/logging').logger,
       passport = require('passport'),
       proxy = require('./lib/idp_proxy'),
       statsd = require('./lib/statsd'),
       session = require('./lib/session_context'),
+      util = require('util'),
       valid_email = require('./lib/validation/email');
 
 exports.init = function (app) {
@@ -121,20 +123,29 @@ exports.init = function (app) {
         }
       }
 
-      crypto.cert_key(
-        req.body.pubkey,
-        current_user,
-        req.body.duration,
-        function(err, cert) {
-          if (err) {
-            statsd.increment('routes.provision.err.crypto');
-            res.writeHead(500);
-            res.end();
-          } else {
-            res.json({ cert: cert });
-          }
-          statsd.timing('routes.provision_post', new Date() - start);
-        });
+      var certified_cb = function(err, cert) {
+        var user_cert = cert;
+        var certificate;
+
+        if (crypto.chainedCert) {
+          console.log('CHAINING CERTS');
+          user_cert = util.format('%s~%s', crypto.chainedCert, cert);
+        }
+        if (err) {
+          statsd.increment('routes.provision.err.crypto');
+          res.writeHead(500);
+          res.end();
+        } else {
+          certificate = JSON.parse(cert).certificate;
+          res.json({ cert: certificate });
+        }
+        statsd.timing('routes.provision_post', new Date() - start);
+      };
+
+      certify(JSON.stringify(req.body.pubkey),
+              current_user,
+              req.body.duration,
+              certified_cb);
     });
 
     app.get('/provision.js', function(req, res) {
@@ -227,7 +238,7 @@ exports.init = function (app) {
           }
         }
       }
-      // On startup, keys need to be pulled from memcache or some such
+
       var pk = JSON.stringify(crypto.pubKey);
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'max-age=' + timeout);

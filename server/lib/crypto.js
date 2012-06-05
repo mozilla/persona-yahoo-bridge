@@ -8,6 +8,9 @@ const jwk = require("jwcrypto/jwk"),
       logger = require("./logging").logger,
       store = require('./keypair_store');
 
+// TODO populate chiainCert from file system
+exports.chainedCert = null;
+
 try {
   exports.pubKey = JSON.parse(process.env['PUBLIC_KEY']);
   _privKey = JSON.parse(process.env['PRIVATE_KEY']);
