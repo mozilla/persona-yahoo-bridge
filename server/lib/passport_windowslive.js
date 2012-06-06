@@ -2,41 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./configuration'),
-      WindowsLiveStrategy = require('passport-windowslive').Strategy,
-      logger = require('./logging').logger,
-      passport = require('passport'),
-      session = require('./session_context'),
-      statsd = require('./statsd'),
-      util = require('util');
+const
+WindowsLiveStrategy = require('passport-windowslive').Strategy,
+config = require('./configuration'),
+logger = require('./logging').logger,
+passport = require('passport'),
+session = require('./session_context'),
+statsd = require('./statsd'),
+util = require('util');
 
-// TODO: Delete the registration for the testing app...
-const RETURN_URL = '/auth/windowslive/callback';
+const CALLBACK_PATH = '/auth/windowslive/callback';
 
-var live_config = config.get('windows_live'),
-    protocol = 'http';
+var
+liveConfig = config.get('windows_live'),
+protocol = config.get('use_https') ? 'https' : 'http',
+hostname = util.format("%s://%s", protocol, config.get('issuer')),
+returnURL = util.format("%s%s", hostname, CALLBACK_PATH);
 
-if (config.get('use_https')) {
-  protocol = 'https';
-}
-
-var hostname = util.format("%s://%s", protocol, config.get('issuer')),
-    return_url = util.format("%s%s", hostname, RETURN_URL);
-
+// Register the WindowsLiveStrategy with Passport
 passport.use(new WindowsLiveStrategy({
-    clientID: live_config['client_id'],
-    clientSecret: live_config['client_secret'],
-    callbackURL: RETURN_URL
+    clientID: liveConfig.client_id,
+    clientSecret: liveConfig.client_secret,
+    callbackURL: returnURL
   },
   function(accessToken, refreshToken, profile, done) {
-    logger.debug('passport.use(new WindowsLiveStrategy profile=', profile);
-    process.nextTick(function() {
-      return done(null, profile._json);
-    });
-  }
-));
+    return done(null, profile._json);
+  })
+);
 
-exports.init = function(app, clientSessions) {
+exports.init = function(app) {
   app.use(passport.initialize());
   app.use(passport.session());
 };
@@ -46,20 +40,19 @@ exports.views = function(app) {
   // Use passport.authenticate() as route middleware to authenticate the
   // request. If authentication fails, the user will be redirected to an error
   // page. Otherwise, the primary route function function will be called.
-  app.get('/auth/windowslive/callback',
+  app.get(CALLBACK_PATH,
     passport.authenticate('windowslive', { failureRedirect: '/cancel' }),
     function(req, res) {
-      var start = new Date(),
-          metric = 'routes.auth.windowslive.callback',
-          match = false,
-          claimedEmail = session.getClaimedEmail(req),
-          email,
-          emailType;
+      var
+      start = new Date(),
+      metric = 'routes.auth.windowslive.callback',
+      match = false,
+      claimedEmail = session.getClaimedEmail(req),
+      email,
+      emailType;
 
       statsd.increment('routes.auth.windowslive.callback.get');
 
-      // TODO: How should we handle the user authing as a different address than
-      // we expect or want?
       if (req.user && req.user.emails) {
         for (emailType in req.user.emails) {
           if (!match && req.user.emails.hasOwnProperty(emailType)) {
@@ -77,7 +70,7 @@ exports.views = function(app) {
       } else {
         statsd.increment('warn.routes.auth.windowslive.callback.no_emails');
         logger.warn('Windows Live should have user and user.emails' + req.user);
-        return;
+        res.redirect(session.getErrorUrl(req));
       }
 
       if (!match) {
