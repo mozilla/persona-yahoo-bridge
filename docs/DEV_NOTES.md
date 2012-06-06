@@ -1,6 +1,13 @@
 Developer Notes
 ===============
 
+Prerequisites
+-------------
+
+1. Install [certifier](https://github.com/mozilla/browserid-certifier)
+
+2. Start certifier on it's default host and port
+
 Setup
 -----
 
