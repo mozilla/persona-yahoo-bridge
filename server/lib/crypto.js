@@ -2,18 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const jwk = require("jwcrypto/jwk"),
-      jwcert = require("jwcrypto/jwcert"),
-      config = require("./configuration"),
-      logger = require("./logging").logger,
-      store = require('./keypair_store');
+const
+jwk = require("jwcrypto/jwk"),
+jwcert = require("jwcrypto/jwcert"),
+config = require("./configuration"),
+logger = require("./logging").logger,
+store = require('./keypair_store');
+
+var _privKey;
 
 // TODO populate chiainCert from file system
 exports.chainedCert = null;
 
 try {
-  exports.pubKey = JSON.parse(process.env['PUBLIC_KEY']);
-  _privKey = JSON.parse(process.env['PRIVATE_KEY']);
+  exports.pubKey = JSON.parse(process.env.PUBLIC_KEY);
+  _privKey = JSON.parse(process.env.PRIVATE_KEY);
 } catch(e) { }
 // or var file system cache
 if (!exports.pubKey) {
@@ -28,7 +31,7 @@ if (!exports.pubKey) {
 }
 
 if (!exports.pubKey) {
-  if (exports.pubKey != exports.privKey) {
+  if (exports.pubKey !== exports.privKey) {
     throw "inconsistent configuration!  if privKey is defined, so must be pubKey";
   }
   // if no keys are provided emit a nasty message and generate some
@@ -42,11 +45,11 @@ if (!exports.pubKey) {
 }
 
 // turn _privKey into an instance
-var _privKey = jwk.SecretKey.fromSimpleObject(_privKey);
+_privKey = jwk.SecretKey.fromSimpleObject(_privKey);
 
 exports.cert_key = function(pubkey, email, duration_s, cb) {
   var expiration = new Date();
-  var pubkey = jwk.PublicKey.fromSimpleObject(pubkey);
+  pubkey = jwk.PublicKey.fromSimpleObject(pubkey);
   expiration.setTime(new Date().valueOf() + duration_s * 1000);
   process.nextTick(function() {
     cb(null, (new jwcert.JWCert(config.get('issuer'), expiration, new Date(),

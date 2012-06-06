@@ -14,10 +14,11 @@
  *     logger.error("this isn't good at all.  I will probably crash soon.");
  */
 
-const winston = require("winston"),
-      configuration = require("./configuration"),
-      path = require('path'),
-      fs = require('fs');
+const
+winston = require("winston"),
+configuration = require("./configuration"),
+path = require('path'),
+fs = require('fs');
 
 // go through the configuration and determine log location
 var log_path = path.join(configuration.get('var_path'), 'log');
@@ -36,10 +37,10 @@ var filename = path.join(log_path, configuration.get('process_type') + ".log");
 
 exports.logger = new (winston.Logger)({
   transports: [new (winston.transports.File)({
-    timestamp: function () { return new Date().toISOString() },
+    timestamp: function () { return new Date().toISOString(); },
     filename: filename,
     colorize: true,
-    handleExceptions: !!process.env['LOG_TO_CONSOLE']
+    handleExceptions: !!process.env.LOG_TO_CONSOLE
   })]
 });
 
@@ -52,4 +53,4 @@ exports.enableConsoleLogging = function() {
 
 
 
-if (process.env['LOG_TO_CONSOLE']) exports.enableConsoleLogging();
+if (process.env.LOG_TO_CONSOLE) { exports.enableConsoleLogging(); }

@@ -3,25 +3,26 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 const path = require('path');
 
 // ./server is our current working directory
 process.chdir(path.dirname(__dirname));
 
-const clientSessions = require('client-sessions'),
-      config = require('../lib/configuration'),
-      express = require('express'),
-      fs = require('fs'),
-      healthCheck = require('../lib/startup_health_check'),
-      i18n = require('i18n-abide'),
-      passport_google = require('../lib/passport_google'),
-      passport_windowslive = require('../lib/passport_windowslive'),
-      passport_yahoo = require('../lib/passport_yahoo'),
-      //passport_google = require('../lib/passport_google_oauth2'),
-      routes = require('../routes'),
-      statsd = require('../lib/statsd'),
-      util = require('util'),
-      logger = require('../lib/logging').logger;
+const
+clientSessions = require('client-sessions'),
+config = require('../lib/configuration'),
+express = require('express'),
+fs = require('fs'),
+healthCheck = require('../lib/startup_health_check'),
+i18n = require('i18n-abide'),
+passport_google = require('../lib/passport_google'),
+passport_windowslive = require('../lib/passport_windowslive'),
+passport_yahoo = require('../lib/passport_yahoo'),
+routes = require('../routes'),
+statsd = require('../lib/statsd'),
+util = require('util'),
+logger = require('../lib/logging').logger;
 
 var app;
 
@@ -81,18 +82,19 @@ passport_windowslive.views(app);
 passport_yahoo.views(app);
 
 // Ops
-app.get('/__heartbeat__', function (req, res) { res.send('ok')});
+app.get('/__heartbeat__', function (req, res) { res.send('ok');});
 
 var static_root = path.join(__dirname, '..', '..', 'static');
 app.use(express.static(static_root));
 
 var lstnUrl;
+var port;
 if (config.get('use_https')) {
   port = 443;
   app.listen(443);
   lstnUrl = util.format('https://%s', config.get('issuer'));
 } else {
-  port = process.env['PORT'] || 3030;
+  port = process.env.PORT || 3030;
   app.listen(port, '0.0.0.0');
   lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
 }

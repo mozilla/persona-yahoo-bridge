@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
- const qs = require('qs'),
-       util = require('util');
+const
+qs = require('qs'),
+util = require('util');
 
 /* Encapsulates session related features */
 
@@ -21,14 +22,16 @@ exports.initialBidUrl = function (req) {
 };
 
 exports.getBidUrl = function (req) {
-  if (! req.session || ! req.session.bid_state)
+  if (! req.session || ! req.session.bid_state) {
     throw "Invalid state, missing redirection url in session";
-  return util.format('/sign_in?%s', qs.stringify(req.session.bid_state))
+  }
+  return util.format('/sign_in?%s', qs.stringify(req.session.bid_state));
 };
 
 exports.clearBidUrl = function (req) {
-  if (req.session && req.session.bid_state)
+  if (req.session && req.session.bid_state) {
     delete req.session.bid_state;
+  }
 };
 
 exports.getErrorUrl = function (req) {
@@ -59,15 +62,17 @@ exports.setClaimedEmail = function (req) {
 };
 
 exports.getClaimedEmail = function (req) {
-  if (! req.session || ! req.session.claim)
+  if (! req.session || ! req.session.claim) {
     return null;
-  else
+  } else {
     return req.session.claim;
+  }
 };
 
 exports.clearClaimedEmail = function (req) {
-  if (req.session && req.session.claim)
+  if (req.session && req.session.claim) {
     delete req.session.claim;
+  }
 };
 
 /* A User may use multiple email addresses. Although there
@@ -87,14 +92,16 @@ exports.setCurrentUser = function (req, email) {
 };
 
 exports.getCurrentUser = function (req) {
-  if (! req.session || ! req.session.current_email)
+  if (! req.session || ! req.session.current_email) {
     return null;
-  else
+  } else {
     return req.session.current_email;
+  }
 };
 
 exports.getActiveEmails = function (req) {
-  if (! req.session || ! req.session.all_emails)
+  if (! req.session || ! req.session.all_emails) {
     return {};
+  }
   return req.session.all_emails;
 };
