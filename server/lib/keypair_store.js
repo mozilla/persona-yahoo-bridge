@@ -2,15 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const fs = require('fs'),
-      path = require('path'),
-      util = require('util');
+const
+fs = require('fs'),
+path = require('path'),
+util = require('util');
 
-const PUBLIC_KEY_FILENAME = 'server_public_key.json',
-      SECRET_KEY_FILENAME = 'server_secret_key.json';
+const
+PUBLIC_KEY_FILENAME = 'server_public_key.json';
 
-var pub_key_filename = util.format('var/%s', PUBLIC_KEY_FILENAME),
-    priv_key_filename = util.format('var/%s', SECRET_KEY_FILENAME);
+var
+pub_key_filename = util.format('var/%s', PUBLIC_KEY_FILENAME);
 
 /**
  * Checks to see if either server public or secret keys already exist.
@@ -22,9 +23,7 @@ exports.files_exist = function (callback) {
       if (pub_exists) {
         callback(pub_exists);
       } else {
-        path.exists(priv_key_filename, function (priv_exists) {
-          callback(priv_exists);
-        });
+        callback(false);
       }
     });
 };
@@ -48,9 +47,9 @@ exports.write_files = function (keypair, pub_cb, secr_cb) {
 };
 
 /**
- * Reads JSON formatted jwcrypto public/private keypair from filesystem.
+ * Reads JSON formatted jwcrypto public key from filesystem.
  * Use write_files to create these files.
- * Takes callback with arguments err, pubKey and secretKey
+ * Takes callback with arguments err, pubKey
  *
  * Method is synchronous as it's used from other modules during loading.
  */
@@ -59,18 +58,13 @@ exports.read_files_sync = function (callback) {
   if (! pub_exists) {
     return callback("Missing public key, cannot read files");
   }
-  var priv_exists = path.existsSync(priv_key_filename);
-  if (! priv_exists) {
-    return callback("Missing secret key, cannot read files");
-  }
   try {
-    var pubKey = JSON.parse(fs.readFileSync(pub_key_filename, 'utf8')),
-        privKey = JSON.parse(fs.readFileSync(priv_key_filename, 'utf8'));
-    callback(null, pubKey, privKey);
+    var pubKey = JSON.parse(fs.readFileSync(pub_key_filename, 'utf8'));
+    callback(null, pubKey);
   } catch (e) {
     // File IO or malformed JSON
     console.trace(e);
     callback(e.toString());
 
   }
-}
+};

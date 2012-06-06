@@ -23,7 +23,8 @@
     "passport-windowslive": "0.1.1",
     "passport-yahoo": "0.1.1",
     "qs": "0.4.2",
-    "node-statsd": "https://github.com/downloads/lloyd/node-statsd/0509f85.tgz"
+    "node-statsd": "https://github.com/downloads/lloyd/node-statsd/0509f85.tgz",
+    "winston": "0.5.6"
   },
   "devDependencies": {
     "awsbox": "0.0.10",
