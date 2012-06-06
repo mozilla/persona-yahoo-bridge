@@ -4,16 +4,17 @@
 
 /* Module is a function which sends requests for certificates to the certifier. */
 
-const config = require('./configuration'),
-      http = require('http'),
-      https = require('https'),
-      statsd = require('./statsd');
+const 
+config = require('./configuration'),
+http = require('http'),
+https = require('https'),
+statsd = require('./statsd');
 
 var host = config.get('certifier_host'),
-    port = config.get('certifier_port'),
-    lib = port === 443 ? https : http;
+port = config.get('certifier_port'),
+lib = port === 443 ? https : http;
 
-module.exports = function(pubkey, email, duration_s, cb) {
+module.exports = function (pubkey, email, duration_s, cb) {
   var body = JSON.stringify({
         duration: duration_s,
         pubkey: pubkey,
@@ -46,11 +47,11 @@ module.exports = function(pubkey, email, duration_s, cb) {
     });
     return;
   });
-  req.on('error', function (err, a, b, c) {
+  req.on('error', function (err) {
     console.error("Ouch, certifier is down: ", err);
     statsd.timing('certifier.unavailable.error', new Date() - start);
     cb("certifier is down");
   });
   req.write(body);
   req.end();
-}
+};
