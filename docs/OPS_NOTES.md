@@ -9,7 +9,30 @@ In practice, this server **looks like an IdP**!
 
 Although it has a `/.well-known/browserid` file, *only the ``public-key``
 field is used*. The [BrowserID codebase](https://github.com/mozilla/browserid)
-has the provisioning and authentnication urls hardcoded into it's configs.
+has the provisioning and authentication urls hardcoded into it's configs.
+
+Certifier
+---------
+
+This server depends on a [certifier](https://github.com/mozilla/browserid-certifier).
+
+The public key for BigTent **must** match the keypair deployed to the certifier.
+
+BigTent will refuse to startup if this is not the case.
+
+Public Key
+----------
+
+BigTent must have a public key. There are several ways to achieve this:
+
+-   Use the environment variables `PUBLIC_KEY`.
+-   Use `scripts/gen_keys.js` to create `server_secret_key.json` and
+    `server_public_key.json` in `server/var/`.
+-   Do nothing and let the server generate its own "ephemeral keys," which
+    will change on each restart.
+
+In practise, you'll want stable keys that match your certifier.
+
 
 API Keys: Windows Live (Hotmail)
 --------------------------------
@@ -21,27 +44,6 @@ thus requires an API key. This means two things:
 2.  Each API key must be provisioned by Microsoft.
 
 Real keys are managed by Ops.
-
-Cryptographic Keys
-------------------
-
-This server does cryptographic operations as part of the Persona Primary
-protocol.
-
-It must have public/secret keys. There are several ways to achieve this:
-
--   Use the environment variables `PUBLIC_KEY` and `PRIVATE_KEY`.
--   Use `scripts/gen_keys.js` to create `server_secret_key.json` and
-    `server_public_key.json` in `server/var/`.
--   Do nothing and let the server generate its own "ephemeral keys," which
-    will change on each restart.
-
-Ephemeral keys are only appropriate in development environments. If deploying
-in a clustered environment, all servers must have the same keypair.
-
-The private key (`server_secret_key.json`) is *extremely sensative*, protect it!
-
-Only the public key (`server_public_key.json`) can be shared via HTTP.
 
 External Requests
 -----------------

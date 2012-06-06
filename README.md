@@ -14,17 +14,11 @@ Q: How can I get Mozilla to add my service to the big tent?
 
 A: Nope, please implement that BrowserID Primary protocol for your users
 
+Dependencies
+------------
+
+* This project reuses a [certifier](https://github.com/mozilla/browserid-certifier) server
+
 Status
 ------
 Not ready for production use!
-
-Process
--------
-1. (done) Auth via Google
-2. (done) Maintain email address in session
-3. (done) provision
-4. (done) sign in
-5. browserid.org whitelist
-6. Multiple auths coexisting
-7. (done) awsbox
-8. Add statsd monitoring points
