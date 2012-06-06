@@ -11,13 +11,12 @@ session = require('./session_context'),
 statsd = require('./statsd'),
 util = require('util');
 
-const RETURN_URL = '/auth/google/return';
+const RETURN_PATH = '/auth/google/return';
 
 var
-sessions,
 protocol = config.get('use_https') ? 'https' : 'http',
 hostname = util.format("%s://%s", protocol, config.get('issuer')),
-return_url = util.format("%s%s", hostname, RETURN_URL),
+return_url = util.format("%s%s", hostname, RETURN_PATH),
 realm = util.format("%s/", hostname);
 
 // Google strategy requires these, but Yahoo and Hotmail works w/o serializers...
@@ -29,24 +28,19 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
-// Use the GoogleStrategy within Passport.
-//   Strategies in passport require a `validate` function, which accept
-//   credentials (in this case, an OpenID identifier and profile), and invoke a
-//   callback with a user object.
+// Register the GoogleStrategy with Passport.
 passport.use(new GoogleStrategy({
     returnURL: return_url,
     realm: realm
   },
-  // Vanilla PassportJS verify callback
   function(identifier, profile, done) {
     done(null, profile);
   }
 ));
 
-exports.init = function (app, clientSessions) {
+exports.init = function(app) {
   app.use(passport.initialize());
   app.use(passport.session());
-  sessions = clientSessions;
 };
 
 exports.views = function (app) {
@@ -55,7 +49,7 @@ exports.views = function (app) {
   //   request.  If authentication fails, the user will be redirected back to the
   //   login page.  Otherwise, the primary route function function will be called,
   //   which, in this example, will redirect the user to the home page.
-  app.get(RETURN_URL, passport.authenticate('google', { failureRedirect: '/cancel' }),
+  app.get(RETURN_PATH, passport.authenticate('google', { failureRedirect: '/cancel' }),
     function(req, res) {
       // Are we who we said we are?
       // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?

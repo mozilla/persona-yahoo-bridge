@@ -11,19 +11,15 @@ session = require('./session_context'),
 statsd = require('./statsd'),
 util = require('util');
 
-const RETURN_URL = '/auth/yahoo/return';
+const RETURN_PATH = '/auth/yahoo/return';
 
 var
-sessions,
 protocol = config.get('use_https') ? 'https' : 'http',
 hostname = util.format("%s://%s", protocol, config.get('issuer')),
-return_url = util.format("%s%s", hostname, RETURN_URL),
+return_url = util.format("%s%s", hostname, RETURN_PATH),
 realm = util.format("%s/", hostname);
 
-// Use the YahooStrategy within Passport.
-//   Strategies in passport require a `validate` function, which accept
-//   credentials (in this case, an OpenID identifier and profile), and invoke a
-//   callback with a user object.
+// Register the YahooStrategy with Passport.
 passport.use(new YahooStrategy({
     returnURL: return_url,
     realm: realm
@@ -33,10 +29,9 @@ passport.use(new YahooStrategy({
   }
 ));
 
-exports.init = function (app, clientSessions) {
+exports.init = function(app) {
   app.use(passport.initialize());
   app.use(passport.session());
-  sessions = clientSessions;
 };
 
 exports.views = function (app) {
@@ -45,7 +40,7 @@ exports.views = function (app) {
   //   request.  If authentication fails, the user will be redirected back to the
   //   login page.  Otherwise, the primary route function function will be called,
   //   which, in this example, will redirect the user to the home page.
-  app.get(RETURN_URL,
+  app.get(RETURN_PATH,
     passport.authenticate('yahoo', { failureRedirect: '/cancel' }),
     function(req, res) {
       // Are we who we said we are?
