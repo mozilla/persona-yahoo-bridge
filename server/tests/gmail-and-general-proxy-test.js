@@ -1,10 +1,14 @@
-const assert = require('assert'),
-      vows = require('vows'),
-      request = require('request'),
-      routes = require('../routes'),
-      start_stop = require('./lib/start-stop'),
-      util = require('util');
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const
+assert = require('assert'),
+vows = require('vows'),
+request = require('request'),
+routes = require('../routes'),
+start_stop = require('./lib/start-stop'),
+util = require('util');
 
 var suite = vows.describe('gmail-and-general-proxy-test');
 
@@ -18,7 +22,7 @@ function base_url (path) {
 suite.addBatch({
   'Anonymous request with gmail.com email is sent to the Goog.': {
     topic: function () {
-      opts = {
+      var opts = {
         followRedirect: false
       };
       request(base_url('/proxy/alice%40gmail.com'), opts, this.callback);
@@ -28,7 +32,7 @@ suite.addBatch({
     },
     'We get a redirect': function (err, r, body) {
       assert.equal(r.statusCode, 302);
-      assert.equal(r.headers['location'].indexOf('https://www.google.com/accounts/o8/ud'), 0);
+      assert.equal(r.headers.location.indexOf('https://www.google.com/accounts/o8/ud'), 0);
     }
   }
 });
@@ -36,7 +40,8 @@ suite.addBatch({
 start_stop.addShutdownBatches(suite);
 
 // run or export the suite.
-if (process.argv[1] === __filename)
+if (process.argv[1] === __filename) {
   suite.run();
-else
+} else {
   suite.export(module);
+}

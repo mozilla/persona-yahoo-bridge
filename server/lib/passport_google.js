@@ -2,24 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('./configuration'),
-      GoogleStrategy = require('passport-google').Strategy,
-      logger = require('./logging').logger,
-      passport = require('passport'),
-      session = require('./session_context'),
-      statsd = require('./statsd'),
-      util = require('util');
+const
+config = require('./configuration'),
+GoogleStrategy = require('passport-google').Strategy,
+logger = require('./logging').logger,
+passport = require('passport'),
+session = require('./session_context'),
+statsd = require('./statsd'),
+util = require('util');
 
-const RETURN_URL = '/auth/google/return';
+const RETURN_PATH = '/auth/google/return';
 
-var protocol = 'http';
-if (config.get('use_https')) {
-  protocol = 'https';
-}
-var sessions,
-    hostname = util.format("%s://%s", protocol, config.get('issuer')),
-    return_url = util.format("%s%s", hostname, RETURN_URL),
-    realm = util.format("%s/", hostname);
+var
+protocol = config.get('use_https') ? 'https' : 'http',
+hostname = util.format("%s://%s", protocol, config.get('issuer')),
+return_url = util.format("%s%s", hostname, RETURN_PATH),
+realm = util.format("%s/", hostname);
 
 // Google strategy requires these, but Yahoo and Hotmail works w/o serializers...
 passport.serializeUser(function(user, done) {
@@ -30,25 +28,20 @@ passport.deserializeUser(function(obj, done) {
   done(null, obj);
 });
 
-// Use the GoogleStrategy within Passport.
-//   Strategies in passport require a `validate` function, which accept
-//   credentials (in this case, an OpenID identifier and profile), and invoke a
-//   callback with a user object.
+// Register the GoogleStrategy with Passport.
 passport.use(new GoogleStrategy({
     returnURL: return_url,
     realm: realm
   },
-  // Vanilla PassportJS verify callback
   function(identifier, profile, done) {
     done(null, profile);
   }
 ));
 
-exports.init = function (app, clientSessions) {
+exports.init = function(app) {
   app.use(passport.initialize());
   app.use(passport.session());
-  sessions = clientSessions;
-}
+};
 
 exports.views = function (app) {
   // /auth/google/return
@@ -56,7 +49,7 @@ exports.views = function (app) {
   //   request.  If authentication fails, the user will be redirected back to the
   //   login page.  Otherwise, the primary route function function will be called,
   //   which, in this example, will redirect the user to the home page.
-  app.get(RETURN_URL, passport.authenticate('google', { failureRedirect: '/cancel' }),
+  app.get(RETURN_PATH, passport.authenticate('google', { failureRedirect: '/cancel' }),
     function(req, res) {
       // Are we who we said we are?
       // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?
@@ -68,7 +61,7 @@ exports.views = function (app) {
 
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function (email_obj, i) {
-          if (match) return;
+          if (match) { return; }
 
           if (! email_obj.value) {
             statsd.increment('warn.routes.auth.google.return.no_email_value');
@@ -103,4 +96,4 @@ exports.views = function (app) {
         statsd.timing(metric, new Date() - start);
       }
   });
-}
+};

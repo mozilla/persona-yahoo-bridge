@@ -1,56 +1,83 @@
-# Operations Notes #
+Operations Notes
+================
 
-BigTent is a IdP Proxy service. It bridges gmail.com, yahoo.com, and hotmail.com email addresses so that they look like Google, Yahoo, and Microsoft are running BrowserID Primary enabled servers.
+BigTent is a BrowserID Identity Provider (IdP) Proxy service. It bridges
+`gmail.com`, `yahoo.com`, and `hotmail.com` email addresses so that it looks
+like Google, Yahoo, and Microsoft are running BrowserID enabled servers.
 
-In Practise, this server **looks like a primary**!
+In practice, this server **looks like an IdP**!
 
-Although it has a ``/.well-known/browserid`` file, _only the ``public-key`` field is used_. The [BrowserID codebase](https://github.com/mozilla/browserid) has the provisioning and authentnication urls hardcoded into it's configs.
+Although it has a `/.well-known/browserid` file, *only the ``public-key``
+field is used*. The [BrowserID codebase](https://github.com/mozilla/browserid)
+has the provisioning and authentnication urls hardcoded into it's configs.
 
-## Windows Live API Key
-Most IdPs we proxy use OpenID, but Windows Live requires an API Key. This means two things - domain name and API key must match, API key must be registred with Microsoft. Real keys are managed by Ops.
+API Keys: Windows Live (Hotmail)
+--------------------------------
 
-## Public and Secret Keypair
-This server does cryptographic operations as part of the Persona Primary protocol.
+While we use OpenID for Google and Yahoo, Microsoft only supports OAuth2, and
+thus requires an API key. This means two things:
 
-You must have public/secret keys. There are several ways to achieve this:
-* Using the following environment variables: ``PUBLIC_KEY`` ``PRIVATE_KEY``
-* Using scripts/gen_keys.js to create ``server/var/server_secret_key.json``  ``server/var/server_public_key.json``
-* Letting the server automatically create ``ephemeral`` keys, which change on restart
+1.  Each domain must have a matching API key.
+2.  Each API key must be provisioned by Microsoft.
 
-Ephemeral is only appropriate in development environments. If deploying Vinz Clortho in a clustered environment, all
-servers must have the same keypair.
+Real keys are managed by Ops.
 
-### Protect the keys
-The server_secret_key.json key is extremely sensative, protect it!
+Cryptographic Keys
+------------------
 
-Only the public key can be shared via HTTP.
+This server does cryptographic operations as part of the Persona Primary
+protocol.
 
-## External Requests
+It must have public/secret keys. There are several ways to achieve this:
+
+-   Use the environment variables `PUBLIC_KEY` and `PRIVATE_KEY`.
+-   Use `scripts/gen_keys.js` to create `server_secret_key.json` and
+    `server_public_key.json` in `server/var/`.
+-   Do nothing and let the server generate its own "ephemeral keys," which
+    will change on each restart.
+
+Ephemeral keys are only appropriate in development environments. If deploying
+in a clustered environment, all servers must have the same keypair.
+
+The private key (`server_secret_key.json`) is *extremely sensative*, protect it!
+
+Only the public key (`server_public_key.json`) can be shared via HTTP.
+
+External Requests
+-----------------
+
 Documented in [Issue 23](https://github.com/mozilla/browserid-bigtent/issues/23).
 
-## Monitoring
-BigTent has statsd prefixed to ``bigtent`` for the following:
-
-Counters:
-* HTTP Requests at the start of a route
-* Things we log warnings on
-* Things we log errors on
-* [Things that make you go Hmmm](http://en.wikipedia.org/wiki/Things_That_Make_You_Go_Hmmm...)
-
-Timers:
-* HTTP Requests amount of time spent servicing request
-
-### Heartbeats
-
-You can make a request to ``/__heartbeat__``.
+Monitoring
+----------
 
 ### Version
 
-During deployment you should create
+During deployment you should create `static/ver.txt`.
 
-    static/ver.txt
+This should have the last git commit and SHA as well as svn version. Example
+contents:
 
-This should have the last git commit and sha as well as SVN version. Example contents:
+    943d308 bump to 0.2012.04.27.5, and document changes in .4 and .5
+    locale svn r105105
+    =======
+    >>>>>>> f48a5bc... Clean up docs
 
-943d308 bump to 0.2012.04.27.5, and document changes in .4 and .5
-locale svn r105105
+### Stats
+
+BigTent has `statsd` prefixed to `bigtent` for the following:
+
+Counters:
+
+-   HTTP Requests at the start of a route
+-   Things we log warnings on
+-   Things we log errors on
+-   [Things that make you go Hmmm](http://en.wikipedia.org/wiki/Things_That_Make_You_Go_Hmmm...)
+
+Timers:
+
+-   HTTP Requests amount of time spent servicing request
+
+### Heartbeat
+
+A heartbeat is available at `/__heartbeat__`.

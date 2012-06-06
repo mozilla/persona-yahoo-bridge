@@ -10,7 +10,7 @@
 navigator.id.beginAuthentication(function(email) {
   // From mozilla/browserid resources/static/pages/page_helpers.js
   window.resizeTo(700, 375);
-  if (email == "<%= current_user %>") {
+  if (email === "<%= current_user %>") {
       navigator.id.completeAuthentication();
   } else {
       navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
