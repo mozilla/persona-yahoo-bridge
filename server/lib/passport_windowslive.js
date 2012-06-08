@@ -71,12 +71,13 @@ exports.views = function(app) {
         statsd.increment('warn.routes.auth.windowslive.callback.no_emails');
         logger.warn('Windows Live should have user and user.emails' + req.user);
         res.redirect(session.getErrorUrl(req));
+        statsd.timing(metric, new Date() - start);
       }
 
       if (!match) {
         statsd.increment('warn.routes.auth.windowslive.callback.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect(session.getErrorUrl(req));
+        res.redirect(session.getMismatchUrl(req));
         statsd.timing(metric, new Date() - start);
       }
     }
