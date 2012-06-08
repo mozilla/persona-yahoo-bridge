@@ -166,6 +166,10 @@ exports.init = function(app) {
 
     statsd.increment('routes.provision_js.get');
 
+    console.log('============ /provision.js ', req.headers);
+    console.log('req.isAuthenticated()', req.isAuthenticated());
+    console.log(req.session);
+
     if (req.isAuthenticated()) {
       ctx.emails = session.getActiveEmails(req);
       ctx.num_emails = Object.keys(ctx.emails).length;

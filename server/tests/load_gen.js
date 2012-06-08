@@ -4,7 +4,7 @@
  */
 exports.config = function () {
   return {
-    app_name: 'Foobar 5000',
+    app_name: 'BigTent',
     activities_dir: './lib/load_gen'
   };
 };
