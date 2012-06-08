@@ -5,18 +5,16 @@
 /* This file is the "provision" activity, which simulates the process of a
  * user with an active session adding a new email with browserid. */
 
-const request = require('request'),
-      client = require('../client'),
-      userdb = require('loady').userdb,
-      winston = require('winston');
+const
+request = require('request'),
+client = require('../client'),
+userdb = require('loady').userdb,
+winston = require('winston');
 
 // Once ever two weeks, our session has expired
 exports.probability = (8 / 40.0);
-exports.startFunc = function (cfg, cb) {
 
-  /* var jar = request.jar();
-  var req = request.defaults({jar: jar});
-  */
+exports.startFunc = function (cfg, cb) {
 
   var the_url = client.url('/.well-known/browserid', cfg);
   var user = userdb.getExistingUser();
@@ -27,6 +25,7 @@ exports.startFunc = function (cfg, cb) {
   user.request.get({
     url: the_url
   }, function (err, r, body) {
+    userdb.releaseUser(user);
     if (err) {
         cb(err);
     } else if (r.statusCode !== 200) {

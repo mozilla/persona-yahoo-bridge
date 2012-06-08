@@ -1,0 +1,31 @@
+# This script is suitable only for dev and must be run right before a
+# load testing activity. It is not suitable for load runs, as it falls
+# out of date very quickly and you'll start making requests to google.
+
+iptables -t nat -F
+
+YourIP=www.google.com
+YourPort=80
+TargetIP=192.168.186.138
+TargetPort=8442
+
+iptables -t nat -A PREROUTING --dst $YourIP -p tcp --dport $YourPort -j DNAT \
+--to-destination $TargetIP:$TargetPort
+iptables -t nat -A POSTROUTING -p tcp --dst $TargetIP --dport $TargetPort -j SNAT \
+--to-source $YourIP
+iptables -t nat -A OUTPUT --dst $YourIP -p tcp --dport $YourPort -j DNAT \
+--to-destination $TargetIP:$TargetPort
+
+YourIP=www.google.com
+YourPort=443
+TargetIP=192.168.186.138
+TargetPort=8443
+
+iptables -t nat -A PREROUTING --dst $YourIP -p tcp --dport $YourPort -j DNAT \
+--to-destination $TargetIP:$TargetPort
+iptables -t nat -A POSTROUTING -p tcp --dst $TargetIP --dport $TargetPort -j SNAT \
+--to-source $YourIP
+iptables -t nat -A OUTPUT --dst $YourIP -p tcp --dport $YourPort -j DNAT \
+--to-destination $TargetIP:$TargetPort
+
+iptables -L -t nat
