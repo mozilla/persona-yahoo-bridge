@@ -101,7 +101,7 @@ exports.init = function(app) {
     current_user = session.getCurrentUser(req),
     authed_email = req.body.authed_email;
 
-    if (!current_user) {
+    if (!current_user || ! req.isAuthenticated()) {
       res.writeHead(401);
       statsd.increment('routes.provision.no_current_user');
       return res.end();
