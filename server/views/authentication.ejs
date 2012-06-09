@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Contacting</title>
+</head>
+<body>
+<script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
+<script type="text/javascript">
+navigator.id.beginAuthentication(function(email) {
+  // From mozilla/browserid resources/static/pages/page_helpers.js
+  window.location.pathname = '/proxy/' + encodeURIComponent(email);
+});
+</script>
+</body>
+</html>

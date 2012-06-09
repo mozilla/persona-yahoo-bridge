@@ -16,12 +16,24 @@ valid_email = require('./lib/validation/email');
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
 
+  app.get('/authentication', function (req, res) {
+    var start = new Date();
+    statsd.increment('routes.authentication.get');
+
+    session.initialBidUrl(req);
+    res.render('authentication', {
+      layout: false,
+      browserid_server: config.get('browserid_server')
+    });
+    statsd.timing('routes.authentication', new Date() - start);
+  });
+
   // GET /proxy/:email
   //   Dispatch the user to an appropriate authentication service library.
   app.get('/proxy/:email', function(req, res, next) {
     var start = new Date();
     statsd.increment('routes.proxy.get');
-    session.initialBidUrl(req);
+
 
     // Issue #18 - Verify user input for email
     if (valid_email(req.params.email) === false) {
@@ -101,7 +113,7 @@ exports.init = function(app) {
     current_user = session.getCurrentUser(req),
     authed_email = req.body.authed_email;
 
-    if (!current_user) {
+    if (!current_user || ! req.isAuthenticated()) {
       res.writeHead(401);
       statsd.increment('routes.provision.no_current_user');
       return res.end();
