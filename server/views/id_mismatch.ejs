@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="<%= lang %>" dir="<%= lang_dir %>">
+  <head>
+    <meta charset="utf-8">
+    <title><%= gettext("Authentication Error") %></title>
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  </head>
+  <body>
+    <div id="content">
+    <h2><%= gettext("Authentication Error") %></h2>
+    <p><%= format(gettext("Sorry, it looks like you were trying to log in as %s, but were logged in to %s as a different address."), [claimed, provider]) %></p>
+    <p><%- format(gettext("Please visit %s and ensure that you are logged in as %s."), [format('<a href="%s" target="_blank">%s</a>', [providerURL, provider]), escape(claimed)]) %></p>
+    <button><%= gettext("Try Again") %></button>
+    </div>
+<script src="<%= browserid_server %>/authentication_api.js"></script>
+<script src="/js/lib/jquery.min.js"></script>
+<script>
+// From mozilla/browserid resources/static/pages/page_helpers.js
+window.resizeTo(700, 375);
+$('button').click(function () {
+    navigator.id.raiseAuthenticationFailure('user authenticated as wrong user.');
+});
+</script>
+  </body>
+</html>

@@ -42,6 +42,8 @@ exports.init = function(app) {
 
     session.setClaimedEmail(req);
 
+    // NOTE: If modifying, also update the entry for /id_mismatch.
+    // TODO: Move this into configuration?
     var strategies = {
       'gmail.com': 'google',
       'yahoo.com': 'yahoo',
@@ -203,6 +205,42 @@ exports.init = function(app) {
     });
 
     statsd.timing('routes.error', new Date() - start);
+  });
+
+  // GET /id_mismatch
+  //   Error page for when a user auths as an email address other than the
+  //   intended one. E.g., a user told BigTent that they were foo@gmail.com, but
+  //   we got back an OpenID auth for bar@gmail.com.
+  app.get('/id_mismatch', function(req, res) {
+    var
+    start = new Date(),
+    claimed = session.getClaimedEmail(req),
+    domain = claimed.split('@')[1],
+    domainInfo = {
+      'gmail.com': {provider: 'Google', providerURL: 'https://gmail.com/'},
+      'hotmail.com': {provider: 'Hotmail', providerURL: 'http://hotmail.com'},
+      'yahoo.com': {provider: 'Yahoo', providerURL: 'https://mail.yahoo.com'}
+    };
+
+    // NOTE: If updating domainInfo, also update the entry for /proxy/:email
+    // TODO: Move this into configuration?
+
+    statsd.increment('routes.id_mismatch.get');
+
+    if (!domainInfo.hasOwnProperty(domain)) {
+      logger.error('User landed on /id_mismatch for an unsupported domain');
+      res.redirect(session.getErrorUrl(req));
+    } else {
+      res.render('id_mismatch', {
+        browserid_server: config.get('browserid_server'),
+        claimed: claimed,
+        provider: domainInfo[domain].provider,
+        providerURL: domainInfo[domain].providerURL,
+        layout: false
+      });
+    }
+
+    statsd.timing('routes.id_mismatch', new Date() - start);
   });
 
   // GET /cancel
