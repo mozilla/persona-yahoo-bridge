@@ -50,6 +50,14 @@ exports.getCancelledUrl = function (req) {
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
+exports.getMismatchUrl = function (req) {
+  var err = '/id_mismatch';
+  if (! req.session || ! req.session.bid_state) {
+    return err;
+  }
+  return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
+};
+
 /*
  * During authentication, a user will enter a certain email adress
  * into the Persona dialog. The user is claiming to own that email
