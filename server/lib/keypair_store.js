@@ -3,68 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
+config = require('./configuration'),
 fs = require('fs'),
 path = require('path'),
 util = require('util');
 
-const
-PUBLIC_KEY_FILENAME = 'server_public_key.json';
-
-var
-pub_key_filename = util.format('var/%s', PUBLIC_KEY_FILENAME);
-
-/**
- * Checks to see if either server public or secret keys already exist.
- * Takes a callback with one argument exists - a boolean.
- * exists will be true if either file already exists.
- */
-exports.files_exist = function (callback) {
-    path.exists(pub_key_filename, function (pub_exists) {
-      if (pub_exists) {
-        callback(pub_exists);
-      } else {
-        callback(false);
-      }
-    });
-};
-
-/**
- * Given a jwcrypto public/private keypair, serializes them to the
- * filesystem. Two optional callbacks can be provided for errors
- * generated while writing public and secret files.
- */
-exports.write_files = function (keypair, pub_cb, secr_cb) {
-  fs.writeFile(pub_key_filename, keypair.publicKey.serialize(), 'utf8', function (err) {
-    if (err) {
-      pub_cb(err);
-    }
-  });
-  fs.writeFile(priv_key_filename, keypair.secretKey.serialize(), 'utf8', function (err) {
-    if (err) {
-      secr_cb(err);
-    }
-  });
-};
-
 /**
  * Reads JSON formatted jwcrypto public key from filesystem.
- * Use write_files to create these files.
  * Takes callback with arguments err, pubKey
  *
  * Method is synchronous as it's used from other modules during loading.
  */
-exports.read_files_sync = function (callback) {
-  var pub_exists = path.existsSync(pub_key_filename);
-  if (! pub_exists) {
+exports.read_pubkey_sync = function(callback) {
+  var pub_key_path = config.get('pub_key_path');
+  if (! path.existsSync(pub_key_path)) {
     return callback("Missing public key, cannot read files");
   }
   try {
-    var pubKey = JSON.parse(fs.readFileSync(pub_key_filename, 'utf8'));
+    var pubKey = JSON.parse(fs.readFileSync(pub_key_path, 'utf8'));
     callback(null, pubKey);
   } catch (e) {
     // File IO or malformed JSON
     console.trace(e);
     callback(e.toString());
-
   }
 };

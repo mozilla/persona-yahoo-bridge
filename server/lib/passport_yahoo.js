@@ -80,12 +80,14 @@ exports.views = function (app) {
       } else {
         logger.warn("Yahoo should have had user and user.emails" + req.user);
         statsd.increment('warn.routes.auth.yahoo.return.no_emails');
+        res.redirect(session.getErrorUrl(req));
+        statsd.timing(metric, new Date() - start);
       }
 
       if (!match) {
         statsd.increment('warn.routes.auth.yahoo.return.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect(session.getErrorUrl(req));
+        res.redirect(session.getMismatchUrl(req));
         statsd.timing(metric, new Date() - start);
       }
 

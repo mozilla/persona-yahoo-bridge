@@ -86,13 +86,15 @@ exports.views = function (app) {
           }
         });// forEach emails
       } else {
-        logger.warn("Google should have had user and user.emails" + req.user);
         statsd.increment('warn.routes.auth.google.return.no_emails');
+        logger.warn("Google should have had user and user.emails" + req.user);
+        res.redirect(session.getErrorUrl(req));
+        statsd.timing(metric, new Date() - start);
       }
       if (!match) {
         statsd.increment('error.routes.auth.google.return.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect(session.getErrorUrl(req));
+        res.redirect(session.getMismatchUrl(req));
         statsd.timing(metric, new Date() - start);
       }
   });

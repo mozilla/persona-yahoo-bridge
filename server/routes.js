@@ -16,12 +16,26 @@ valid_email = require('./lib/validation/email');
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
 
-  // GET /proxy/:email
-  //   Dispatch the user to an appropriate authentication service library.
-  app.get('/proxy/:email', function(req, res, next) {
+  app.get('/authentication', function (req, res) {
     var start = new Date();
-    statsd.increment('routes.proxy.get');
+    statsd.increment('routes.authentication.get');
+
     session.initialBidUrl(req);
+    res.render('authentication', {
+      layout: false,
+      browserid_server: config.get('browserid_server')
+    });
+    statsd.timing('routes.authentication', new Date() - start);
+  });
+
+  // GET /proxy/:email
+  //   Dispatch the user to an appropriate authentication library.
+  app.get('/proxy/:email', function(req, res, next) {
+    var
+    start = new Date(),
+    domainInfo = config.get('domain_info');
+
+    statsd.increment('routes.proxy.get');
 
     // Issue #18 - Verify user input for email
     if (valid_email(req.params.email) === false) {
@@ -30,21 +44,22 @@ exports.init = function(app) {
 
     session.setClaimedEmail(req);
 
-    var strategies = {
-      'gmail.com': 'google',
-      'yahoo.com': 'yahoo',
-      'hotmail.com': 'windowslive'
-    };
-
+    // TODO: Can I define this somewhere closer to the strategy itself?
     var authOptions = {
       windowslive: { scope: 'wl.emails' }
     };
 
-    var service = req.params.email.split('@')[1];
-    var strategy = strategies[service];
+    var domain = req.params.email.split('@')[1];
 
-    if (strategy) {
-      (passport.authenticate(strategy, authOptions[strategy]))(req,res,next);
+    if (!domainInfo.hasOwnProperty(domain)) {
+      logger.error('User landed on /proxy/:email for an unsupported domain');
+      res.redirect(session.getErrorUrl(req));
+    } else {
+      var strategy = domainInfo[domain].strategy;
+
+      if (strategy) {
+        (passport.authenticate(strategy, authOptions[strategy]))(req,res,next);
+      }
     }
 
     statsd.timing('routes.proxy', new Date() - start);
@@ -186,7 +201,7 @@ exports.init = function(app) {
   app.get('/error', function(req, res) {
     var start = new Date();
 
-    statsd.increment('routes.provision_js.get');
+    statsd.increment('routes.error.get');
 
     res.render('error', {
       browserid_server: config.get('browserid_server'),
@@ -195,6 +210,35 @@ exports.init = function(app) {
     });
 
     statsd.timing('routes.error', new Date() - start);
+  });
+
+  // GET /id_mismatch
+  //   Error page for when a user auths as an email address other than the
+  //   intended one. E.g., a user told BigTent that they were foo@gmail.com, but
+  //   we got back an OpenID auth for bar@gmail.com.
+  app.get('/id_mismatch', function(req, res) {
+    var
+    start = new Date(),
+    claimed = session.getClaimedEmail(req),
+    domain = claimed.split('@')[1],
+    domainInfo = config.get('domain_info');
+
+    statsd.increment('routes.id_mismatch.get');
+
+    if (!domainInfo.hasOwnProperty(domain)) {
+      logger.error('User landed on /id_mismatch for an unsupported domain');
+      res.redirect(session.getErrorUrl(req));
+    } else {
+      res.render('id_mismatch', {
+        browserid_server: config.get('browserid_server'),
+        claimed: claimed,
+        provider: domainInfo[domain].providerName,
+        providerURL: domainInfo[domain].providerURL,
+        layout: false
+      });
+    }
+
+    statsd.timing('routes.id_mismatch', new Date() - start);
   });
 
   // GET /cancel
@@ -221,55 +265,53 @@ exports.init = function(app) {
     statsd.timing('routes.cancelled', new Date() - start);
   });
 
-  // GET /
-  //   Render a page that allows for directly starting the proxy auth flow
-  //   and managing BigTent-specific login state. This is only useful for
-  //   development and testing.
-  //
-  //   TODO: Hide this behind a flag so it's disabled / behaves differently
-  //   in production?
-  app.get('/', function(req, res){
-    var start = new Date();
+  // Routes uses only for development / testing. Disabled by default.
+  if  (config.get('enable_testing_pages')) {
+    // GET /
+    //   Render a page that allows for directly starting the proxy auth flow
+    //   and managing BigTent-specific login state. This is only useful for
+    //   development and testing.
+    app.get('/', function(req, res){
+      var start = new Date();
 
-    statsd.increment('routes.homepage.get');
+      statsd.increment('routes.homepage.get');
 
-    req.user = session.getCurrentUser(req);
-    if (req.user === null) { req.user = "None"; }
+      req.user = session.getCurrentUser(req);
+      if (req.user === null) { req.user = "None"; }
 
-    var active = Object.keys(session.getActiveEmails(req));
+      var active = Object.keys(session.getActiveEmails(req));
 
-    res.render('home', {
-      current: req.user,
-      active_emails: active,
-      browserid_server: config.get('browserid_server')
+      res.render('home', {
+        current: req.user,
+        active_emails: active,
+        browserid_server: config.get('browserid_server')
+      });
+
+      statsd.timing('routes.homepage', new Date() - start);
     });
 
-    statsd.timing('routes.homepage', new Date() - start);
-  });
+    // GET /logout
+    //   Clear the user's BigTent session. This is only used for development
+    //   and testing.
+    app.get('/logout', function(req, res){
+      var start = new Date();
 
-  // GET /logout
-  //   Clear the user's BigTent session. This is only used for development
-  //   and testing.
-  app.get('/logout', function(req, res){
-    var start = new Date();
+      statsd.increment('routes.logout.get');
 
-    statsd.increment('routes.logout.get');
+      req.session.reset();
+      req.logout(); // passportism
+      res.redirect('/');
 
-    req.session.reset();
-    req.logout(); // passportism
-    res.redirect('/');
-
-    statsd.timing('routes.homepage', new Date() - start);
-  });
+      statsd.timing('routes.homepage', new Date() - start);
+    });
+  }
 
   // GET /.well-known/browserid
   //   Declare support as a BrowserID Identity Provider.
   app.get('/.well-known/browserid', function(req, res) {
-    // 6 hours in seconds
-    // FIXME: Actually 2 minutes. When do we change it?
     var
     start = new Date(),
-    timeout = 120; //6 * 60 * 60; // in seconds
+    timeout = config.get('pub_key_ttl');
 
     statsd.increment('routes.wellknown.get');
 
@@ -298,5 +340,16 @@ exports.init = function(app) {
     });
 
     statsd.timing('routes.wellknown', new Date() - start);
+  });
+
+  // GET /__heartbeat__
+  //   Report on whether or not this node is functioning as expected.
+  app.get('/__heartbeat__', function(req, res) {
+    // TODO: Do deeper checking? But we're pretty much stateless, so if we can
+    // respond all, we should be fine. For inspiration, check out:
+    // https://github.com/mozilla/browserid/blob/dev/lib/heartbeat.js
+    res.writeHead(200);
+    res.write('ok');
+    res.end();
   });
 };

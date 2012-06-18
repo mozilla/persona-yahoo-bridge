@@ -16,7 +16,7 @@ try {
 // or var file system cache
 if (!exports.pubKey) {
   try {
-    store.read_files_sync(function (err, publicKey) {
+    store.read_pubkey_sync(function (err, publicKey) {
       if (! err) {
         exports.pubKey = publicKey;
       }
@@ -25,11 +25,8 @@ if (!exports.pubKey) {
 }
 
 if (!exports.pubKey) {
-  if (exports.pubKey !== exports.privKey) {
-    throw "inconsistent configuration!  if privKey is defined, so must be pubKey";
-  }
-  // if no keys are provided emit a nasty message and generate some
-  logger.warn("WARNING: you're using ephemeral keys.  They will be purged at restart.");
+  // if no key is provided, emit a nasty message and generate some
+  logger.warn("WARNING: you're using ephemeral keys. They will be purged at restart.");
 
   // generate a fresh 1024 bit RSA key
   var keypair = jwk.KeyPair.generate('RS', 256);
