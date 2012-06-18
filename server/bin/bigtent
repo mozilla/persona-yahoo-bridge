@@ -81,9 +81,6 @@ passport_google.views(app);
 passport_windowslive.views(app);
 passport_yahoo.views(app);
 
-// Ops
-app.get('/__heartbeat__', function (req, res) { res.send('ok');});
-
 var static_root = path.join(__dirname, '..', '..', 'static');
 app.use(express.static(static_root));
 
