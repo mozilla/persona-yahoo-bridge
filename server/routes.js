@@ -196,7 +196,7 @@ exports.init = function(app) {
   app.get('/error', function(req, res) {
     var start = new Date();
 
-    statsd.increment('routes.provision_js.get');
+    statsd.increment('routes.error.get');
 
     res.render('error', {
       browserid_server: config.get('browserid_server'),
