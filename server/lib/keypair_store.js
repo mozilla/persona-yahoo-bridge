@@ -8,7 +8,7 @@ path = require('path'),
 util = require('util');
 
 const
-PUBLIC_KEY_FILENAME = 'server_public_key.json';
+PUBLIC_KEY_FILENAME = 'key.publickey';
 
 var
 pub_key_filename = util.format('var/%s', PUBLIC_KEY_FILENAME);

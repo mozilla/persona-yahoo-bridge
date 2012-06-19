@@ -26,13 +26,14 @@ Public Key
 BigTent must have a public key. There are several ways to achieve this:
 
 -   Use the environment variables `PUBLIC_KEY`.
--   Use `scripts/gen_keys.js` to create `server_secret_key.json` and
-    `server_public_key.json` in `server/var/`.
--   Do nothing and let the server generate its own "ephemeral keys," which
-    will change on each restart.
+-   Use `./node_modules/jwcrypto/bin/generate-keypair` to create
+    `key.publickey` and `key.secretkey`. These should be stored with the
+    BrowserID Certifier, as defined in its configuration, and a copy of the
+    public key should be placed in BigTent's `server/var/` directory.
+-   Do nothing and let the server generate its own "ephemeral keys," which will
+    change on each restart.
 
-In practise, you'll want stable keys that match your certifier.
-
+In practice, you'll want stable keys that match your certifier.
 
 API Keys: Windows Live (Hotmail)
 --------------------------------
@@ -44,6 +45,8 @@ thus requires an API key. This means two things:
 2.  Each API key must be provisioned by Microsoft.
 
 Real keys are managed by Ops.
+
+To reiterate, neither Google nor Yahoo require API keys.
 
 External Requests
 -----------------
