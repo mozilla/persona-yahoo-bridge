@@ -13,6 +13,7 @@ const
 config = require('../lib/configuration'),
 express = require('express'),
 fs = require('fs'),
+url = require('url'),
 util = require('util'),
 logger = require('../lib/logging').logger;
 
@@ -36,6 +37,14 @@ try {
   app.use(express.methodOverride());
 
   app.use(express.logger());
+
+  app.use(function (req, resp, next) {
+    console.log('before req.path=', req.path);
+    var parts = url.parse(req.path.substring(1), true);
+    req.url = parts.path;
+    console.log('after req.path=', req.path);
+    next();
+  });
 
   // Google (bare request as well as one with query string)
   app.get('/accounts/o8/id', function (req, res) {
@@ -114,7 +123,6 @@ try {
   // Google request #3
   // Bug - we're not calculating the signature dynamically
   app.post('/accounts/o8/ud', function (req, res) {
-    var timeout = Math.round(Math.random() * 5000);
     setTimeout(function () {
       res.send('ns:http://specs.openid.net/auth/2.0\n\
         session_type:DH-SHA256\n\
@@ -123,8 +131,8 @@ try {
         expires_in:468000\n\
         dh_server_public:MmMuQSq7zIyl1wnHK+6UBFqX5MNOTJa8onC4UmX970SUu26HDkRPw/A7By+9BAb2/Dycqm01YVoJT7HdaGnjizplqRRrKeLuFiCuPyrM0Iw6gqYx96bmEF3mw9LuJ61Dgh8Hk9i3LhKodl2jyfNkz30HBdaERI/i3pbHIKdCcaQ=\n\
         enc_mac_key:bablwarquqQclMcLvwjypZEFQ2CpeDPcvUvdl+AqUsU=');
-      });
-    }, timeout);
+    }, Math.round(Math.random() * 5000));
+  });
 
 });
 
