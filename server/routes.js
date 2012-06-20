@@ -29,11 +29,13 @@ exports.init = function(app) {
   });
 
   // GET /proxy/:email
-  //   Dispatch the user to an appropriate authentication service library.
+  //   Dispatch the user to an appropriate authentication library.
   app.get('/proxy/:email', function(req, res, next) {
-    var start = new Date();
-    statsd.increment('routes.proxy.get');
+    var
+    start = new Date(),
+    domainInfo = config.get('domain_info');
 
+    statsd.increment('routes.proxy.get');
 
     // Issue #18 - Verify user input for email
     if (valid_email(req.params.email) === false) {
@@ -42,20 +44,15 @@ exports.init = function(app) {
 
     session.setClaimedEmail(req);
 
-    // NOTE: If modifying, also update the entry for /id_mismatch.
-    // TODO: Move this into configuration?
-    var strategies = {
-      'gmail.com': 'google',
-      'yahoo.com': 'yahoo',
-      'hotmail.com': 'windowslive'
-    };
-
+    // TODO: Can I define this somewhere closer to the strategy itself?
     var authOptions = {
       windowslive: { scope: 'wl.emails' }
     };
 
-    var service = req.params.email.split('@')[1];
-    var strategy = strategies[service];
+    var domain = req.params.email.split('@')[1];
+
+    // FIXME: This could blow up if domainInfo[domain] is undefined
+    var strategy = domainInfo[domain].strategy;
 
     if (strategy) {
       (passport.authenticate(strategy, authOptions[strategy]))(req,res,next);
@@ -216,14 +213,7 @@ exports.init = function(app) {
     start = new Date(),
     claimed = session.getClaimedEmail(req),
     domain = claimed.split('@')[1],
-    domainInfo = {
-      'gmail.com': {provider: 'Google', providerURL: 'https://gmail.com/'},
-      'hotmail.com': {provider: 'Hotmail', providerURL: 'http://hotmail.com'},
-      'yahoo.com': {provider: 'Yahoo', providerURL: 'https://mail.yahoo.com'}
-    };
-
-    // NOTE: If updating domainInfo, also update the entry for /proxy/:email
-    // TODO: Move this into configuration?
+    domainInfo = config.get('domain_info');
 
     statsd.increment('routes.id_mismatch.get');
 
@@ -234,7 +224,7 @@ exports.init = function(app) {
       res.render('id_mismatch', {
         browserid_server: config.get('browserid_server'),
         claimed: claimed,
-        provider: domainInfo[domain].provider,
+        provider: domainInfo[domain].providerName,
         providerURL: domainInfo[domain].providerURL,
         layout: false
       });
