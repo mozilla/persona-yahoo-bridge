@@ -6,5 +6,23 @@
     "duration": 86400000
   },
   "issuer": "localhost",
-  "use_https": false
+  "use_https": false,
+  "domain_info": {
+    "gmail.com": {
+      "strategy": "google",
+      "providerName": "Google",
+      "providerURL": "https://gmail.com"
+    },
+    "yahoo.com": {
+      "strategy": "yahoo",
+      "providerName": "Yahoo",
+      "providerURL": "https://mail.yahoo.com"
+    },
+    "hotmail.com": {
+      "strategy": "windowslive",
+      "providerName": "Hotmail",
+      "providerURL": "http://hotmail.com"
+    }
+  },
+  "pubkey_ttl": 120
 }
