@@ -51,11 +51,15 @@ exports.init = function(app) {
 
     var domain = req.params.email.split('@')[1];
 
-    // FIXME: This could blow up if domainInfo[domain] is undefined
-    var strategy = domainInfo[domain].strategy;
+    if (!domainInfo.hasOwnProperty(domain)) {
+      logger.error('User landed on /proxy/:email for an unsupported domain');
+      res.redirect(session.getErrorUrl(req));
+    } else {
+      var strategy = domainInfo[domain].strategy;
 
-    if (strategy) {
-      (passport.authenticate(strategy, authOptions[strategy]))(req,res,next);
+      if (strategy) {
+        (passport.authenticate(strategy, authOptions[strategy]))(req,res,next);
+      }
     }
 
     statsd.timing('routes.proxy', new Date() - start);
