@@ -62,7 +62,8 @@ var conf = module.exports = convict({
   windows_live: {
     client_id: 'string = "00000000440BCC94"',
     client_secret: 'string = "NgepFX4ectJP-l-5XOymSqk4aLy7DJrE"'
-  }
+  },
+  pubkey_ttl: "integer = " + (6 * 60 * 60) // 6 hours
 });
 
 // At the time this file is required, we'll determine the "process name" for this proc

@@ -23,5 +23,6 @@
       "providerName": "Hotmail",
       "providerURL": "http://hotmail.com"
     }
-  }
+  },
+  pubkey_ttl: 120
 }

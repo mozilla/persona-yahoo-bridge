@@ -305,11 +305,9 @@ exports.init = function(app) {
   // GET /.well-known/browserid
   //   Declare support as a BrowserID Identity Provider.
   app.get('/.well-known/browserid', function(req, res) {
-    // 6 hours in seconds
-    // FIXME: Actually 2 minutes. When do we change it?
     var
     start = new Date(),
-    timeout = 120; //6 * 60 * 60; // in seconds
+    timeout = config.get('pubkey_ttl');
 
     statsd.increment('routes.wellknown.get');
 
