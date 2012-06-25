@@ -64,6 +64,7 @@ var conf = module.exports = convict({
     client_secret: 'string = "NgepFX4ectJP-l-5XOymSqk4aLy7DJrE"'
   },
   pubkey_ttl: "integer = " + (6 * 60 * 60), // 6 hours
+  pubkey_path: 'string = "var/key.publickey"',
   enable_testing_pages: 'boolean = false'
 });
 
