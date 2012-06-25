@@ -261,53 +261,53 @@ exports.init = function(app) {
     statsd.timing('routes.cancelled', new Date() - start);
   });
 
-  // GET /
-  //   Render a page that allows for directly starting the proxy auth flow
-  //   and managing BigTent-specific login state. This is only useful for
-  //   development and testing.
-  //
-  //   TODO: Hide this behind a flag so it's disabled / behaves differently
-  //   in production?
-  app.get('/', function(req, res){
-    var start = new Date();
+  // Routes uses only for development / testing. Disabled by default.
+  if  (config.get('enable_testing_pages')) {
+    // GET /
+    //   Render a page that allows for directly starting the proxy auth flow
+    //   and managing BigTent-specific login state. This is only useful for
+    //   development and testing.
+    app.get('/', function(req, res){
+      var start = new Date();
 
-    statsd.increment('routes.homepage.get');
+      statsd.increment('routes.homepage.get');
 
-    req.user = session.getCurrentUser(req);
-    if (req.user === null) { req.user = "None"; }
+      req.user = session.getCurrentUser(req);
+      if (req.user === null) { req.user = "None"; }
 
-    var active = Object.keys(session.getActiveEmails(req));
+      var active = Object.keys(session.getActiveEmails(req));
 
-    res.render('home', {
-      current: req.user,
-      active_emails: active,
-      browserid_server: config.get('browserid_server')
+      res.render('home', {
+        current: req.user,
+        active_emails: active,
+        browserid_server: config.get('browserid_server')
+      });
+
+      statsd.timing('routes.homepage', new Date() - start);
     });
 
-    statsd.timing('routes.homepage', new Date() - start);
-  });
+    // GET /logout
+    //   Clear the user's BigTent session. This is only used for development
+    //   and testing.
+    app.get('/logout', function(req, res){
+      var start = new Date();
 
-  // GET /logout
-  //   Clear the user's BigTent session. This is only used for development
-  //   and testing.
-  app.get('/logout', function(req, res){
-    var start = new Date();
+      statsd.increment('routes.logout.get');
 
-    statsd.increment('routes.logout.get');
+      req.session.reset();
+      req.logout(); // passportism
+      res.redirect('/');
 
-    req.session.reset();
-    req.logout(); // passportism
-    res.redirect('/');
-
-    statsd.timing('routes.homepage', new Date() - start);
-  });
+      statsd.timing('routes.homepage', new Date() - start);
+    });
+  }
 
   // GET /.well-known/browserid
   //   Declare support as a BrowserID Identity Provider.
   app.get('/.well-known/browserid', function(req, res) {
     var
     start = new Date(),
-    timeout = config.get('pubkey_ttl');
+    timeout = config.get('pub_key_ttl');
 
     statsd.increment('routes.wellknown.get');
 

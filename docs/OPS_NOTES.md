@@ -23,17 +23,20 @@ BigTent will refuse to startup if this is not the case.
 Public Key
 ----------
 
-BigTent must have a public key. There are several ways to achieve this:
+BigTent must have a public key, and it must be identical to the one used by
+the associated BrowserID Certifier. There are several ways to achieve this:
 
--   Use the environment variables `PUBLIC_KEY`.
--   Use `./node_modules/jwcrypto/bin/generate-keypair` to create
-    `key.publickey` and `key.secretkey`. These should be stored with the
-    BrowserID Certifier, as defined in its configuration, and a copy of the
-    public key should be placed in BigTent's `server/var/` directory.
+-   Place the JSON-serialized contents of the public key in the `PUBLIC_KEY`
+    environment variable.
+-   Place your `key.publickey` file in BigTent's `server/var/` directory.
+-   Edit your config file and set `pubkey_path` to the location of the
+    `key.publickey` file.
 -   Do nothing and let the server generate its own "ephemeral keys," which will
     change on each restart.
 
 In practice, you'll want stable keys that match your certifier.
+
+Keys can be generated with `./node_modules/jwcrypto/bin/generate-keypair`.
 
 API Keys: Windows Live (Hotmail)
 --------------------------------
