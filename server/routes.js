@@ -337,4 +337,15 @@ exports.init = function(app) {
 
     statsd.timing('routes.wellknown', new Date() - start);
   });
+
+  // GET /__heartbeat__
+  //   Report on whether or not this node is functioning as expected.
+  app.get('/__heartbeat__', function(req, res) {
+    // TODO: Do deeper checking? But we're pretty much stateless, so if we can
+    // respond all, we should be fine. For inspiration, check out:
+    // https://github.com/mozilla/browserid/blob/dev/lib/heartbeat.js
+    res.writeHead(200);
+    res.write('ok');
+    res.end();
+  });
 };
