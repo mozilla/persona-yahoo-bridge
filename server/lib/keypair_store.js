@@ -15,12 +15,12 @@ util = require('util');
  * Method is synchronous as it's used from other modules during loading.
  */
 exports.read_pubkey_sync = function(callback) {
-  var pubkey_path = config.get('pubkey_path');
-  if (! path.existsSync(pubkey_path)) {
+  var pub_key_path = config.get('pub_key_path');
+  if (! path.existsSync(pub_key_path)) {
     return callback("Missing public key, cannot read files");
   }
   try {
-    var pubKey = JSON.parse(fs.readFileSync(pubkey_path, 'utf8'));
+    var pubKey = JSON.parse(fs.readFileSync(pub_key_path, 'utf8'));
     callback(null, pubKey);
   } catch (e) {
     // File IO or malformed JSON

@@ -307,7 +307,7 @@ exports.init = function(app) {
   app.get('/.well-known/browserid', function(req, res) {
     var
     start = new Date(),
-    timeout = config.get('pubkey_ttl');
+    timeout = config.get('pub_key_ttl');
 
     statsd.increment('routes.wellknown.get');
 
