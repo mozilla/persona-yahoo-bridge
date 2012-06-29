@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "awsbox": "0.0.10",
+    "http-proxy": "0.8.1",
     "request": "2.9.202",
     "vows": "0.5.13"
   },
