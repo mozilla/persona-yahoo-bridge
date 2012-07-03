@@ -105,6 +105,17 @@ try {
     res.render('openid20_user_profile_xrds.ejs');
   });
 
+  /* Hotmail */
+  app.post('/token', function (req, res) {
+    res.header('x-msnserver', 'SN1MSG2020239');
+    res.header('date', new Date().toGMTString()); // 'Sun, 08 Jul 2012 21:28:08 GMT'
+    res.header('Content-Type', 'application/json');
+    res.render('token.ejs');
+  });
+  app.get('/v5.0/me', function (req, res) {
+    res.header('Content-Type', 'application/json');
+    res.render('v5.ejs');
+  });
 });
 
 http_app.listen(8442);
