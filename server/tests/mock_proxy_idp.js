@@ -10,6 +10,7 @@ const path = require('path');
 process.chdir(path.dirname(__dirname));
 
 const
+assoc_sess = require('./lib/mock_proxy_ip/assoc_session'),
 config = require('../lib/configuration'),
 express = require('express'),
 fs = require('fs'),
@@ -38,11 +39,15 @@ try {
 
   app.use(express.logger());
 
+  app.set('views', __dirname + '/lib/mock_proxy_ip/views');
+  app.set('view engine', 'ejs');
+  app.set('view options', {
+    layout: false
+  });
+
   app.use(function (req, resp, next) {
-    console.log('before req.path=', req.path);
     var parts = url.parse(req.path.substring(1), true);
     req.url = parts.path;
-    console.log('after req.path=', req.path);
     next();
   });
 
@@ -53,85 +58,27 @@ try {
     // Request #2 with query string
     if (req.query.id === 'AItOawnGECMktY2XvE8OVvDYev69a3BuCIPt00E') {
       // Response takes between 0 and 1.5 seconds
-      var timeout = Math.round(Math.random() * 1500);
+      var timeout = 100; // TODO Math.round(Math.random() * 1500);
       setTimeout(function () {
-        res.send('<xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)"> \
-          <XRD>                                                                  \
-          <Service priority="0">                                                 \
-          <Type>http://specs.openid.net/auth/2.0/signon</Type>                   \
-          <Type>http://openid.net/srv/ax/1.0</Type>                              \
-          <Type>http://specs.openid.net/extensions/ui/1.0/mode/popup</Type>      \
-          <Type>http://specs.openid.net/extensions/ui/1.0/icon</Type>            \
-          <Type>http://specs.openid.net/extensions/pape/1.0</Type>               \
-          <URI>https://www.google.com/accounts/o8/ud</URI>                       \
-          </Service>                                                             \
-          <Service priority="10">                                                \
-          <Type>http://specs.openid.net/auth/2.0/signon</Type>                   \
-          <Type>http://openid.net/srv/ax/1.0</Type>                              \
-          <Type>http://specs.openid.net/extensions/ui/1.0/mode/popup</Type>      \
-          <Type>http://specs.openid.net/extensions/ui/1.0/icon</Type>            \
-          <Type>http://specs.openid.net/extensions/pape/1.0</Type>               \
-          <URI>https://www.google.com/accounts/o8/ud?source=mail</URI>           \
-          </Service>                                                             \
-          <Service priority="10">                                                \
-          <Type>http://specs.openid.net/auth/2.0/signon</Type>                   \
-          <Type>http://openid.net/srv/ax/1.0</Type>                              \
-          <Type>http://specs.openid.net/extensions/ui/1.0/mode/popup</Type>      \
-          <Type>http://specs.openid.net/extensions/ui/1.0/icon</Type>            \
-          <Type>http://specs.openid.net/extensions/pape/1.0</Type>               \
-          <URI>https://www.google.com/accounts/o8/ud?source=gmail.com</URI>      \
-          </Service>                                                             \
-          <Service priority="10">                                                \
-          <Type>http://specs.openid.net/auth/2.0/signon</Type>                   \
-          <Type>http://openid.net/srv/ax/1.0</Type>                              \
-          <Type>http://specs.openid.net/extensions/ui/1.0/mode/popup</Type>      \
-          <Type>http://specs.openid.net/extensions/ui/1.0/icon</Type>            \
-          <Type>http://specs.openid.net/extensions/pape/1.0</Type>               \
-          <URI>https://www.google.com/accounts/o8/ud?source=googlemail.com</URI> \
-          </Service>                                                             \
-          <Service priority="10">                                                \
-          <Type>http://specs.openid.net/auth/2.0/signon</Type>                   \
-          <Type>http://openid.net/srv/ax/1.0</Type>                              \
-          <Type>http://specs.openid.net/extensions/ui/1.0/mode/popup</Type>      \
-          <Type>http://specs.openid.net/extensions/ui/1.0/icon</Type>            \
-          <Type>http://specs.openid.net/extensions/pape/1.0</Type>               \
-          <URI>https://www.google.com/accounts/o8/ud?source=profiles</URI>       \
-          </Service>                                                             \
-          </XRD>                                                                 \
-        </xrds:XRDS>');
+        res.render('accounts_o8_id_query.xrd.ejs');
       }, timeout);
-
-
     // request #1
     } else {
-    res.send('<?xml version="1.0" encoding="UTF-8"?>                \
-<xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)">    \
-  <XRD>                                                             \
-  <Service priority="0">                                            \
-  <Type>http://specs.openid.net/auth/2.0/server</Type>              \
-  <Type>http://openid.net/srv/ax/1.0</Type>                         \
-  <Type>http://specs.openid.net/extensions/ui/1.0/mode/popup</Type> \
-  <Type>http://specs.openid.net/extensions/ui/1.0/icon</Type>       \
-  <Type>http://specs.openid.net/extensions/pape/1.0</Type>          \
-  <URI>https://www.google.com/accounts/o8/ud</URI>                  \
-  </Service>                                                        \
-  </XRD>                                                            \
-</xrds:XRDS>');
+      res.render('accounts_o8_id.xrd.ejs');
     }
   });
 
   // Google request #3
   // Bug - we're not calculating the signature dynamically
   app.post('/accounts/o8/ud', function (req, res) {
+    var dhConsumerPublic = req.body['openid.dh_consumer_public'].trim();
+    // dh_server_public - Our dynamic public key
+    // TODO console.log('Calling assoc_sess ', assoc_sess.associate_session(dhConsumerPublic));
+
     setTimeout(function () {
-      res.send('ns:http://specs.openid.net/auth/2.0\n\
-        session_type:DH-SHA256\n\
-        assoc_type:HMAC-SHA256\n\
-        assoc_handle:AMlYA9Vqz-84CFi-ySMEtGpFZwR0LtjxwPN0Ic3Yq0Y_HXg84nkEN8YGr6oyDkJYQkgdxlE0\n\
-        expires_in:468000\n\
-        dh_server_public:MmMuQSq7zIyl1wnHK+6UBFqX5MNOTJa8onC4UmX970SUu26HDkRPw/A7By+9BAb2/Dycqm01YVoJT7HdaGnjizplqRRrKeLuFiCuPyrM0Iw6gqYx96bmEF3mw9LuJ61Dgh8Hk9i3LhKodl2jyfNkz30HBdaERI/i3pbHIKdCcaQ=\n\
-        enc_mac_key:bablwarquqQclMcLvwjypZEFQ2CpeDPcvUvdl+AqUsU=');
-    }, Math.round(Math.random() * 5000));
+      res.contentType('text/plain');
+      res.render('accounts_o8_ud.txt.ejs');
+    }, 100); // TODO Math.round(Math.random() * 5000));
   });
 
 });
