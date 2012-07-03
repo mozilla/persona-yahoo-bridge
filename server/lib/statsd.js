@@ -32,5 +32,6 @@ if (statsd_config && statsd_config.enabled) {
 }
 
 process.on('uncaughtException', function(err) {
+  console.error(err.stack);
   if (statsd) statsd.increment(PREFIX + 'uncaught_exception');
 });
