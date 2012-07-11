@@ -161,7 +161,7 @@ exports.init = function(app) {
       statsd.timing('routes.provision_post', new Date() - start);
     };
 
-    certify(JSON.stringify(req.body.pubkey),
+    certify(req.body.pubkey,
             current_user,
             req.body.duration,
             certified_cb);
