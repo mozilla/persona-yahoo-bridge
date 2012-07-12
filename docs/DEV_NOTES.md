@@ -53,7 +53,11 @@ Elsewhere, you must set up the core BrowserID implementation:
         "hotmail.com": "https://dev.bigtent.mozilla.org"
     },
 
-3.  Start BrowserID with `npm start`
+3. Read the OPS_NOTES.md
+
+You should have to do much, except copy the `key.publickey` from your certifier to your bigtent as noted there.
+
+4.  Start BrowserID with `npm start`
 
 You should now be able to visit your local BrowserID instance
 (likely at http://127.0.0.1:10001) and attempt to log in with a
