@@ -43,11 +43,15 @@ implementation, a full installation requires you to:
 
 Elsewhere, you must set up the core BrowserID implementation:
 
-1.  Check out the `bigtent` branch of `mozilla/browserid`.
+1.  Check out the `bigtent_with_dev` branch of `mozilla/browserid`.
 
-2.  Edit `config/local.json` and add a new property, `bigtent_url`, with the URL of your BigTent instance. For example:
+2.  Edit `config/local.json` and add a new property, `bigtent`, with the URL of your BigTent instance. For example:
 
-        "bigtent_url": "https://dev.bigtent.mozilla.org",
+    "bigtent": {
+        "gmail.com":   "https://dev.bigtent.mozilla.org",
+        "yahoo.com":   "https://dev.bigtent.mozilla.org",
+        "hotmail.com": "https://dev.bigtent.mozilla.org"
+    },
 
 3.  Start BrowserID with `npm start`
 
