@@ -14,8 +14,7 @@ util = require('util');
 const RETURN_PATH = '/auth/yahoo/return';
 
 var
-protocol = config.get('use_https') ? 'https' : 'http',
-hostname = util.format("%s://%s", protocol, config.get('issuer')),
+hostname = util.format("https://%s", config.get('issuer')),
 return_url = util.format("%s%s", hostname, RETURN_PATH),
 realm = util.format("%s/", hostname);
 

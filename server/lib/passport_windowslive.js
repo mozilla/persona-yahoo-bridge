@@ -15,8 +15,7 @@ const CALLBACK_PATH = '/auth/windowslive/callback';
 
 var
 liveConfig = config.get('windows_live'),
-protocol = config.get('use_https') ? 'https' : 'http',
-hostname = util.format("%s://%s", protocol, config.get('issuer')),
+hostname = util.format("https://%s", config.get('issuer')),
 returnURL = util.format("%s%s", hostname, CALLBACK_PATH);
 
 // Register the WindowsLiveStrategy with Passport
