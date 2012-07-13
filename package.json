@@ -27,7 +27,7 @@
     "winston": "0.5.6"
   },
   "devDependencies": {
-    "awsbox": "0.0.10",
+    "awsbox": "0.2.13",
     "request": "2.9.202",
     "vows": "0.5.13"
   },
