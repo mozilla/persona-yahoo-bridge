@@ -9,7 +9,7 @@
   },
   "main": "server/bin/bigtent",
   "scripts": {
-    "test": "./node_modules/.bin/vows server/tests/*-test.js"
+    "test": "./node_modules/.bin/vows server/tests/*-test.js --spec"
   },
   "dependencies": {
     "client-sessions": "0.0.5",
