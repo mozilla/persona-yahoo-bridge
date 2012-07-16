@@ -108,6 +108,14 @@ exports.init = function(app) {
     statsd.timing('routes.provision', new Date() - start);
   });
 
+  var cryptoError = function (res, start) {
+    statsd.increment('routes.provision.err.crypto');
+    res.writeHead(500);
+    res.end();
+    statsd.timing('routes.provision_post', new Date() - start);
+    return false;    
+  };
+
   // POST /provision
   //   Finish BrowserID provisioning by signing a user's public key.
   app.post('/provision', function(req, res) {
@@ -151,13 +159,23 @@ exports.init = function(app) {
         user_cert = util.format('%s~%s', crypto.chainedCert, cert);
       }
       if (err) {
-        statsd.increment('routes.provision.err.crypto');
-        res.writeHead(500);
-        res.end();
+        return cryptoError(res, start);
       } else {
-        certificate = JSON.parse(cert).certificate;
-        res.json({ cert: certificate });
-      }
+        try {
+          var certResp = JSON.parse(cert);
+          if (certResp && certResp.success) {
+            res.json({ cert: certResp.certificate });
+          } else {
+            console.error('certifier expected success: true, but got ', cert);
+            return cryptoError(res, start);
+          }
+
+	} catch (e) {
+          console.error('Bad output from certifier');
+          if (e.stack) console.error(e.stack);
+          return cryptoError(res, start);
+        }
+      }      
       statsd.timing('routes.provision_post', new Date() - start);
     };
 
