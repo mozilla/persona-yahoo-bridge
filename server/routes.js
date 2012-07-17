@@ -8,6 +8,7 @@ config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
 logger = require('./lib/logging').logger,
 passport = require('passport'),
+request = require('request'),
 statsd = require('./lib/statsd'),
 session = require('./lib/session_context'),
 util = require('util'),
@@ -358,11 +359,20 @@ exports.init = function(app) {
   // GET /__heartbeat__
   //   Report on whether or not this node is functioning as expected.
   app.get('/__heartbeat__', function(req, res) {
-    // TODO: Do deeper checking? But we're pretty much stateless, so if we can
-    // respond all, we should be fine. For inspiration, check out:
-    // https://github.com/mozilla/browserid/blob/dev/lib/heartbeat.js
-    res.writeHead(200);
-    res.write('ok');
-    res.end();
+    var url = util.format('http://%s:%s/__heartbeat__',
+                          config.get('certifier_host'),
+                          config.get('certifier_port'));
+    request(url, function (err, heartResp, body) {
+      if (heartResp.statusCode === 200 &&
+          'ok certifier' === body.trim()) {
+        res.writeHead(200);
+        res.write('ok');
+        res.end();
+      } else {
+        res.writeHead(500);
+        res.write('certifier down');
+        res.end();
+      }
+    });
   });
 };
