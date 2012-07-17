@@ -1,6 +1,23 @@
 Authorization Notes
 ===================
 
+Session
+-------
+
+A session is established once a user has successfully authenticated.
+Using client-sessions, we store the following strucutre:
+
+    {
+        "alice@yahoo.com": true,
+        "bob@yahoo.com": true
+    }
+
+When the user returns, we can compare their attempted login to their
+session state and determine if a trip back to the IdP is needed.
+
+By default, session cookies expire after 1 day. This is controlled via
+configuraiton.
+
 Gmail
 -----
 
