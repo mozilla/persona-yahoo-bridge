@@ -3,13 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>Contacting</title>
+<link rel="stylesheet" href="/css/styles.css" type="text/css">
 </head>
 <body>
+<p class="progress"><%= gettext('Loading') %> <span>Yahoo.com</span></p>
+<div><img src="/i/progress.gif" width="128" height="15" alt="Loading" /></div>
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <script type="text/javascript">
 navigator.id.beginAuthentication(function(email) {
-  // From mozilla/browserid resources/static/pages/page_helpers.js
-  window.location.pathname = '/proxy/' + encodeURIComponent(email);
+  // TODO dynamically update .progress span with domain name
+  //window.location.pathname = '/proxy/' + encodeURIComponent(email);
+
 });
 </script>
 </body>
