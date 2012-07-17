@@ -63,7 +63,6 @@ app.use(function (req, resp, next) {
 
 logger.debug(config.get('browserid_server'));
 
-// TODO config
 app.use(i18n.abide({
   supported_languages: config.get('supported_languages'),
   default_lang: config.get('default_lang'),

@@ -113,7 +113,7 @@ exports.init = function(app) {
     res.writeHead(500);
     res.end();
     statsd.timing('routes.provision_post', new Date() - start);
-    return false;    
+    return false;
   };
 
   // POST /provision
@@ -175,7 +175,7 @@ exports.init = function(app) {
           if (e.stack) console.error(e.stack);
           return cryptoError(res, start);
         }
-      }      
+      }
       statsd.timing('routes.provision_post', new Date() - start);
     };
 
@@ -187,7 +187,6 @@ exports.init = function(app) {
 
   // GET /provision.js
   //   This script handles client-side provisioning logic.
-  //   TODO: Dynamic JavaScript will allow us to support CSP
   app.get('/provision.js', function(req, res) {
     var
     start = new Date(),
