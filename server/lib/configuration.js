@@ -7,7 +7,6 @@ convict = require('convict'),
 fs = require('fs'),
 path = require('path');
 
-// TODO protocol - BigTent ism, should use just use 'use_https' instead?
 var conf = module.exports = convict({
   browserid_server: 'string = "https://browserid.org"',
   certifier_host: 'string = "127.0.0.1"',
@@ -25,7 +24,6 @@ var conf = module.exports = convict({
   },
   issuer: 'string = "dev.bigtent.mozilla.org"',
   process_type: 'string',
-  protocol: 'string = "http"',
   statsd: {
     enabled: {
       doc: "enable UDP based statsd reporting",
