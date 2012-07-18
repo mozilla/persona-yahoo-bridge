@@ -61,7 +61,9 @@ app.use(function (req, resp, next) {
   next();
 });
 
-logger.debug(config.get('browserid_server'));
+// limit all content bodies to 10kb, at which point we'll forcefully
+// close down the connection.
+app.use(express.limit("10kb"));
 
 app.use(i18n.abide({
   supported_languages: config.get('supported_languages'),
