@@ -5,12 +5,15 @@
     <title><%= gettext("Systems Error, please try again later") %></title>
     <meta name="viewport" content="width=device-width">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="stylesheet" href="/css/stylo.css" type="text/css">
   </head>
-  <body>
-    <div id="content">
-    <h2><%= gettext("Systems Error, please try again later") %></h2>
-    <p><%= format(gettext("Sorry, we are unable to log you in as %s"), [claimed]) %></p>
-    <button><%= gettext("Try Again") %></button>
+  <body class="error">
+    <div id="content" class="group">
+
+      <h2><%= gettext("Systems Error, please try again later") %></h2>
+      <p><%= format(gettext("Sorry, we are unable to log you in as %s"), [claimed]) %></p>
+      <button><%= gettext("Try Again") %></button>
+
     </div>
 <script src="<%= browserid_server %>/authentication_api.js"></script>
 <script src="/js/lib/jquery.min.js"></script>
