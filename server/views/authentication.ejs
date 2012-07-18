@@ -8,19 +8,23 @@
 <body class="auth">
 <div id="page">
   <div id="content">
-    <p class="progress b"><%= gettext('Loading ') %> <span></span></p>
+    <p class="progress b"><%= gettext('Loading') %> <span></span></p>
     <img src="/i/progress.gif" width="128" height="15" alt="Loading" />
   </div>
 </div>
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <script type="text/javascript">
 navigator.id.beginAuthentication(function(email) {
-  window.location.pathname = '/proxy/' + encodeURIComponent(email);
-  var parts = email.split('@');
-  if (parts.length > 1) {
-    var spans = document.getElementsByTagName('span');
-    if (spans.length > 0)
-      spans[0].appendChild(document.createTextNode(parts[1]));
+  if (email) {
+    window.location.pathname = '/proxy/' + encodeURIComponent(email);
+    var parts = email.split('@');
+    if (parts.length > 1) {
+      var spans = document.getElementsByTagName('span');
+      if (spans.length > 0)
+        spans[0].appendChild(document.createTextNode(parts[1]));
+    }
+  } else {
+    window.location.pathname = '/error';
   }
 });
 </script>
