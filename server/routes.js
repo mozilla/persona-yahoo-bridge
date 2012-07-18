@@ -165,6 +165,8 @@ exports.init = function(app) {
         try {
           var certResp = JSON.parse(cert);
           if (certResp && certResp.success) {
+            // Kill Session Issue #62
+            req.session.reset();
             res.json({ cert: certResp.certificate });
           } else {
             console.error('certifier expected success: true, but got ', cert);
