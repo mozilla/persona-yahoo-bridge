@@ -1,7 +1,7 @@
 %define _rootdir /opt/bigtent
 
 Name:          browserid-bigtent
-Version:       0.2012.05.25
+Version:       0.2012.07.19
 #Release:       1%{?dist}_%{svnrev}
 Release:       1%{?dist}
 Summary:       BrowserID BigTent server
