@@ -128,6 +128,7 @@ function returnFromYahoo (user, cfg, cb) {
       'openid.sig': 'MrBUWMG1k07Dzkvq9YQ4iUiLdwdGdQTYAXRbdrahyeY'
     }
   }, function (err, r, body) {
+
     // TODO Fixing Issue #41 would make this actually work...
     // Then we could do /sign_in and have a working session...
     var msg = 'Failed to verify assertion (message: Invalid association handle)';

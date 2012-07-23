@@ -15,6 +15,7 @@ port = config.get('certifier_port'),
 lib = port === 443 ? https : http;
 
 module.exports = function (pubkey, email, duration_s, cb) {
+  console.log('certifier running');
   var body = JSON.stringify({
         duration: duration_s,
         pubkey: pubkey,
