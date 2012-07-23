@@ -2,8 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/*jshint esnext:true */
+
 /* This file is the "provision" activity, which simulates the process of a
  * user with an active session adding a new email with browserid. */
+
+ // TODO: move out of this branch, yahoo only
 
 const
 certifier = require('../../../lib/certifier'),
@@ -63,7 +67,7 @@ function startProvision (user, cfg, cb) {
       });
     }
   });
-}; // startProvision
+} // startProvision
 
 // Authentication 1
 function startAuth (user, cfg, cb) {
@@ -78,8 +82,8 @@ function startAuth (user, cfg, cb) {
     } else if (r.statusCode !== 302) {
       cleanup(user);
       cb("Expected redirect status code, but got " + r.statusCode);
-    } else if (! r.headers['location'] ||
-        r.headers['location'].indexOf('https://www.google.com/accounts/o8/ud') !== 0) {
+    } else if (! r.headers.location ||
+        r.headers.location.indexOf('https://www.google.com/accounts/o8/ud') !== 0) {
       cleanup(user);
 
       cb("gmail.com address should be redirected to google accounts");
@@ -89,7 +93,7 @@ function startAuth (user, cfg, cb) {
 
     }
   });
-}; // startAuth
+} // startAuth
 
 // Authentication 2
 function returnFromGoogle (user, cfg, cb) {
@@ -134,16 +138,16 @@ function returnFromGoogle (user, cfg, cb) {
       // BEGIN Broken Tobi/Passport code
       // This doeesn't work :(
       passport.serializeUser(function(user, done) {
-        console.log('serializeUser', user, done);
+        if (debug) console.log('serializeUser', user, done);
         done(null, user);
       });
 
       passport.deserializeUser(function(id, done) {
-        console.log('deserializeUser', id, done);
+        if (debug) console.log('deserializeUser', id, done);
           done(err, id);
       });
 
-      console.log('imports done');
+      if (debug) console.log('imports done');
 
       var app = express.createServer();
       app.use(clientSessions({
@@ -158,13 +162,13 @@ function returnFromGoogle (user, cfg, cb) {
       // Make our req.isAuthenticated return true
       passport.use(new LocalStrategy(
         function(username, password, done) {
-          console.log("Passport localSTraget");
+          if (debug) console.log("Passport localSTraget");
           return done(null, {email: 'austin.ok@gmail.com'});
         }
       ));
 
       app.get('/', function (req, res) {
-        console.log('redirected.');
+        if (debug) console.log('redirected.');
         res.send('ok');
       });
 
@@ -210,7 +214,7 @@ function returnFromGoogle (user, cfg, cb) {
                   'alice@gmail.com',
                   60 * 60 * 6,
                   function (err, body) {
-          console.log('Cleaning up ');
+          if (debug) console.log('Cleaning up ');
           cleanup(user);
           cb(err);
         });
@@ -222,7 +226,7 @@ function returnFromGoogle (user, cfg, cb) {
       startProvision(user, cfg, cb);
     }
   });
-};
+}
 
 if (require.main === module) {
   var debug = true;

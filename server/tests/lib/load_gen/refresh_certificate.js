@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/*jshint esnext:true */
+
 /* This file is the "provision" activity, which simulates the process of a
  * user with an active session adding a new email with browserid. */
 
@@ -27,6 +29,7 @@ exports.startFunc = function (cfg, cb) {
     return cb("not enough users");
   }
 
+  if (debug) console.log('Usig http://', config.get('certifier_host'), config.get('certifier_port'));
   // TODO: have session and call through BigTent, instead of calling certifier direclty
   certifier(JSON.stringify(crypto.pubKey),
             'alice@gmail.com',
@@ -44,9 +47,10 @@ if (require.main === module) {
 
   exports.startFunc({base: 'https://127.0.0.1'}, function (err) {
     if (err) {
+      console.log('Finished with ERROR');
       console.error(err);
     } else {
-      console.log('Finished');
+      console.log('Finished OK');
     }
   });
 }

@@ -4,36 +4,31 @@
 
 /*jshint esnext:true */
 
-/* This file is the "request well known" activity, which simulates the process of a
- * a verifier or client looking up /.well-known/browserid  */
+/* This file is the "heartbeat" activity, which simulates the process of a
+ * our monitoring system checking for a heartbeat */
 
 const
-request = require('request'),
 client = require('../client'),
-userdb = require('loady').userdb,
+request = require('request'),
 winston = require('winston');
 
-// Once ever two weeks, our session has expired
-exports.probability = (8 / 40.0);
+// Once ever 5 minutes
+exports.probability = (30 / 40.0);
 
 var debug = false;
 
 exports.startFunc = function (cfg, cb) {
 
-  var the_url = client.url('/.well-known/browserid', cfg);
-  var user = userdb.getExistingUser();
-  if (!user) {
-    winston.warn("can't achieve desired concurrency!  not enough users!");
-    return cb("not enough users");
-  }
-  user.request.get({
+  var the_url = client.url('/__heartbeat__', cfg);
+  request.get({
     url: the_url
   }, function (err, r, body) {
-    userdb.releaseUser(user);
     if (err) {
         cb(err);
     } else if (r.statusCode !== 200) {
         cb("Non 200 status code " + r.statusCode);
+    } else if ('ok' !== body.trim()) {
+      cb('Unexpected output [' + body + ']');
     } else {
         cb(null);
     }
@@ -42,7 +37,6 @@ exports.startFunc = function (cfg, cb) {
 
 if (require.main === module) {
   debug = true;
-  userdb.addNewUser(userdb.getNewUser());
 
   exports.startFunc({base: 'https://127.0.0.1'}, function (err) {
     if (err) {

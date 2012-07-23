@@ -15,7 +15,6 @@ port = config.get('certifier_port'),
 lib = port === 443 ? https : http;
 
 module.exports = function (pubkey, email, duration_s, cb) {
-  console.log('certifier running');
   var body = JSON.stringify({
         duration: duration_s,
         pubkey: pubkey,
@@ -40,7 +39,6 @@ module.exports = function (pubkey, email, duration_s, cb) {
     } else {
       res.on('data', function (chunk) {
         res_body += chunk.toString('utf8');
-        console.log('CERT RESP=', res_body);
       });
       res.on('end', function () {
         statsd.timing('certifier', new Date() - start);

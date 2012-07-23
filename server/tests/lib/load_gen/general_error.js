@@ -4,8 +4,8 @@
 
 /*jshint esnext:true */
 
-/* This file is the "request well known" activity, which simulates the process of a
- * a verifier or client looking up /.well-known/browserid  */
+/* This file is the "error" activity, which simulates the process of a
+ * user requesting the general error page */
 
 const
 request = require('request'),
@@ -20,7 +20,7 @@ var debug = false;
 
 exports.startFunc = function (cfg, cb) {
 
-  var the_url = client.url('/.well-known/browserid', cfg);
+  var the_url = client.url('/error', cfg);
   var user = userdb.getExistingUser();
   if (!user) {
     winston.warn("can't achieve desired concurrency!  not enough users!");

@@ -1,4 +1,3 @@
-
 /**
  * Load testing configuration
  */
