@@ -38,6 +38,15 @@ In practice, you'll want stable keys that match your certifier.
 
 Keys can be generated with `./node_modules/jwcrypto/bin/generate-keypair`.
 
+Per Service Deployment
+----------------------
+
+It is important to defence in depth, that we only deploy yahoo code to a
+yahoo bigtent instance and gmail code to a gmail instance, etc.
+
+It should be an error if a gmail user were to somehow try to do OpenID
+via a yahoo BigTent instance.
+
 API Keys: Windows Live (Hotmail)
 --------------------------------
 
