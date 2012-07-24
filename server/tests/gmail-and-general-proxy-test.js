@@ -23,14 +23,16 @@ suite.addBatch({
   'Anonymous request with gmail.com email is sent to the Goog.': {
     topic: function () {
       var opts = {
-        followRedirect: false
+        followRedirect: false,
+        timeout: 500
       };
-      request(base_url('/proxy/alice%40gmail.com'), opts, this.callback);
+      request(base_url('/proxy/alice%40yahoo.com'), opts, this.callback);
     },
     'Without issue': function (err, r, body) {
       assert.isNull(err);
     },
     'We get a redirect': function (err, r, body) {
+      assert.ok(r);
       assert.equal(r.statusCode, 302);
       assert.equal(r.headers.location.indexOf('https://www.google.com/accounts/o8/ud'), 0);
     }

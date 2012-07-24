@@ -24,6 +24,5 @@
       "providerURL": "http://hotmail.com"
     }
   },
-  "pub_key_ttl": 120,
-  "enable_testing_pages": true
+  "pub_key_ttl": 120
 }

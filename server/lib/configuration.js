@@ -62,8 +62,7 @@ var conf = module.exports = convict({
     client_secret: 'string = "NgepFX4ectJP-l-5XOymSqk4aLy7DJrE"'
   },
   pub_key_ttl: "integer = " + (6 * 60 * 60), // 6 hours
-  pub_key_path: 'string = "var/key.publickey"',
-  enable_testing_pages: 'boolean = false'
+  pub_key_path: 'string = "var/key.publickey"'
 });
 
 // At the time this file is required, we'll determine the "process name" for this proc

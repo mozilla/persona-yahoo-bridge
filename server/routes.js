@@ -286,47 +286,6 @@ exports.init = function(app) {
     statsd.timing('routes.cancelled', new Date() - start);
   });
 
-  // Routes uses only for development / testing. Disabled by default.
-  if  (config.get('enable_testing_pages')) {
-    // GET /
-    //   Render a page that allows for directly starting the proxy auth flow
-    //   and managing BigTent-specific login state. This is only useful for
-    //   development and testing.
-    app.get('/', function(req, res){
-      var start = new Date();
-
-      statsd.increment('routes.homepage.get');
-
-      req.user = session.getCurrentUser(req);
-      if (req.user === null) { req.user = "None"; }
-
-      var active = Object.keys(session.getActiveEmails(req));
-
-      res.render('home', {
-        current: req.user,
-        active_emails: active,
-        browserid_server: config.get('browserid_server')
-      });
-
-      statsd.timing('routes.homepage', new Date() - start);
-    });
-
-    // GET /logout
-    //   Clear the user's BigTent session. This is only used for development
-    //   and testing.
-    app.get('/logout', function(req, res){
-      var start = new Date();
-
-      statsd.increment('routes.logout.get');
-
-      req.session.reset();
-      req.logout(); // passportism
-      res.redirect('/');
-
-      statsd.timing('routes.homepage', new Date() - start);
-    });
-  }
-
   // GET /.well-known/browserid
   //   Declare support as a BrowserID Identity Provider.
   app.get('/.well-known/browserid', function(req, res) {
@@ -366,18 +325,24 @@ exports.init = function(app) {
   // GET /__heartbeat__
   //   Report on whether or not this node is functioning as expected.
   app.get('/__heartbeat__', function(req, res) {
-    var url = util.format('http://%s:%s/__heartbeat__',
-                          config.get('certifier_host'),
-                          config.get('certifier_port'));
+    var
+    url = util.format('http://%s:%s/__heartbeat__',
+                      config.get('certifier_host'),
+                      config.get('certifier_port')),
+    opts = {
+      url: url,
+      timeout: 500
+    };
     request(url, function (err, heartResp, body) {
-      if (heartResp.statusCode === 200 &&
-          'ok certifier' === body.trim()) {
-        res.writeHead(200);
-        res.write('ok');
-        res.end();
-      } else {
+      if (err ||
+          200 !== heartResp.statusCode ||
+          'ok certifier' !== body.trim()) {
         res.writeHead(500);
         res.write('certifier down');
+        res.end();
+      } else {
+        res.writeHead(200);
+        res.write('ok');
         res.end();
       }
     });
