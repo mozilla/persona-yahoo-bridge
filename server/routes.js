@@ -234,8 +234,8 @@ exports.init = function(app) {
 
   // GET /id_mismatch
   //   Error page for when a user auths as an email address other than the
-  //   intended one. E.g., a user told BigTent that they were foo@gmail.com, but
-  //   we got back an OpenID auth for bar@gmail.com.
+  //   intended one. E.g., a user told BigTent that they were foo@yahoo.com, but
+  //   we got back an OpenID auth for bar@yahoo.com.
   // TODO: Add load test activity
   app.get('/id_mismatch', function(req, res) {
     var
