@@ -29,6 +29,7 @@
   "devDependencies": {
     "awsbox": "0.2.13",
     "http-proxy": "0.8.1",
+    "loady": "git://github.com/mozilla/loady.git",
     "request": "2.9.202",
     "vows": "0.5.13"
   },
