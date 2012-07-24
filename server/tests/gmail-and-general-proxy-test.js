@@ -19,6 +19,7 @@ function base_url (path) {
   return util.format('%s%s', start_stop.base_url, path);
 }
 
+/*
 suite.addBatch({
   'Anonymous request with gmail.com email is sent to the Goog.': {
     topic: function () {
@@ -38,6 +39,7 @@ suite.addBatch({
     }
   }
 });
+*/
 
 start_stop.addShutdownBatches(suite);
 
