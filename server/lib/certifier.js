@@ -4,7 +4,7 @@
 
 /* Module is a function which sends requests for certificates to the certifier. */
 
-const 
+const
 config = require('./configuration'),
 http = require('http'),
 https = require('https'),
@@ -35,16 +35,16 @@ module.exports = function (pubkey, email, duration_s, cb) {
   }, function (res) {
     var res_body = "";
     if (res.statusCode >= 400) {
-      return cb('Error talking to certifier... code=' + res.statusCode);
+      return cb('Error talking to certifier... code=' + res.statusCode + ' ');
+    } else {
+      res.on('data', function (chunk) {
+        res_body += chunk.toString('utf8');
+      });
+      res.on('end', function () {
+        statsd.timing('certifier', new Date() - start);
+        cb(null, res_body);
+      });
     }
-    res.on('data', function (chunk) {
-      res_body += chunk.toString('utf8');
-      console.log(res_body);
-    });
-    res.on('end', function () {
-      statsd.timing('certifier', new Date() - start);
-      cb(null, res_body);
-    });
     return;
   });
   req.on('error', function (err) {
