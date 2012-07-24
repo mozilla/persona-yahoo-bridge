@@ -60,7 +60,7 @@ try {
     // Request #2 with query string
     if (req.query.id === 'AItOawnGECMktY2XvE8OVvDYev69a3BuCIPt00E') {
       // Response takes between 0 and 1.5 seconds
-      var timeout = 100; // TODO Math.round(Math.random() * 1500);
+      var timeout = 100 + Math.round(Math.random() * 1100);
       setTimeout(function () {
         res.render('accounts_o8_id_query.xrd.ejs');
       }, timeout);
@@ -76,11 +76,11 @@ try {
     var dhConsumerPublic = req.body['openid.dh_consumer_public'].trim();
     // dh_server_public - Our dynamic public key
     // TODO console.log('Calling assoc_sess ', assoc_sess.associate_session(dhConsumerPublic));
-
+    var timeout = 100 + Math.round(Math.random() * 1100);
     setTimeout(function () {
       res.contentType('text/plain');
       res.render('accounts_o8_ud.txt.ejs');
-    }, 100); // TODO Math.round(Math.random() * 5000));
+    }, timeout); // TODO Math.round(Math.random() * 5000));
   });
 
   /* Yahoo */

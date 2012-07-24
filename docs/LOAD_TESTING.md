@@ -13,6 +13,7 @@ Although limited, it's hoped we can find memory leaks, concurrency bugs, and oth
 Usage
 -----
 
+    node server/tests/mock_proxy_idp.js
     export CONFIG_FILES=server/config/local.json
     sudo HTTP_PROXY_PORT=8442 HTTPS_PROXY_PORT=8443 node server/bin/bigtent
     loady -c server/tests/load_gen.js -s https://dev.bigtent.mozilla.org
@@ -24,18 +25,24 @@ Output
     ....................................................................................................
 
     Activities Map:
-    (#ti) is tobi
-    (#pl) is provision_gmail
+    (#ge) is general_error_e
+    (#hb) is heartbeat_b
+    (#py) is provision_yahoo_y
     (#wn) is well_known
-    (#re) is refresh_certificate
-    (#pl) is provision_hotmail
-    (#po) is provision_yahoo
+    (#rc) is refresh_certificate_c
 
     Simulating 10000 active daily users, who do 40 activities per day
     Average active users simulated over the last 1s/5s/60s:
-         0.00    0.00    0.00    0 R, 5 S (0ti 0pl 0wn 0re 0pl 0po)
-         10821.60    10821.60    10821.60    0 R, 13 S (0ti 0pl 0wn 0re 0pl 0po)
-         17314.56    14068.08    14068.08    0 R, 25 S (0ti 0pl 0wn 0re 0pl 0po)
+	0.00    0.00    0.00    5 R, 5 S (0ge 2hb 0py 3wn 0rc)
+	10810.80    10810.80    10810.80    8 R, 13 S (1ge 3hb 2py 2wn 0rc)
+	12998.88    11904.84    11904.84    11 R, 22 S (0ge 5hb 3py 2wn 1rc)
+	21600.00    15136.56    15136.56    16 R, 37 S (2ge 7hb 2py 4wn 1rc)
+	32367.60    19444.32    19444.32    23 R, 59 S (5ge 11hb 5py 1wn 1rc)
+	38957.76    23347.01    23347.01    32 R, 86 S (7ge 10hb 8py 5wn 2rc)
+	51788.16    29035.24    28087.20    44 R, 122 S (2ge 19hb 12py 8wn 3rc)
+	75675.60    38363.31    34885.54    62 R, 175 S (9ge 27hb 13py 10wn 3rc)
+	108000.00   52290.65    44024.85    87 R, 250 S (18ge 36hb 18py 13wn 2rc)
+	6480.00     43128.52    39853.20    84 R, 250 S (18ge 36hb 17py 13wn 0rc)
 
 Activities
 ----------
@@ -72,3 +79,21 @@ Individual Activities
 During development of the load gen tool, it is often useful to run an activity once in isolation.
 
     node server/tests/lib/load_gen/provision_yahoo.js
+
+Mock Yahoo Openid
+-----------------
+
+We don't actually want to load 3rd party web services ;) So we do a couple things to
+mock out their part of the authentication loop.
+
+We set the following ENV variables:
+
+* HTTP_PROXY_HOST=localhost
+* HTTP_PROXY_PORT=8442
+* HTTPS_PROXY_HOST=localhost
+* HTTPS_PROXY_PORT=8443
+
+There is a script you must run called
+`server/tests/mock_proxy_idp.js`. This mock OpenID server listens on 8442 and 8443.
+The load test sends in canned requests and it sends back canned responses. Eventually
+it will do the actual OpenID protocol, and should be run on a seperate box.
