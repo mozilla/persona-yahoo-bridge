@@ -24,5 +24,6 @@
       "providerURL": "http://hotmail.com"
     }
   },
-  "pub_key_ttl": 120
+  "pub_key_ttl": 120,
+  "pub_key_path": "var/key.publickey"
 }

@@ -6,13 +6,17 @@ Prerequisites
 
 1. Install [certifier](https://github.com/mozilla/browserid-certifier)
 
-2. Start certifier on it's default host and port
+2. Copy the certifier's `key.publickey` file into `server/var/`.
+
+3. Start certifier on it's default host and port
 
 Setup
 -----
 
 While parts of BigTent can be run and tested independently of the core BrowserID
 implementation, a full installation requires you to:
+
+### Configure BigTent ###
 
 1.  Add a local domain to your `/etc/hosts` or deploy BigTent to a server. For
     local development, `dev.bigtent.mozilla.org` works well as an aliased
@@ -41,13 +45,13 @@ implementation, a full installation requires you to:
 6.  Visit your running instance (likely at https://dev.bigtent.mozilla.org)
     and accept the self-signed certificate.
 
-Elsewhere, you must set up the core BrowserID implementation:
+### Configure BrowserID ###
 
-1.  Check out the `bigtent_with_dev` branch of `mozilla/browserid`.
+1.  Check out the `dev` branch of `mozilla/browserid`.
 
-2.  Edit `config/local.json` and add a new property, `bigtent`, with the URL of your BigTent instance. For example:
+2.  Edit `config/local.json` and add a new property, `proxy_idps`, with the URL of your BigTent instance. For example:
 
-    "bigtent": {
+    "proxy_idps": {
         "gmail.com":   "https://dev.bigtent.mozilla.org",
         "yahoo.com":   "https://dev.bigtent.mozilla.org",
         "hotmail.com": "https://dev.bigtent.mozilla.org"
@@ -55,9 +59,7 @@ Elsewhere, you must set up the core BrowserID implementation:
 
 3. Read the OPS_NOTES.md
 
-You should have to do much, except copy the `key.publickey` from your certifier to your bigtent as noted there.
-
-4.  Start BrowserID with `npm start`
+4. Start BrowserID with `npm start`
 
 You should now be able to visit your local BrowserID instance
 (likely at http://127.0.0.1:10001) and attempt to log in with a
