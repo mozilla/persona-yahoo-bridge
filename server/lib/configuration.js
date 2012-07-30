@@ -91,3 +91,6 @@ if (process.env.CONFIG_FILES) {
 if (!conf.has('var_path')) {
   conf.set('var_path', path.join(__dirname, "..", "var"));
 }
+
+// validate the configuration based on the above specification
+conf.validate();
