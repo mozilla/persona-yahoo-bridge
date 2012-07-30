@@ -19,8 +19,6 @@
     "i18n-abide": "0.0.4",
     "jwcrypto": "0.1.1",
     "passport": "0.1.8",
-    "passport-google": "git://github.com/ozten/passport-google.git",
-    "passport-windowslive": "git://github.com/ozten/passport-windowslive.git",
     "passport-yahoo": "git://github.com/ozten/passport-yahoo.git",
     "qs": "0.4.2",
     "node-statsd": "https://github.com/downloads/lloyd/node-statsd/0509f85.tgz",

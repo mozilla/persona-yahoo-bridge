@@ -57,10 +57,6 @@ var conf = module.exports = convict({
     format: 'string?',
     env: 'VAR_PATH'
   },
-  windows_live: {
-    client_id: 'string = "00000000440BCC94"',
-    client_secret: 'string = "NgepFX4ectJP-l-5XOymSqk4aLy7DJrE"'
-  },
   pub_key_ttl: "integer = " + (6 * 60 * 60), // 6 hours
   pub_key_path: 'string = "var/key.publickey"'
 });

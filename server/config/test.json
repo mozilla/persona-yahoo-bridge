@@ -6,20 +6,10 @@
     "duration": 86400000
   },
   "domain_info": {
-    "gmail.com": {
-      "strategy": "google",
-      "providerName": "Google",
-      "providerURL": "https://gmail.com"
-    },
     "yahoo.com": {
       "strategy": "yahoo",
       "providerName": "Yahoo",
       "providerURL": "https://mail.yahoo.com"
-    },
-    "hotmail.com": {
-      "strategy": "windowslive",
-      "providerName": "Hotmail",
-      "providerURL": "http://hotmail.com"
     }
   },
   "issuer": "localhost",
