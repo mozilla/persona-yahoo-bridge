@@ -51,7 +51,11 @@ var conf = module.exports = convict({
   //     },
   //   }
   // Unfortunately, this is impossible to represent in Orderly.
-  domain_info: 'object { } *',
+  //domain_info: 'object { } *',
+  // For now, hardcode Yahoo and its values as the only valid configuration
+  domain_info: {
+    'yahoo.com': 'object { string strategy ["yahoo"]; string providerName ["Yahoo"]; string providerURL ["https://mail.yahoo.com"]; };'
+  },
   var_path: {
     doc: "The path where deployment specific resources will be sought (keys, etc), and logs will be kept.",
     format: 'string?',
