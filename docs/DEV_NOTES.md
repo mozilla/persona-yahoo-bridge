@@ -52,9 +52,9 @@ implementation, a full installation requires you to:
 2.  Edit `config/local.json` and add a new property, `proxy_idps`, with the URL of your BigTent instance. For example:
 
     "proxy_idps": {
-        "gmail.com":   "https://dev.bigtent.mozilla.org",
-        "yahoo.com":   "https://dev.bigtent.mozilla.org",
-        "hotmail.com": "https://dev.bigtent.mozilla.org"
+        "gmail.com":   "dev.bigtent.mozilla.org",
+        "yahoo.com":   "dev.bigtent.mozilla.org",
+        "hotmail.com": "dev.bigtent.mozilla.org"
     },
 
 3. Read the OPS_NOTES.md
