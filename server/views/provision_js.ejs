@@ -1,20 +1,29 @@
 (function () {
 "use strict";
+
+function log(msg) {
+  try {
+    console.log(msg);
+  } catch(e) {
+    /* Do nothing */
+  }
+}
+
 var provision = function (active_users, num_users) {
   var msg = "user is not authenticated as target user";
-  console.log('hooking up begin provisioning with users=' + active_users);
+  log('hooking up begin provisioning with users=' + active_users);
 
   // username@some-proxy.tld
   navigator.id.beginProvisioning(function(email, cert_duration) {
-    console.log('callback');
-    console.log('begining provisioning ' + email + ' ' + cert_duration);
+    log('callback');
+    log('begining provisioning ' + email + ' ' + cert_duration);
 
     if (! active_users || num_users === 0) {
-      console.log('no session, failing');
+      log('no session, failing');
       navigator.id.raiseProvisioningFailure(msg);
     } else {
       if (active_users[ email ] === true) {
-        console.log('emails matched ' + active_users + ' == ' + email + ' next genKeyPair');
+        log('emails matched ' + active_users + ' == ' + email + ' next genKeyPair');
         navigator.id.genKeyPair(function(pubkey) {
 
           $.ajax({
@@ -29,19 +38,19 @@ var provision = function (active_users, num_users) {
             headers: { "Content-Type": 'application/json' },
             dataType: 'json',
             success: function(r) {
-              console.log("We successfully authed, registering cert");
+              log("We successfully authed, registering cert");
               // all done!  woo!
               navigator.id.registerCertificate(r.cert);
             },
             error: function(r) {
-              console.log("Error certifying key, raising provision failure");
+              log("Error certifying key, raising provision failure");
               navigator.id.raiseProvisioningFailure(msg);
             }
           });
 
         });
       } else {
-        console.log('Users [', active_users, '] and email [', email, '] dont match');
+        log('Users [', active_users, '] and email [', email, '] dont match');
         navigator.id.raiseProvisioningFailure(msg);
       }
     }
