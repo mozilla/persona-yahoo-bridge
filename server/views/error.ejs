@@ -3,28 +3,66 @@
   <head>
     <meta charset="utf-8">
     <title><%= gettext("Systems Error, please try again later") %></title>
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <!-- TODO: Use <%= browserid_server %> in the CSS URL's -->
+
+    <!--[if lt IE 9]>
+      <script src="https://static.dev.anosrep.org/v/4b0d630691/production/html5shim.js"></script>
+    <![endif]-->
+    <link href="https://static.dev.anosrep.org/v/38ba229279/production/dialog.css" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]>
+      <link href="https://static.dev.anosrep.org/v/89b9e4fef1/production/ie8_dialog.css" rel="stylesheet" type="text/css">
+    <![endif]-->
+
     <link rel="stylesheet" href="/css/style.css" type="text/css">
   </head>
+
   <body class="error">
+    <header id="header">
+       <h1><a class="home" target="_blank" href="/">Mozilla Persona Home</a></h1>
+    </header>
+
     <div id="content" class="group">
+      <section id="error">
+        <div class="table">
+            <div class="vertical">
+                <div class="contents">
 
-      <h2><%= gettext("Systems Error, please try again later") %></h2>
-      <p><%= format(gettext("Sorry, we are unable to log you in as %s"), [claimed]) %></p>
-      <button><%= gettext("Try Again") %></button>
+                    <h2><%= format(gettext("Sorry, we are unable to log you in as %s"), [claimed]) %></h2>
+                    <p><%= gettext("Something went wrong, please try again later") %></p>
+                    <button><%= gettext("Try Again") %></button>
 
+                </div><!-- :contents -->
+            </div>
+        </div>
+      </section>
     </div>
-<script src="<%= browserid_server %>/authentication_api.js"></script>
-<script src="/js/lib/jquery.min.js"></script>
-<script>
-// From mozilla/browserid resources/static/pages/page_helpers.js
-window.resizeTo(700, 375);
-$('button').click(function () {
-  //navigator.id.beginAuthentication(function(email, cert_duration) {
-    navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
-  //});
-});
-</script>
+
+    <script src="<%= browserid_server %>/authentication_api.js"></script>
+    <script src="/js/lib/jquery.min.js"></script>
+
+    <script>
+    // From mozilla/browserid resources/static/pages/page_helpers.js
+    window.resizeTo(700, 375);
+    $('button').click(function () {
+      //navigator.id.beginAuthentication(function(email, cert_duration) {
+        navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
+      //});
+    });
+
+    $(window).load(function(){
+      setMinHeight();
+    }).resize(function(){
+      setMinHeight();
+    });
+
+    function setMinHeight(){
+      var windowHeight = $(window).height();
+      var headerHeight = $('header').height();
+      $('#content').css('minHeight', windowHeight - headerHeight);
+    }
+    </script>
   </body>
 </html>

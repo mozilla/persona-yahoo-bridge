@@ -1,27 +1,4 @@
-body {
-    background-color: #DEE3E6;
-    color: #484848;
-    font: 14px/21px 'Open Sans',"Lucida Sans","Lucida Grande","Lucida Sans Unicode",Verdana,sans-serif;
-    text-align: center;
-}
-.b, h1, h2, h3, h4 { font-weight: 900; }
-#content {
-  margin-top: 100px;
-  position: relative;
-
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.auth #content {
-
-}
-.idmis #content, .error #content {
-  width: 500px;
-  text-align: left;
-}
-
-
-.progress {
-  padding-top: 30px;
+button{
+  float: none;
+  margin-top: 25px;
 }
