@@ -14,9 +14,9 @@ var provision = function (active_users, num_users) {
   log('hooking up begin provisioning with users=' + active_users);
 
   // username@some-proxy.tld
-  navigator.id.beginProvisioning(function(email, cert_duration) {
+  navigator.id.beginProvisioning(function(email, suggestedCertDuration) {
     log('callback');
-    log('begining provisioning ' + email + ' ' + cert_duration);
+    log('begining provisioning ' + email + ' ' + suggestedCertDuration);
 
     if (! active_users || num_users === 0) {
       log('no session, failing');
@@ -25,12 +25,14 @@ var provision = function (active_users, num_users) {
       if (active_users[ email ] === true) {
         log('emails matched ' + active_users + ' == ' + email + ' next genKeyPair');
         navigator.id.genKeyPair(function(pubkey) {
+          var certDuration = suggestedCertDuration < <%= duration %> ?
+	    suggestedCertDuration : <%= duration %>;
 
           $.ajax({
             url: '/provision',
             data: JSON.stringify({
               pubkey: pubkey,
-              duration: cert_duration,
+              duration: certDuration,
               "_csrf": "<%= csrf_token %>",
               authed_email: email
             }),

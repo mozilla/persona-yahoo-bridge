@@ -194,6 +194,7 @@ exports.init = function(app) {
     var
     start = new Date(),
     ctx = {
+      duration: config.get('certificate_duration'),
       emails: [],
       num_emails: 0,
       layout: false
