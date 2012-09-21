@@ -6,17 +6,15 @@
     <meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-    <!-- TODO: Use <%= browserid_server %> in the CSS URL's -->
+  <!--[if lt IE 9]>
+    <script src="/js/lib/html5shim.js"></script>
+  <![endif]-->
 
-    <!--[if lt IE 9]>
-      <script src="https://static.dev.anosrep.org/v/4b0d630691/production/html5shim.js"></script>
-    <![endif]-->
-    <link href="https://static.dev.anosrep.org/v/38ba229279/production/dialog.css" rel="stylesheet" type="text/css">
-    <!--[if lt IE 9]>
-      <link href="https://static.dev.anosrep.org/v/89b9e4fef1/production/ie8_dialog.css" rel="stylesheet" type="text/css">
-    <![endif]-->
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
 
-    <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <!--[if lt IE 9]>
+    <link href="/css/ie8.css" rel="stylesheet" type="text/css">
+  <![endif]-->
   </head>
 
   <body class="error">
@@ -42,27 +40,6 @@
 
     <script src="<%= browserid_server %>/authentication_api.js"></script>
     <script src="/js/lib/jquery.min.js"></script>
-
-    <script>
-    // From mozilla/browserid resources/static/pages/page_helpers.js
-    window.resizeTo(700, 375);
-    $('button').click(function () {
-      //navigator.id.beginAuthentication(function(email, cert_duration) {
-        navigator.id.raiseAuthenticationFailure('user is not authenticated as target user');
-      //});
-    });
-
-    $(window).load(function(){
-      setMinHeight();
-    }).resize(function(){
-      setMinHeight();
-    });
-
-    function setMinHeight(){
-      var windowHeight = $(window).height();
-      var headerHeight = $('header').height();
-      $('#content').css('minHeight', windowHeight - headerHeight);
-    }
-    </script>
+    <script src="/js/error.js"></script>
   </body>
 </html>

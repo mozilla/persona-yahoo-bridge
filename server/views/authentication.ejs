@@ -2,16 +2,33 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Contacting</title>
-<link rel="stylesheet" href="/css/style.css" type="text/css">
+  <title><%= gettext('Loading') %></title>
+  <!--[if lt IE 9]>
+    <script src="/js/lib/html5shim.js"></script>
+  <![endif]-->
+
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+
+  <!--[if lt IE 9]>
+    <link href="/css/ie8.css" rel="stylesheet" type="text/css">
+  <![endif]-->
 </head>
 <body class="auth">
-<div id="page">
-  <div id="content">
-    <p class="progress b"><%= gettext('Loading') %> <span></span></p>
-    <img src="/i/progress.gif" width="128" height="15" alt="Loading" />
+    <header id="header">
+       <h1><a class="home" target="_blank" href="/">Mozilla Persona Home</a></h1>
+    </header>
+
+  <div id="content" class="group">
+      <section id="error">
+        <div class="table">
+            <div class="vertical">
+                <div class="contents">
+                  <p class="progress b"><%= gettext('Loading') %> <span></span></p>
+                  <img src="/i/progress.gif" width="128" height="15" alt="Loading" />
+                </div>
+            </div>
+        </div>
   </div>
-</div>
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <script type="text/javascript">
 navigator.id.beginAuthentication(function(email) {
