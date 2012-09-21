@@ -88,9 +88,19 @@ app.use(express.static(static_root));
 
 var lstnUrl;
 var port;
+
 if (config.get('use_https')) {
+  // Development only... Ops runs this behind nginx
   port = 443;
   app.listen(443);
+  app.on('error', function (e) {
+    if ('EACCES' == e.code) {
+      console.error('Permission Denied, maybe you should run this with sudo?');
+    } else if ('EADDRINUSE' == e.code) {
+      console.error('Unable to listen for connections, this service might already be running?');
+    }
+    throw e;
+  });
   lstnUrl = util.format('https://%s', config.get('issuer'));
 } else {
   port = process.env.PORT || 3030;
@@ -102,6 +112,5 @@ process.nextTick(function () {
   // 1) Line is used by test/lib/start_stop.js
   // 2) Dev/Ops feedback
   console.log('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on ' + lstnUrl);
-
   healthCheck();
 });
