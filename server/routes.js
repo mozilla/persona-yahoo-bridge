@@ -322,6 +322,11 @@ exports.init = function(app) {
     statsd.timing('routes.wellknown', new Date() - start);
   });
 
+  app.get('/', function (req, res) {
+      res.setHeader('X-Old-Man', 'You kids get off my lawn!');
+      res.redirect('https://login.persona.org/');
+  });
+
   // GET /__heartbeat__
   //   Report on whether or not this node is functioning as expected.
   app.get('/__heartbeat__', function(req, res) {
