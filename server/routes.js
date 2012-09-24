@@ -241,8 +241,19 @@ exports.init = function(app) {
     var
     start = new Date(),
     claimed = session.getClaimedEmail(req),
-    domain = claimed.split('@')[1],
+    domain,
     domainInfo = config.get('domain_info');
+
+
+    if (claimed && claimed.indexOf('@') !== -1) {
+      domain = claimed.split('@')[1];
+    } else if (req.query.email && req.query.email.indexOf('@') !== -1) {
+      claimed = req.query.email;
+      domain = claimed.split('@')[1];
+    } else {
+      claimed = "";
+      domain = "Unknown";
+    }
 
     statsd.increment('routes.id_mismatch.get');
 
