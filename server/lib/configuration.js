@@ -9,6 +9,8 @@ path = require('path');
 
 var conf = module.exports = convict({
   browserid_server: 'string = "https://browserid.org"',
+  // Longest possible cert expiration in seconds
+  certificate_duration: 'integer = 300', // 5 minutes
   certifier_host: 'string = "127.0.0.1"',
   certifier_port: "integer{1,65535} = 8080",
   client_sessions: {
