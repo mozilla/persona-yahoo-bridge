@@ -13,6 +13,8 @@ var conf = module.exports = convict({
     doc: "The prefix for cachify hashes in URLs",
     format: 'string = "v"'
   },
+  // Longest possible cert expiration in seconds
+  certificate_duration: 'integer = 300', // 5 minutes
   certifier_host: 'string = "127.0.0.1"',
   certifier_port: "integer{1,65535} = 8080",
   client_sessions: {
