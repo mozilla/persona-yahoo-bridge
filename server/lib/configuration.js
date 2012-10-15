@@ -9,6 +9,10 @@ path = require('path');
 
 var conf = module.exports = convict({
   browserid_server: 'string = "https://browserid.org"',
+  cachify_prefix: {
+    doc: "The prefix for cachify hashes in URLs",
+    format: 'string = "v"'
+  },
   certifier_host: 'string = "127.0.0.1"',
   certifier_port: "integer{1,65535} = 8080",
   client_sessions: {
