@@ -28,6 +28,11 @@ var conf = module.exports = convict({
     doc: "Skip checking for gettext .mo files for supported locales",
     format: 'boolean = false'
   },
+  env: {
+    doc: "What environment are we running in?  Note: all hosted environments are 'production'.  ",
+    format: 'string ["production", "development"] = "production"',
+    env: 'NODE_ENV'
+  },
   issuer: 'string = "dev.bigtent.mozilla.org"',
   process_type: 'string',
   statsd: {
@@ -57,7 +62,7 @@ var conf = module.exports = convict({
   //     },
   //   }
   // Unfortunately, this is impossible to represent in Orderly.
-  domain_info: 'object { } *',
+  domain_info: 'object { } * = {}',
   var_path: {
     doc: "The path where deployment specific resources will be sought (keys, etc), and logs will be kept.",
     format: 'string?',
@@ -96,6 +101,10 @@ if (process.env.CONFIG_FILES) {
 // if var path has not been set, let's default to var/
 if (!conf.has('var_path')) {
   conf.set('var_path', path.join(__dirname, "..", "var"));
+}
+
+if (! process.env.NODE_ENV) {
+  process.env.NODE_ENV = conf.get('env');
 }
 
 // validate the configuration based on the above specification

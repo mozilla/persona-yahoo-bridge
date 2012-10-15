@@ -7,7 +7,8 @@
 <body>
 <input type="hidden" name="_csrf" value="<%= csrf_token %>" />
 <script type="text/javascript" src="<%= browserid_server %>/provisioning_api.js"></script>
-<script type="text/javascript" src="/js/lib/jquery.min.js"></script>
+<%- cachify_js('/js/lib/jquery.min.js') %>
+<% /* /provision.js is dynamic, cannot be cachified */ %>
 <script type="text/javascript" src="/provision.js" /></script>
 </body>
 </html>

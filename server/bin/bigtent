@@ -10,6 +10,8 @@ const path = require('path');
 process.chdir(path.dirname(__dirname));
 
 const
+assets = require('../lib/assets'),
+cachify = require('connect-cachify'),
 clientSessions = require('client-sessions'),
 config = require('../lib/configuration'),
 express = require('express'),
@@ -41,6 +43,14 @@ if (config.get('use_https')) {
   app = express.createServer();
 }
 
+var cachifyRoot = path.join(__dirname, "..", "..", "static");
+app.use(cachify.setup(
+  assets.cachifyList,
+  {
+    prefix: config.get('cachify_prefix'),
+    production: (config.get('env') === 'production' ? true : false),
+    root: cachifyRoot
+  }));
 
 app.set('views', path.join(__dirname, '..', 'views'));
 app.set('view engine', 'ejs');
