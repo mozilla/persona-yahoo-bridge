@@ -1,24 +1,16 @@
-const cachify = require('connect-cachify'),
-      config = require('../server/lib/configuration.js'),
+const assets = require('../server/lib/assets'),
+      cachify = require('connect-cachify'),
+      config = require('../server/lib/configuration'),
       fs = require('fs'),
       jsp = require('uglify-js').parser,
       path = require('path'),
       pro = require('uglify-js').uglify,
       uglifycss = require('uglifycss');
 
-
 // /provision.min.js is dynamic
 // /js/lib/jquery.min.js is already minified
 // /js/lib/html5shim.min.js is already minified
-var sources = {
-  js: {
-    '/js/error.min.js': ['/js/error.js']
-  },
-  css: {
-    '/css/style.min.css': ['/css/style.css'],
-    '/css/ie8.min.css': ['/css/ie8.css']
-  }
-};
+var sources = assets.sources;
 
 var base = path.join(__dirname, '..', 'static');
 

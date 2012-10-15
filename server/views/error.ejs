@@ -7,13 +7,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
   <!--[if lt IE 9]>
-    <script src="/js/lib/html5shim.min.js"></script>
+    <%- cachify_js('/js/lib/html5shim.min.js') %>
   <![endif]-->
 
-  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  <%- cachify_css('/css/style.min.css') %>
 
   <!--[if lt IE 9]>
-    <link href="/css/ie8.css" rel="stylesheet" type="text/css">
+    <%- cachify_css('/css/ie8.min.css') %>
   <![endif]-->
   </head>
 
@@ -39,7 +39,7 @@
     </div>
 
     <script src="<%= browserid_server %>/authentication_api.js"></script>
-    <script src="/js/lib/jquery.min.js"></script>
-    <script src="/js/error.js"></script>
+    <%- cachify_js('/js/lib/jquery.min.js') %>
+    <%- cachify_js('/js/error.min.js') %>
   </body>
 </html>

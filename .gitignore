@@ -5,3 +5,7 @@ server/config/certrequest.csr
 server/config/local.json
 server/config/privatekey.pem
 server/var
+
+static/css/ie8.min.css
+static/css/style.min.css
+static/js/error.min.js
