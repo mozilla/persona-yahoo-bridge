@@ -8,10 +8,6 @@
   <![endif]-->
 
   <%- cachify_css('/css/style.min.css') %>
-
-  <!--[if lt IE 9]>
-    <%- cachify_css('/css/ie8.min.css') %>
-  <![endif]-->
 </head>
 <body class="auth">
     <header id="header">
@@ -19,7 +15,7 @@
     </header>
 
   <div id="content" class="group">
-      <section id="error">
+     <section id="error">
         <div class="table">
             <div class="vertical">
                 <div class="contents">
@@ -28,6 +24,7 @@
                 </div>
             </div>
         </div>
+      </section>
   </div>
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <script type="text/javascript">

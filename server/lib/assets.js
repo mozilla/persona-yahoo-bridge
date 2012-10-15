@@ -13,8 +13,7 @@ exports.sources = {
     '/js/error.min.js': ['/js/error.js']
   },
   css: {
-    '/css/style.min.css': ['/css/style.css'],
-    '/css/ie8.min.css': ['/css/ie8.css']
+    '/css/style.min.css': ['/css/style.css']
   }
 };
 /*
