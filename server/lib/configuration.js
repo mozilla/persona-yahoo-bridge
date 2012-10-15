@@ -9,6 +9,10 @@ path = require('path');
 
 var conf = module.exports = convict({
   browserid_server: 'string = "https://browserid.org"',
+  cachify_prefix: {
+    doc: "The prefix for cachify hashes in URLs",
+    format: 'string = "v"'
+  },
   // Longest possible cert expiration in seconds
   certificate_duration: 'integer = 300', // 5 minutes
   certifier_host: 'string = "127.0.0.1"',
