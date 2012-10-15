@@ -16,23 +16,5 @@ exports.sources = {
     '/css/style.min.css': ['/css/style.css']
   }
 };
-/*
-var flatten = function (map) {
-    console.log('map= ', Object.keys(map));
-  var rv = {};
-    var keys = Object.keys(map);
-    for (var i in Object.keys(map)) {
 
-	var key = keys[i];
-	console.log('key=' + key + ' map[key]= ', map[key]);
-    var subKeys = Object.keys(map[key]);
-    for (var k in Object.keys(map[key])) {
-      var subKey = map[key][k];
-      rv[subKey] = map[key][subKey];
-    }
-  }
-    console.log(rv);
-  return rv;
-};
-*/
 exports.cachifyList = _.extend({}, exports.sources['js'], exports.sources['css']);
