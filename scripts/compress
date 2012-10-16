@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const assets = require('../server/lib/assets'),
       cachify = require('connect-cachify'),
       config = require('../server/lib/configuration'),
