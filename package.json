@@ -26,6 +26,7 @@
     "passport-yahoo": "git://github.com/ozten/passport-yahoo.git",
     "qs": "0.4.2",
     "node-statsd": "https://github.com/downloads/lloyd/node-statsd/0509f85.tgz",
+    "request": "2.9.202",
     "uglify-js": "1.0.7",
     "uglifycss": "0.0.5",
     "underscore": "1.4.2",
@@ -35,7 +36,6 @@
     "awsbox": "0.2.13",
     "http-proxy": "0.8.1",
     "loady": "git://github.com/mozilla/loady.git",
-    "request": "2.9.202",
     "vows": "0.5.13"
   },
   "optionalDependencies": {},
