@@ -1,3 +1,6 @@
 {
-  "processes": [ "server/bin/bigtent" ]
+  "processes": [ "server/bin/bigtent" ],
+  "hooks": {
+    "postdeploy": "scripts/awsbox/post_deploy.js"
+  }
 }
