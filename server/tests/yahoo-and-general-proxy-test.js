@@ -24,7 +24,7 @@ suite.addBatch({
     topic: function () {
       var opts = {
         followRedirect: false,
-        timeout: 1000
+        timeout: 3000
       };
       request(base_url('/proxy/alice%40yahoo.com'), opts, this.callback);
     },

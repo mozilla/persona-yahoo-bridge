@@ -83,7 +83,7 @@ conf.set('process_type', path.basename(process.argv[1], ".js"));
 
 var dev_config_path = path.join(process.cwd(), 'config', 'local.json');
 if (! process.env.CONFIG_FILES &&
-    path.existsSync(dev_config_path)) {
+    fs.existsSync(dev_config_path)) {
   process.env.CONFIG_FILES = dev_config_path;
 }
 

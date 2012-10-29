@@ -5,7 +5,6 @@
 const
 config = require('./configuration'),
 fs = require('fs'),
-path = require('path'),
 util = require('util');
 
 /**
@@ -16,7 +15,7 @@ util = require('util');
  */
 exports.read_pubkey_sync = function(callback) {
   var pub_key_path = config.get('pub_key_path');
-  if (! path.existsSync(pub_key_path)) {
+  if (! fs.existsSync(pub_key_path)) {
     return callback("Missing public key, cannot read files");
   }
   try {
