@@ -17,15 +17,22 @@ valid_email = require('./lib/validation/email');
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
 
+  app.use(function (req, res, next) {
+    res.locals({
+      browserid_server: config.get('browserid_server'),
+      dev_mode: config.get('env'),
+      issuer: config.get('issuer'),
+      layout: false
+    });
+    next();
+  });
+
   app.get('/authentication', function (req, res) {
     var start = new Date();
     statsd.increment('routes.authentication.get');
 
     session.initialBidUrl(req);
-    res.render('authentication', {
-      layout: false,
-      browserid_server: config.get('browserid_server')
-    });
+    res.render('authentication');
     statsd.timing('routes.authentication', new Date() - start);
   });
 
@@ -78,8 +85,6 @@ exports.init = function(app) {
     start = new Date(),
     current = session.getCurrentUser(req),
     ctx = {
-      layout: false,
-      browserid_server: config.get('browserid_server'),
       current_user: current ? current : null
     };
 
@@ -95,17 +100,9 @@ exports.init = function(app) {
   // GET /provision
   //   Begin BrowserID provisioning.
   app.get('/provision', function(req, res){
-    var
-    start = new Date(),
-    ctx = {
-      layout: false,
-      browserid_server: config.get('browserid_server')
-    };
-
+    var start = new Date();
     statsd.increment('routes.provision.get');
-
-    res.render('provision', ctx);
-
+    res.render('provision');
     statsd.timing('routes.provision', new Date() - start);
   });
 
@@ -196,8 +193,7 @@ exports.init = function(app) {
     ctx = {
       duration: config.get('certificate_duration'),
       emails: [],
-      num_emails: 0,
-      layout: false
+      num_emails: 0
     };
 
     statsd.increment('routes.provision_js.get');
@@ -225,9 +221,7 @@ exports.init = function(app) {
     statsd.increment('routes.error.get');
 
     res.render('error', {
-      browserid_server: config.get('browserid_server'),
-      claimed: session.getClaimedEmail(req),
-      layout: false
+      claimed: session.getClaimedEmail(req)
     });
 
     statsd.timing('routes.error', new Date() - start);
@@ -263,11 +257,9 @@ exports.init = function(app) {
       res.redirect(session.getErrorUrl(req));
     } else {
       res.render('id_mismatch', {
-        browserid_server: config.get('browserid_server'),
         claimed: claimed,
         provider: domainInfo[domain].providerName,
-        providerURL: domainInfo[domain].providerURL,
-        layout: false
+        providerURL: domainInfo[domain].providerURL
       });
     }
 
@@ -290,10 +282,7 @@ exports.init = function(app) {
 
     statsd.increment('routes.cancelled.get');
 
-    res.render('cancelled', {
-      browserid_server: config.get('browserid_server'),
-      layout: false
-    });
+    res.render('cancelled');
 
     statsd.timing('routes.cancelled', new Date() - start);
   });
@@ -327,8 +316,7 @@ exports.init = function(app) {
     res.setHeader('Cache-Control', 'max-age=' + timeout);
     res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
     res.render('well_known_browserid', {
-      public_key: pk,
-      layout: false
+      public_key: pk
     });
 
     statsd.timing('routes.wellknown', new Date() - start);

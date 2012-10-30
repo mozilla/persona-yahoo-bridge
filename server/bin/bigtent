@@ -87,8 +87,9 @@ app.use(i18n.abide({
 passport_google.init(app);
 passport_windowslive.init(app);
 passport_yahoo.init(app);
-app.use(app.router);
+
 routes.init(app);
+
 passport_google.views(app);
 passport_windowslive.views(app);
 passport_yahoo.views(app);
