@@ -5,7 +5,11 @@
   <title>Log In in progress</title>
 </head>
 <body>
+<% if ('development' === dev_mode) { %>
+  <%- partial('debug_authentication_api') -%>
+<% } else { %>
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
+<% } %>
 <script>
 navigator.id.beginAuthentication(function(email) {
   // From mozilla/browserid resources/static/pages/page_helpers.js
