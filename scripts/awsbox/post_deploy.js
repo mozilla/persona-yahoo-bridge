@@ -5,7 +5,7 @@ var config = '/home/app/local.json',
     devConfig = '/home/app/code/server/config/local.json';
 
 var reportError = function (err, fatal) {
-  fatal = fatal || true;
+  if (fatal === undefined) fatal = true;
   console.error(err);
   if (fatal) process.exit(1);
 };
