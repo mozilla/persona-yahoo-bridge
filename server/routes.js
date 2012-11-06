@@ -47,7 +47,12 @@ exports.init = function(app) {
 
     // Issue #18 - Verify user input for email
     if (valid_email(req.params.email) === false) {
-      return res.send('Email is bad input', 400);
+      // Safari and Android stock browsers double encode the URI
+      // So let's double decode URI across the sky Issue #89
+      req.params.email = decodeURIComponent(req.params.email);
+      if (valid_email(req.params.email) === false) {
+        return res.send('Email is bad input', 400);
+      }
     }
 
     session.setClaimedEmail(req);
