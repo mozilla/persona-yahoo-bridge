@@ -10,7 +10,8 @@ function addScript(scriptName) {
     /* Some URLs like /sign_in or /error we will be
        in document.referrer, so we use localStorage
        to track the current Persona server */
-    if (referer.indexOf('<%= issuer %>') === -1) {
+    if (referer.indexOf('<%= issuer %>') === -1 &&
+	referer.indexOf('login.yahoo.com') === -1) {
       browserid_server = referer;
       if (! window.localStorage) alert('Debugging browserid_server not supported on this platform.');
       window.localStorage.referer = referer;
@@ -18,11 +19,6 @@ function addScript(scriptName) {
       browserid_server = window.localStorage.referer;
     }
   }
-/*
-  var s = document.createElement('script');
-  s.setAttribute('src', browserid_server + scriptName);
-  document.getElementsByTagName('body')[0].appendChild(s);
-*/  
   var src = ['<script src="', browserid_server, scriptName, '"></scr', 'ipt>'];
   document.write(src.join(''));
 }
