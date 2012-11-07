@@ -11,9 +11,19 @@
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <% } %>
 <script>
+if (!! localStorage.width && !! localStorage.height) {
+  var w = parseInt(localStorage.getItem('width'), 10);
+  var h = parseInt(localStorage.getItem('height'), 10);
+  if (! isNaN(w) && w > 100 && ! isNaN(h) && h > 100) {
+    window.resizeTo(w, h);
+    if (localStorage.removeItem) {
+      localStorage.removeItem('width');
+      localStorage.removeItem('height');
+    }
+  }
+}
+
 navigator.id.beginAuthentication(function(email) {
-  // From mozilla/browserid resources/static/pages/page_helpers.js
-  window.resizeTo(700, 375);
   if (email === "<%= current_user %>") {
       navigator.id.completeAuthentication();
   } else {
