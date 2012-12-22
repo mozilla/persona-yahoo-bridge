@@ -32,6 +32,9 @@
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <% } %>
 <script type="text/javascript">
+localStorage.height = window.outerHeight;
+localStorage.width = window.outerWidth;
+
 navigator.id.beginAuthentication(function(email) {
   if (email) {
     window.location.pathname = '/proxy/' + encodeURIComponent(email);
