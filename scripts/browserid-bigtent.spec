@@ -1,7 +1,7 @@
 %define _rootdir /opt/bigtent
 
 Name:          browserid-bigtent
-Version:       0.2012.01.17
+Version:       0.2013.01.17
 Release:       1%{?dist}_%{svnrev}
 Summary:       BrowserID BigTent server
 Packager:      Pete Fritchman <petef@mozilla.com>
