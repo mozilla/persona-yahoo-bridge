@@ -2,7 +2,7 @@
 
 Name:          browserid-bigtent
 Version:       0.2013.01.17
-Release:       1%{?dist}_%{svnrev}
+Release:       2%{?dist}_%{svnrev}
 Summary:       BrowserID BigTent server
 Packager:      Pete Fritchman <petef@mozilla.com>
 Group:         Development/Libraries
@@ -25,7 +25,7 @@ npm install
 export PATH=$PWD/node_modules/.bin:$PATH
 #./locale/compile-mo.sh locale/
 #./locale/compile-json.sh locale/ resources/static/i18n/
-env CONFIG_FILES=$PWD/server/config/local.json scripts/compress
+env CONFIG_FILES=$PWD/server/config/production.json scripts/compress
 #rm -r resources/static/build resources/static/test
 echo "$GIT_REVISION" > static/ver.txt
 #echo "locale svn r$SVN_REVISION" >> resources/static/ver.txt
