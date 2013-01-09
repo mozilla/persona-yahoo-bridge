@@ -40,6 +40,8 @@ for f in node_modules static; do
     cp -rp $f %{buildroot}%{_rootdir}/
 done
 mkdir -p %{buildroot}%{_rootdir}/config
+cp -p server/config/l10n-all.json %{buildroot}%{_rootdir}/config
+cp -p server/config/l10n-prod.json %{buildroot}%{_rootdir}/config
 
 %clean
 rm -rf %{buildroot}
