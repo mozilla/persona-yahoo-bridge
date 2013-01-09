@@ -8,6 +8,10 @@
     "duration": 86400000
   },
   "env": "production",
+  "http_proxy": {
+    "host": "localhost",
+    "port": 1235
+  },
   "issuer": "dev.bigtent.mozilla.org",
   "use_https": true,
   "locale_directory": "/home/ozten/bigtent/locale",

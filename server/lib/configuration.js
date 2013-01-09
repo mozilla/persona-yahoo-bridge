@@ -33,6 +33,10 @@ var conf = module.exports = convict({
     format: 'string ["production", "development"] = "production"',
     env: 'NODE_ENV'
   },
+  http_proxy: {
+    port: 'integer{1,65535}?',
+    host: 'string?'
+  },
   issuer: 'string = "dev.bigtent.mozilla.org"',
   process_type: 'string',
   statsd: {
@@ -105,6 +109,27 @@ if (!conf.has('var_path')) {
 
 if (! process.env.NODE_ENV) {
   process.env.NODE_ENV = conf.get('env');
+}
+
+
+// For ops consistency with Browserid, we support HTTP_PROXY
+// special handling of HTTP_PROXY env var
+if (process.env.HTTP_PROXY) {
+  var p = process.env.HTTP_PROXY.split(':');
+  conf.set('http_proxy.host', p[0]);
+  conf.set('http_proxy.port', p[1]);
+}
+
+// But under the covers... OpenID and OAuth libraries need
+// HTTP_PROXY_HOST, HTTP_PROXY_PORT, HTTPS_PROXY_HOST and HTTPS_PROXY_PORT
+if (conf.has('http_proxy.host')) {
+  process.env.HTTP_PROXY_HOST = conf.get('http_proxy.host');
+  process.env.HTTPS_PROXY_HOST = conf.get('http_proxy.host');
+}
+
+if (conf.has('http_proxy.port')) {
+  process.env.HTTP_PROXY_PORT = conf.get('http_proxy.port');
+  process.env.HTTPS_PROXY_PORT = conf.get('http_proxy.port');
 }
 
 // validate the configuration based on the above specification
