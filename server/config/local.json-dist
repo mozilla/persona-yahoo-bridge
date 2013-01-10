@@ -10,6 +10,7 @@
   "env": "development",
   "issuer": "localhost",
   "use_https": false,
+  "locale_directory": "/home/ozten/bigtent/locale",
   "domain_info": {
     "gmail.com": {
       "strategy": "google",
