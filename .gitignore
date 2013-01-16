@@ -8,3 +8,5 @@ server/var
 
 static/css/style.min.css
 static/js/error.min.js
+
+*~

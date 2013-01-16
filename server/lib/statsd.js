@@ -4,7 +4,8 @@
 
 const
 StatsD = require("node-statsd").StatsD,
-config = require('./configuration');
+config = require('./configuration'),
+logger = require('./logging').logger;
 
 // Per @fetep browserid.bigtent.somekey
 const PREFIX = "browserid." + config.get('process_type') + ".";
@@ -34,4 +35,5 @@ if (statsd_config && statsd_config.enabled) {
 process.on('uncaughtException', function(err) {
   console.error(err.stack);
   if (statsd) statsd.increment(PREFIX + 'uncaught_exception');
+  logger.error(err.stack || err);
 });
