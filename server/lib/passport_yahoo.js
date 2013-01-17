@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
+association_store = require('../lib/association_store'),
 config = require('../lib/configuration'),
 YahooStrategy = require('passport-yahoo').Strategy,
 logger = require('./logging').logger,
@@ -19,14 +20,17 @@ return_url = util.format("%s%s", hostname, RETURN_PATH),
 realm = util.format("%s/", hostname);
 
 // Register the YahooStrategy with Passport.
-passport.use(new YahooStrategy({
+var strategy = new YahooStrategy({
     returnURL: return_url,
     realm: realm
   },
   function(identifier, profile, done) {
     return done(null, profile);
-  }
-));
+  });
+strategy.saveAssociation(association_store.saveAssociation);
+strategy.loadAssociation(association_store.loadAssociation);
+
+passport.use(strategy);
 
 exports.init = function(app) {
   app.use(passport.initialize());
