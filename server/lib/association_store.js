@@ -21,7 +21,16 @@ exports.health = function(cb) {
 };
 
 exports.saveAssociation = function(handle, provider, algorithm, secret, expiresIn, cb) {
-  var lifetime = 60 * 10;
+  if (typeof handle !== 'string' ||
+      typeof provider !== 'object' ||
+      typeof algorithm !== 'string' ||
+      typeof secret !== 'string' ||
+      typeof expiresIn !== 'number' ||
+      typeof cb !== 'function') {
+    return cb("Bad input to saveAssociation");
+  }
+
+  var lifetime = Math.round(expiresIn / 1000);
   var memcached = new Memcached(ip_ports, {timeout: 1000});
   var value = JSON.stringify({provider: provider, algorithm: algorithm, secret: secret});
   memcached.set(handle, value, lifetime, function (err, ok) {
@@ -41,6 +50,11 @@ exports.saveAssociation = function(handle, provider, algorithm, secret, expiresI
 };
 
 exports.loadAssociation = function(handle, cb) {
+  if (typeof handle !== 'string' ||
+      typeof cb !== 'function') {
+    return cb("Bad input to loadAssociation");
+  }
+
   var memcached = new Memcached(ip_ports, {timeout: 1000});
   memcached.get(handle, function (err, res) {
     memcached.end();
