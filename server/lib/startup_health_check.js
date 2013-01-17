@@ -25,15 +25,15 @@ module.exports = function () {
     }, function (resp) {
       var heartbeat = '';
       resp.on('data', function (data) {
-	heartbeat += data.toString('utf8');
+        heartbeat += data.toString('utf8');
       });
       resp.on('end', function (data) {
-	if ('ok certifier' !== heartbeat.trim()) {
+        if ('ok certifier' !== heartbeat.trim()) {
           console.error('Expected a certifier heartbeat response, instead got [' + heartbeat + ']');
-	}
+        }
       });
       if (200 === resp.statusCode) {
-	var resp_json = "",
+        var resp_json = "",
         j = lib.get({
           host: host,
           port: port,
@@ -64,7 +64,7 @@ module.exports = function () {
           console.error('Unable to read public key at ' + host + ':' + port + ' [' + err + ']');
         });
       } else {
-	console.error('Expected a 200 from /__heartbeat__ on certifier at ' + host + ':' + port + ', but got ' + resp.statusCode);
+        console.error('Expected a 200 from /__heartbeat__ on certifier at ' + host + ':' + port + ', but got ' + resp.statusCode);
       }
 
     });
