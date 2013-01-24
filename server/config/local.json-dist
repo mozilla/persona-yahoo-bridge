@@ -1,7 +1,8 @@
 {
   "browserid_server": "http://127.0.0.1:10002",
-  "memcached": {
-    "ip_port_list": ["127.0.0.1:11211", "10.0.10.13:11211"]
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
   },
   "certifier_host": "localhost",
   "certifier_port": 8000,

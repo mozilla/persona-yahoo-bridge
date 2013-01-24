@@ -11,8 +11,8 @@ var config = require('../lib/configuration'),
 module.exports = function () {
   assocStore.health(function (err) {
     if (err) {
-      var ip_ports = config.get('memcached.ip_port_list');
-      console.error('Unable to connect to memcached:' + JSON.stringify(ip_ports));
+      var redisConf = config.get('redis');
+      console.error('Unable to connect to redis:' + JSON.stringify(redisConf));
       console.error(err);
     }
     var host = config.get('certifier_host'),

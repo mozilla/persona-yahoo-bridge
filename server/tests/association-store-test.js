@@ -12,14 +12,13 @@ util = require('util');
 
 var desc = 'association-store-test';
 
-console.log('Doing health check with ', config.get('memcached.ip_port_list'));
 assocStore.health(function(err) {
-  console.log('Health check err=', err);
   if (err) {
-    var ip_ports = config.get('memcached.ip_port_list');
-    console.error('Skipping ' + desc + ' test suite. Unable to connect to memcached:' + JSON.stringify(ip_ports));
+    var redisConf = config.get('redis');
+    console.error('Skipping ' + desc + ' test suite. Unable to connect to redis:' + JSON.stringify(redisConf));
     console.error(err);
   } else {
+
     // TODO: This "optional vows suite" pattern doesn't work.
     // You must run these test via node, not the vows bin. Fix Me.
     setupAndRun();
@@ -98,11 +97,26 @@ var setupAndRun = function() {
     [5, handle, provider, algorithm, secret, '17000'],
     [6, expires, handle, provider, algorithm, secret]
   ];
+
   badSaveTests.forEach(function(bad, i) {
     suite.addBatch(badSaveBatch.apply(badSaveBatch, bad));
   });
 
   suite.addBatch(badLoadBatch(0, null));
+ 
+  suite.addBatch({
+    'Shut down redis': {
+      topic: function (){
+        assocStore.quit(this.callback);
+	
+      },
+      "all good": function (err, reply) {
+	assert.ifError(err);
+	assert.equal('OK', reply);
+      }
+    }
+  });
+
   start_stop.addShutdownBatches(suite);
 
   if (process.argv[1] === __filename) {

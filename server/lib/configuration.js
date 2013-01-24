@@ -72,8 +72,9 @@ var conf = module.exports = convict({
     format: 'string?',
     env: 'VAR_PATH'
   },
-  memcached: {
-    ip_port_list: 'array { string }* = ["127.0.0.1:11211"]'
+  redis: {
+    host: 'string = "127.0.0.1"',
+    port: 'integer = 6379'
   },
   windows_live: {
     client_id: 'string = "00000000440BCC94"',

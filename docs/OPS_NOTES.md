@@ -68,17 +68,15 @@ BigTent will alter the environment variables to add the following:
 
 These are used by lower level libraries during OpenID and OAuth flows.
 
-### Memcached Config
+### Redis Config
 
-Memcache is used to store association handles during OpenID transactions.
+Redis is used to store association handles during OpenID transactions.
 
-These association handles are cached based on the provider's expiration, which is usually around 12 seconds.
+These association handles are cached based on the provider's expiration, which is usually around 4 hours.
 
-It is best to have more than one memcached server running for failover.
-
-* memcached.ip_port_list - An array of strings. Each string is an ip address ':' and port number. Examples:
-
-    "memcached.ip_port_list": ["10.0.3.14:11211", "10.0.3.15:11211"]
+* redis
+  * host - String hostname or IP of the Redis master (defaults to 127.0.0.1)
+  * port - Port Redis is running on (defaults to 6379)
 
 
 Per Service Deployment
