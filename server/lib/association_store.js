@@ -30,10 +30,9 @@ exports.saveAssociation = function(handle, provider, algorithm, secret, expiresI
     return cb("Bad input to saveAssociation");
   }
 
-  var lifetime = Math.round(expiresIn / 1000);
   var memcached = new Memcached(ip_ports, {timeout: 1000});
   var value = JSON.stringify({provider: provider, algorithm: algorithm, secret: secret});
-  memcached.set(handle, value, lifetime, function (err, ok) {
+  memcached.set(handle, value, expiresIn, function (err, ok) {
     memcached.end();
     if (err) {
       statsd.increment('assoc_store.memcached.set.error');
