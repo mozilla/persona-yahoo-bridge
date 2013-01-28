@@ -22,6 +22,7 @@ passport_google = require('../lib/passport_google'),
 passport_windowslive = require('../lib/passport_windowslive'),
 passport_yahoo = require('../lib/passport_yahoo'),
 routes = require('../routes'),
+session = require('../lib/session_context'),
 statsd = require('../lib/statsd'),
 util = require('util'),
 logger = require('../lib/logging').logger;
@@ -96,6 +97,13 @@ passport_yahoo.views(app);
 
 var static_root = path.join(__dirname, '..', '..', 'static');
 app.use(express.static(static_root));
+
+app.error(function(err, req, res, next) {
+  logger.error(err.stack || err);
+  res.render('error', {
+        claimed: session.getClaimedEmail(req)
+  });
+});
 
 var lstnUrl;
 var port;
