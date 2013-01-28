@@ -20,7 +20,6 @@
     "express": "2.5.8",
     "i18n-abide": "0.0.7",
     "jwcrypto": "0.1.1",
-    "memcached": "0.1.5",
     "passport": "0.1.8",
     "passport-google": "git://github.com/ozten/passport-google.git",
     "passport-windowslive": "git://github.com/ozten/passport-windowslive.git",
