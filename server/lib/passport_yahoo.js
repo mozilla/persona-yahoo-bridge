@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const
-association_store = require('../lib/association_store'),
-config = require('../lib/configuration'),
+const config = require('../lib/configuration'),
 YahooStrategy = require('passport-yahoo').Strategy,
 logger = require('./logging').logger,
 passport = require('passport'),
@@ -22,13 +20,12 @@ realm = util.format("%s/", hostname);
 // Register the YahooStrategy with Passport.
 var strategy = new YahooStrategy({
     returnURL: return_url,
-    realm: realm
+    realm: realm,
+    stateless: true
   },
   function(identifier, profile, done) {
     return done(null, profile);
   });
-strategy.saveAssociation(association_store.saveAssociation);
-strategy.loadAssociation(association_store.loadAssociation);
 
 passport.use(strategy);
 
@@ -37,7 +34,7 @@ exports.init = function(app) {
   app.use(passport.session());
 };
 
-exports.views = function (app) {
+exports.views = function(app) {
   // GET /auth/yahoo/return
   //   Use passport.authenticate() as route middleware to authenticate the
   //   request.  If authentication fails, the user will be redirected back to the
@@ -55,7 +52,7 @@ exports.views = function (app) {
       statsd.increment('routes.auth.yahoo.return.get');
 
       if (req.user && req.user.emails) {
-        req.user.emails.forEach(function (email_obj, i) {
+        req.user.emails.forEach(function(email_obj, i) {
           if (match) { return; }
 
           if (! email_obj.value) {
