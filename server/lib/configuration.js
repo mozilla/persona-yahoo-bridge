@@ -41,6 +41,7 @@ var conf = module.exports = convict({
     host: 'string?'
   },
   issuer: 'string = "dev.bigtent.mozilla.org"',
+  public_url: 'string?',
   process_type: 'string',
   statsd: {
     enabled: {
@@ -113,6 +114,10 @@ if (!conf.has('var_path')) {
 
 if (! process.env.NODE_ENV) {
   process.env.NODE_ENV = conf.get('env');
+}
+
+if (!conf.has('public_url')) {
+  conf.set('public_url', 'https://' + conf.get('issuer'));
 }
 
 
