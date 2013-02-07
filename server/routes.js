@@ -17,7 +17,7 @@ valid_email = require('./lib/validation/email');
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
 
-  app.use(function (req, res, next) {
+  app.use(function(req, res, next) {
     res.locals({
       browserid_server: config.get('browserid_server'),
       dev_mode: config.get('env'),
@@ -27,7 +27,7 @@ exports.init = function(app) {
     next();
   });
 
-  app.get('/authentication', function (req, res) {
+  app.get('/authentication', function(req, res) {
     var start = new Date();
     statsd.increment('routes.authentication.get');
 
@@ -111,7 +111,7 @@ exports.init = function(app) {
     statsd.timing('routes.provision', new Date() - start);
   });
 
-  var cryptoError = function (res, start) {
+  var cryptoError = function(res, start) {
     statsd.increment('routes.provision.err.crypto');
     res.writeHead(500);
     res.end();
@@ -154,13 +154,8 @@ exports.init = function(app) {
     }
 
     var certified_cb = function(err, cert) {
-      var user_cert = cert,
-      certificate;
+      var certificate;
 
-      if (crypto.chainedCert) {
-        console.log('CHAINING CERTS');
-        user_cert = util.format('%s~%s', crypto.chainedCert, cert);
-      }
       if (err) {
         return cryptoError(res, start);
       } else {
@@ -175,7 +170,7 @@ exports.init = function(app) {
             return cryptoError(res, start);
           }
 
-	} catch (e) {
+        } catch (e) {
           console.error('Bad output from certifier');
           if (e.stack) console.error(e.stack);
           return cryptoError(res, start);
@@ -311,19 +306,25 @@ exports.init = function(app) {
         }
       }
     }
-
-    var pk = JSON.stringify(crypto.pubKey);
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'max-age=' + timeout);
-    res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
-    res.render('well_known_browserid', {
-      public_key: pk
+    crypto.pubKey(function(err, publicKey) {
+      // This should never happen
+      if (err) {
+        console.error("Route unable to load BigTent public key");
+        console.error(err);
+        throw new Error('Unabled to load BigTent public key');
+      }
+      var pk = JSON.stringify(publicKey);
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'max-age=' + timeout);
+      res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
+      res.render('well_known_browserid', {
+        public_key: pk
+      });
+      statsd.timing('routes.wellknown', new Date() - start);
     });
-
-    statsd.timing('routes.wellknown', new Date() - start);
   });
 
-  app.get('/', function (req, res) {
+  app.get('/', function(req, res) {
       res.setHeader('X-Old-Man', 'You kids get off my lawn!');
       res.redirect('https://login.persona.org/');
   });
@@ -339,7 +340,7 @@ exports.init = function(app) {
       url: url,
       timeout: 500
     };
-    request(url, function (err, heartResp, body) {
+    request(url, function(err, heartResp, body) {
       if (err ||
           200 !== heartResp.statusCode ||
           'ok certifier' !== body.trim()) {

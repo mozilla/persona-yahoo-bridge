@@ -37,17 +37,26 @@ module.exports = function() {
         });
         resp.on('end', function() {
           if (200 === resp.statusCode) {
-            var ours = require('../lib/crypto').pubKey,
+            var ours,
             theirs = JSON.parse(resp_json),
-            complained = false;
-            Object.keys(ours).forEach(function(key) {
-              if (ours[key] !== theirs[key]) {
-                if (! complained) {
-                  complained = true;
-                  console.log(ours[key]);
-                  console.log(theirs[key]);
-                  console.error("BigTent and the Certifier have different public keys. This can't end well.");
-                }
+            complained = false,
+            crypto = require('../lib/crypto');
+
+            crypto.pubKey(function(err, ours) {
+              if (err) {
+                console.error("Unable to load BigTent public key");
+                console.error(err);
+              } else {
+                Object.keys(ours).forEach(function(key) {
+                  if (ours[key] !== theirs[key]) {
+                    if (! complained) {
+                      complained = true;
+                      console.log(ours[key]);
+                      console.log(theirs[key]);
+                      console.error("BigTent and the Certifier have different public keys. This can't end well.");
+                    }
+                  }
+                });
               }
             });
           }
