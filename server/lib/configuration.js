@@ -7,6 +7,9 @@ convict = require('convict'),
 fs = require('fs'),
 path = require('path');
 
+// Side effect - Adds default_bid and dev_bid to express.logger formats
+require('./custom_logger');
+
 var conf = module.exports = convict({
   browserid_server: 'string = "https://browserid.org"',
   cachify_prefix: {
@@ -55,6 +58,7 @@ var conf = module.exports = convict({
     format: 'array { string }* = [ "en-US" ]',
     env: 'SUPPORTED_LANGUAGES'
   },
+  express_log_format: 'string [ "default_bid", "dev_bid", "default", "dev", "short", "tiny" ] = "default"',
   use_https: 'boolean = false',
   // NOTE: domain_info should follow the JSONSchema:
   //   {
