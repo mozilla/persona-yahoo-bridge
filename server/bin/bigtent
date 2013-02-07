@@ -29,7 +29,6 @@ logger = require('../lib/logging').logger;
 
 var app;
 
-logger.debug("config.get('use_https')=", config.get('use_https'));
 if (config.get('use_https')) {
   try {
     var privateKey = fs.readFileSync('config/privatekey.pem').toString();
@@ -57,10 +56,17 @@ app.set('views', path.join(__dirname, '..', 'views'));
 app.set('view engine', 'ejs');
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.logger());
+
+app.use(express.logger({
+  format: config.get('express_log_format'),
+  stream: {
+    write: function(x) {
+      logger.info(typeof x === 'string' ? x.trim() : x);
+    }
+  }
+}));
 
 var sess_config = config.get('client_sessions');
-logger.debug('sess_config=', sess_config);
 app.use(clientSessions({
   cookieName: sess_config.cookie_name,
   secret:     sess_config.secret,
