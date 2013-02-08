@@ -14,7 +14,7 @@
   },
   "issuer": "dev.bigtent.mozilla.org",
   "use_https": true,
-  "locale_directory": "/home/ozten/bigtent/locale",
+  "translation_directory": "/home/ozten/bigtent/locale",
   "domain_info": {
     "yahoo.com": {
       "strategy": "yahoo",
