@@ -52,8 +52,7 @@ var conf = module.exports = convict({
     host: 'string = "localhost"',
     port: "integer{1,65535} = 8125"
   },
-
-  locale_directory: 'string = "locale"',
+  translation_directory: 'string = "static/i18n"',
   supported_languages: {
     doc: "List of languages this deployment should detect and display localized strings.",
     format: 'array { string }* = [ "en-US" ]',

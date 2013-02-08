@@ -23,12 +23,11 @@ BrowserID BigTent: server providing proxy IdP authentication.
 %build
 npm install
 export PATH=$PWD/node_modules/.bin:$PATH
-#./locale/compile-mo.sh locale/
-#./locale/compile-json.sh locale/ resources/static/i18n/
+mkdir -p static/i18n/en_US
+compile-json locale/ static/i18n/
 env CONFIG_FILES=$PWD/server/config/production.json scripts/compress
-#rm -r resources/static/build resources/static/test
 echo "$GIT_REVISION" > static/ver.txt
-#echo "locale svn r$SVN_REVISION" >> resources/static/ver.txt
+echo "locale svn r$SVN_REVISION" >> static/ver.txt
 
 %install
 rm -rf %{buildroot}
@@ -42,6 +41,8 @@ done
 mkdir -p %{buildroot}%{_rootdir}/config
 cp -p server/config/l10n-all.json %{buildroot}%{_rootdir}/config
 cp -p server/config/l10n-prod.json %{buildroot}%{_rootdir}/config
+# now let's link en to en-US
+ln -s en-US %{buildroot}%{_rootdir}/static/i18n/en
 
 %clean
 rm -rf %{buildroot}
