@@ -9,25 +9,31 @@
   },
   "main": "server/bin/bigtent",
   "scripts": {
-    "test": "./node_modules/.bin/vows server/tests/*-test.js --spec"
+    "test": "./node_modules/.bin/vows server/tests/*-test.js --spec",
+    "start": "node server/bin/bigtent"
   },
   "dependencies": {
     "client-sessions": "0.0.5",
+    "connect-cachify": "0.0.11",
     "convict": "0.0.6",
     "ejs": "*",
     "express": "2.5.8",
-    "i18n-abide": "0.0.3",
-    "jwcrypto": "0.1.1",
+    "i18n-abide": "0.0.8beta4",
+    "jwcrypto": "0.4.2",
     "passport": "0.1.8",
     "passport-google": "git://github.com/ozten/passport-google.git",
     "passport-windowslive": "git://github.com/ozten/passport-windowslive.git",
     "passport-yahoo": "git://github.com/ozten/passport-yahoo.git",
     "qs": "0.4.2",
     "node-statsd": "https://github.com/downloads/lloyd/node-statsd/0509f85.tgz",
+    "request": "2.9.202",
+    "uglify-js": "1.0.7",
+    "uglifycss": "0.0.5",
+    "underscore": "1.4.2",
     "winston": "0.5.6"
   },
   "devDependencies": {
-    "awsbox": "0.2.13",
+    "awsbox": "0.3.3",
     "http-proxy": "0.8.1",
     "loady": "git://github.com/mozilla/loady.git",
     "request": "2.9.202",
@@ -35,6 +41,6 @@
   },
   "optionalDependencies": {},
   "engines": {
-    "node": "*"
+    "node": ">= 0.8.11"
   }
 }

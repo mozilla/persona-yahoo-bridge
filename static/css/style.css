@@ -1,8 +1,326 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* browserid/resources/static/common/fonts/fonts_common.css */
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/OpenSans-Regular.eot');
+  src: local('Open Sans'),
+       local('OpenSans'),
+       url('/fonts/OpenSans-Regular.eot') format('embedded-opentype'),
+       url('/fonts/OpenSans-Regular.woff') format('woff'),
+       url('/fonts/OpenSans-Regular.ttf') format('truetype');
+}
+
+/* browserid/resources/static/common/css/style.css */
+* {
+  margin: 0;
+  padding: 0;
+
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+       -o-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+/* 52 */
+html, body {
+  height: 100%;
+}
+
 body {
-    background-color: #DEE3E6;
-    color: #484848;
-    font: 14px/21px 'Open Sans',"Lucida Sans","Lucida Grande","Lucida Sans Unicode",Verdana,sans-serif;
+  font: 14px/21px 'Open Sans', "Lucida Sans", "Lucida Grande", "Lucida Sans Unicode", Verdana, sans-serif;
+  overflow-y: auto;
+}
+
+/* 42 */
+header, section, footer {
+  display: block;
+  width: 100%;
+}
+
+/* 104 */
+a {
+  color: #348fd0;
+  text-decoration: none;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  font-weight: 400; /* changed from 300, unused anyways */
+}
+
+/* 192 */
+button,
+.button {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 14px;
+    /* The difference between top and bottom padding is to make up for the tiny
+     * offset that browsers use to display lowercase letters.
+     */
+    padding: 6px 10px 7px;
+    float: right;
+    border: 0;
+    color: #fff;
+    text-shadow: 0 1px rgba(0,0,0,0.5);
+    cursor: pointer;
+    white-space: nowrap;
+
+    border-radius: 3px;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 1px 0 rgba(0, 0, 0, 0.2);
+
+    background-color: #4eb5e5;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#4eb5e5), to(#3196cf));
+    background-image: -webkit-linear-gradient(top, #4eb5e5, #3196cf);
+    background-image:    -moz-linear-gradient(top, #4eb5e5, #3196cf);
+    background-image:      -ms-linear-gradient(top, #4eb5e5, #3196cf);
+    background-image:       -o-linear-gradient(top, #4eb5e5, #3196cf);
+    background-image:          linear-gradient(top, #4eb5e5, #3196cf);
+}
+
+button:hover,
+button:focus,
+.button:hover,
+.button:focus {
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.3), 0 1px 0 rgba(0, 0, 0, 0.2), 0 2px 0 rgba(0, 0, 0, 0.1);
+
+    background-color: #4aafe5;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#4aafe5), to(#2c89c8));
+    background-image: -webkit-linear-gradient(top, #4aafe5, #2c89c8);
+    background-image:    -moz-linear-gradient(top, #4aafe5, #2c89c8);
+    background-image:      -ms-linear-gradient(top, #4aafe5, #2c89c8);
+    background-image:       -o-linear-gradient(top, #4aafe5, #2c89c8);
+    background-image:          linear-gradient(top, #4aafe5, #2c89c8);
+}
+
+button:focus,
+.button:focus {
+    box-shadow: 0 0 1px #fff, 0 0 1px 3px #49ADE3;
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5), 0 0 1px 3px rgba(73, 173, 227, 0.6);
+}
+
+button:active,
+.button:active {
+    background-color: #184a73;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#184a73), to(#276084));
+    background-image: -webkit-linear-gradient(top, #184a73, #276084);
+    background-image:    -moz-linear-gradient(top, #184a73, #276084);
+    background-image:      -ms-linear-gradient(top, #184a73, #276084);
+    background-image:       -o-linear-gradient(top, #184a73, #276084);
+    background-image:          linear-gradient(top, #184a73, #276084);
+    color: #97b6ca;
+    text-shadow: 0 1px rgba(0,0,0,0.4);
+    box-shadow: inset 0 2px 1px rgba(0,0,0,0.3);
+}
+
+button::-moz-focus-inner, .button::-moz-focus-inner {
+  padding: 0;
+  border: 0
+}
+
+
+/* 404 */
+.headline-main, h1, h2, h3, h4 {
+  font-weight: normal;
+  text-shadow: 0px 1px 0px rgba(255,255,255,0.75);
+}
+
+
+/* 415 */
+h1 {
+  font-size: 36px;
+  letter-spacing: -1.5px;
+  line-height: 100%;
+}
+
+/* 430 */
+h2 {
+  font-size: 32px;
+  letter-spacing: -1px;
+  line-height: 100%;
+}
+
+/* 471 */
+#wait, #delay, #error {
+  background-color: #dadee1;
+  background-image: url("/i/grain.png"), -webkit-gradient(linear, left top, left bottom, from(#dadee1), to(#c7ccd0));
+  background-image: url("/i/grain.png"), -webkit-linear-gradient(top, #dadee1, #c7ccd0);
+  background-image: url("/i/grain.png"),    -moz-linear-gradient(top, #dadee1, #c7ccd0);
+  background-image: url("/i/grain.png"),     -ms-linear-gradient(top, #dadee1, #c7ccd0);
+  background-image: url("/i/grain.png"),      -o-linear-gradient(top, #dadee1, #c7ccd0);
+  background-image: url("/i/grain.png"),         linear-gradient(top, #dadee1, #c7ccd0);
+}
+
+/* 490 */
+#error h2 {
+    font-size: 22px;
+}
+
+/* 494 */
+#wait p, #error p, #delay p {
+    margin-top: 20px;
+}
+
+/* 503 */
+#error .contents, #wait .contents {
+    max-width: 430px;
+    margin: 0 auto;
+}
+
+/* browserid/resources/static/dialog/css/style.css */
+
+/* 5 */
+body {
+  color: #383838;
+  background-color: #dee3e6;
+  background-image: url('/i/grain.png');
+  background-image: url("/i/grain.png"), -webkit-gradient(linear, left top, left bottom, from(rgba(113, 126, 137, 0)), to(rgba(113, 126, 137, 0.2)));
+  background-image: url('/i/grain.png'), -webkit-linear-gradient(top, rgba(113, 126, 137, 0), rgba(113, 126, 137, 0.2));
+  background-image: url('/i/grain.png'),    -moz-linear-gradient(top, rgba(113, 126, 137, 0), rgba(113, 126, 137, 0.2));
+  background-image: url('/i/grain.png'),     -ms-linear-gradient(top, rgba(113, 126, 137, 0), rgba(113, 126, 137, 0.2));
+  background-image: url('/i/grain.png'),      -o-linear-gradient(top, rgba(113, 126, 137, 0), rgba(113, 126, 137, 0.2));
+  background-image: url('/i/grain.png'),         linear-gradient(top, rgba(113, 126, 137, 0), rgba(113, 126, 137, 0.2));
+  line-height: 18px;
+}
+
+/* 40 */
+header, footer {
+    position: absolute;
+    z-index: 2;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.05) inset;
+}
+
+/* 46 */
+header {
+    top: 0;
+    padding: 10px 20px;
+    /* The *padding is a fix for IE6 and IE7 showing scroll bars in the
+     * unsupported dialog.  Since IE6 and IE7 do not support box-sizing:
+     * border-box, the left and right padding cause these versions of IE to
+     * overflow the dialog box.
+     */
+    *padding: 10px 0;
+    border-bottom: 1px solid #c7c6c1;
+
+    /*-ms-filter through zoom: 1 are fixes for IE6 and IE7 so they show the header
+     */
+    -ms-filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#0c000000,endColorstr=#0c000000);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#0c000000,endColorstr=#0c000000);
+    zoom: 1;
+    background-image: -webkit-linear-gradient(top, rgba(0,0,0,.05), rgba(0,0,0,0));
+    background-image:    -moz-linear-gradient(top, rgba(0,0,0,.05), rgba(0,0,0,0));
+    background-image:     -ms-linear-gradient(top, rgba(0,0,0,.05), rgba(0,0,0,0));
+    background-image:      -o-linear-gradient(top, rgba(0,0,0,.05), rgba(0,0,0,0));
+    background-image:         linear-gradient(top, rgba(0,0,0,.05), rgba(0,0,0,0));
+}
+
+/* 78 */
+.home {
+  width: 161px;
+  height: 40px;
+  background: url("/i/persona-logo-transparent.png") 0 0 no-repeat;
+  text-indent: -9999px;
+  display: inline-block;
+  *display: block;
+  zoom: 1;
+}
+
+/* 114 */
+section {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 0;
+}
+
+/* 124 */
+.table {
+    display: table;
+    width: 100%;
+    height: 100%;
+}
+
+/* 130 */
+.table .vertical {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+/* 180 */
+/* min-height is calculated in JS */
+#content {
+    position: absolute;
+    overflow: hidden;
+    left: 0;
+    right: 0;
+    top: 61px;
+    bottom: 61px;
+    /* Fix for IE6 not displaying the unsupported dialog correctly. IE6 by
+     * default sets the height and width of the element to 0 meaning nothing
+     * shows up on the screen.
+     * Note, height is a magic number that depend on the height of the
+     * dialog.  The height also depends on the height of the header and footer.
+     */
+    _width: 100%;
+    _height: 250px;
+}
+
+
+/* 197 */
+#wait, #error, #delay {
+    z-index: -1;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    opacity: 0;
+
+    -webkit-transition-property: all;
+    -moz-transition-property: all;
+    -ms-transition-property: all;
+    -o-transition-property: all;
+    transition-property: all;
+
+    -webkit-transition-duration: 0.25s;
+    -moz-transition-duration: 0.25s;
+    -ms-transition-duration: 0.25s;
+    -o-transition-duration: 0.25s;
+    transition-duration: 0.25s;
+
+    /* Set this to .25s for Android browser, 0.5 seconds makes it so that it
+     * does not show */
+    -webkit-transition-delay: 0.25s;
+    -moz-transition-delay: 0.5s;
+    -ms-transition-delay: 0.5s;
+    -o-transition-delay: 0.5s;
+    transition-delay: 0.5s;
+}
+
+/* 272 */
+#wait .vertical, #error .vertical, #delay .vertical {
+    padding: 0 20px;
+}
+
+/* 238 */
+.error #error, #error.unsupported, #error.cookies_disabled, .auth #error {
+    display: block;
+    z-index: 3;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+    opacity: 1;
+}
+
+
+/* bigtent */
+.auth .contents {
+  text-align: center;
 }
 .progress {
+  margin-bottom: 20px;
+}
 
+button{
+  float: none;
+  margin-top: 25px;
 }

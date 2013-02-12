@@ -38,6 +38,45 @@ In practice, you'll want stable keys that match your certifier.
 
 Keys can be generated with `./node_modules/jwcrypto/bin/generate-keypair`.
 
+Configs
+-------
+
+A sample config file `server/config/local.json-dist` is provided and must be copied
+and customized to run the server. You can name this anything and use `CONFIG_FILES`
+to control, just like BrowserID.
+
+### HTTP Proxy Config
+In stage and production, we limit outbound http and https requests by using a
+squid proxy. This can be controlled two ways:
+
+1) Config
+    {
+        "http_proxy": { "port": 1234, "host": "localhost" }
+    }
+
+2) Environment Variables
+
+    HTTP_PROXY=localhost:1234
+
+Both of these are identical to BrowserID. If either of these are set...
+BigTent will alter the environment variables to add the following:
+
+  * HTTP_PROXY_HOST
+  * HTTP_PROXY_PORT
+  * HTTPS_PROXY_HOST
+  * HTTPS_PROXY_PORT
+
+These are used by lower level libraries during OpenID and OAuth flows.
+
+Per Service Deployment
+----------------------
+
+It is important to defence in depth, that we only deploy yahoo code to a
+yahoo bigtent instance and gmail code to a gmail instance, etc.
+
+It should be an error if a gmail user were to somehow try to do OpenID
+via a yahoo BigTent instance.
+
 API Keys: Windows Live (Hotmail)
 --------------------------------
 

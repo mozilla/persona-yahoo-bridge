@@ -10,6 +10,8 @@ const path = require('path');
 process.chdir(path.dirname(__dirname));
 
 const
+assets = require('../lib/assets'),
+cachify = require('connect-cachify'),
 clientSessions = require('client-sessions'),
 config = require('../lib/configuration'),
 express = require('express'),
@@ -20,13 +22,13 @@ passport_google = require('../lib/passport_google'),
 passport_windowslive = require('../lib/passport_windowslive'),
 passport_yahoo = require('../lib/passport_yahoo'),
 routes = require('../routes'),
+session = require('../lib/session_context'),
 statsd = require('../lib/statsd'),
 util = require('util'),
 logger = require('../lib/logging').logger;
 
 var app;
 
-logger.debug("config.get('use_https')=", config.get('use_https'));
 if (config.get('use_https')) {
   try {
     var privateKey = fs.readFileSync('config/privatekey.pem').toString();
@@ -41,15 +43,30 @@ if (config.get('use_https')) {
   app = express.createServer();
 }
 
+var cachifyRoot = path.join(__dirname, "..", "..", "static");
+app.use(cachify.setup(
+  assets.cachifyList,
+  {
+    prefix: config.get('cachify_prefix'),
+    production: (config.get('env') === 'production' ? true : false),
+    root: cachifyRoot
+  }));
 
 app.set('views', path.join(__dirname, '..', 'views'));
 app.set('view engine', 'ejs');
 app.use(express.bodyParser());
 app.use(express.methodOverride());
-app.use(express.logger());
+
+app.use(express.logger({
+  format: config.get('express_log_format'),
+  stream: {
+    write: function(x) {
+      logger.info(typeof x === 'string' ? x.trim() : x);
+    }
+  }
+}));
 
 var sess_config = config.get('client_sessions');
-logger.debug('sess_config=', sess_config);
 app.use(clientSessions({
   cookieName: sess_config.cookie_name,
   secret:     sess_config.secret,
@@ -70,27 +87,55 @@ app.use(i18n.abide({
   supported_languages: config.get('supported_languages'),
   default_lang: config.get('default_lang'),
   debug_lang: config.get('debug_lang'),
-  locale_directory: config.get('locale_directory'),
+  translation_directory: config.get('translation_directory'),
   disable_locale_check: config.get('disable_locale_check')
 }));
 
 passport_google.init(app);
 passport_windowslive.init(app);
 passport_yahoo.init(app);
-app.use(app.router);
+
 routes.init(app);
+
 passport_google.views(app);
 passport_windowslive.views(app);
 passport_yahoo.views(app);
 
+app.use(function(req, res, next) {
+  res.on('header', function() {
+    // this allows fonts to be requested cross domain
+    res.setHeader("Access-Control-Allow-Origin", config.get('public_url'));
+    // this makes sure caches properly consider language headers
+    res.setHeader('Vary', 'Accept-Encoding,Accept-Language');
+  });
+  next();
+});
+
 var static_root = path.join(__dirname, '..', '..', 'static');
 app.use(express.static(static_root));
 
+app.error(function(err, req, res, next) {
+  logger.error(err.stack || err);
+  res.render('error', {
+        claimed: session.getClaimedEmail(req)
+  });
+});
+
 var lstnUrl;
 var port;
+
 if (config.get('use_https')) {
+  // Development only... Ops runs this behind nginx
   port = 443;
   app.listen(443);
+  app.on('error', function (e) {
+    if ('EACCES' == e.code) {
+      console.error('Permission Denied, maybe you should run this with sudo?');
+    } else if ('EADDRINUSE' == e.code) {
+      console.error('Unable to listen for connections, this service might already be running?');
+    }
+    throw e;
+  });
   lstnUrl = util.format('https://%s', config.get('issuer'));
 } else {
   port = process.env.PORT || 3030;
@@ -102,6 +147,5 @@ process.nextTick(function () {
   // 1) Line is used by test/lib/start_stop.js
   // 2) Dev/Ops feedback
   console.log('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on ' + lstnUrl);
-
   healthCheck();
 });

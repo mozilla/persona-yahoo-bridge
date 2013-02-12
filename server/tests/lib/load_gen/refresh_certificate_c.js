@@ -31,14 +31,20 @@ exports.startFunc = function (cfg, cb) {
 
   if (debug) console.log('Usig http://', config.get('certifier_host'), config.get('certifier_port'));
   // TODO: have session and call through BigTent, instead of calling certifier direclty
-  certifier(JSON.stringify(crypto.pubKey),
+  crypto.pubKey(function(err, publicKey) {
+    if (err) {
+      winston.error('refresh_certificate_c.js - Unable to load bigtent certificate');
+      winston.error(err);
+      throw new Error('Unable to load bigtent certificate');
+    }
+    certifier(JSON.stringify(publicKey),
             'alice@gmail.com',
             60 * 60 * 6,
             function (err, body) {
-    userdb.releaseUser(user);
-    cb(err);
-  });
-
+      userdb.releaseUser(user);
+      cb(err);
+    });
+  });  
 };
 
 if (require.main === module) {

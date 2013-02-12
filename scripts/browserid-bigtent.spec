@@ -1,9 +1,8 @@
 %define _rootdir /opt/bigtent
 
 Name:          browserid-bigtent
-Version:       0.2012.07.19
-#Release:       1%{?dist}_%{svnrev}
-Release:       1%{?dist}
+Version:       0.2013.01.17
+Release:       10%{?dist}_%{svnrev}
 Summary:       BrowserID BigTent server
 Packager:      Pete Fritchman <petef@mozilla.com>
 Group:         Development/Libraries
@@ -24,12 +23,11 @@ BrowserID BigTent: server providing proxy IdP authentication.
 %build
 npm install
 export PATH=$PWD/node_modules/.bin:$PATH
-#./locale/compile-mo.sh locale/
-#./locale/compile-json.sh locale/ resources/static/i18n/
-#env CONFIG_FILES=$PWD/config/l10n-all.json scripts/compress
-#rm -r resources/static/build resources/static/test
+mkdir -p static/i18n/en_US
+compile-json locale/ static/i18n/
+env CONFIG_FILES=$PWD/server/config/production.json scripts/compress
 echo "$GIT_REVISION" > static/ver.txt
-#echo "locale svn r$SVN_REVISION" >> resources/static/ver.txt
+echo "locale svn r$SVN_REVISION" >> static/ver.txt
 
 %install
 rm -rf %{buildroot}
@@ -41,6 +39,10 @@ for f in node_modules static; do
     cp -rp $f %{buildroot}%{_rootdir}/
 done
 mkdir -p %{buildroot}%{_rootdir}/config
+cp -p server/config/l10n-all.json %{buildroot}%{_rootdir}/config
+cp -p server/config/l10n-prod.json %{buildroot}%{_rootdir}/config
+# now let's link en to en-US
+ln -s en-US %{buildroot}%{_rootdir}/static/i18n/en
 
 %clean
 rm -rf %{buildroot}

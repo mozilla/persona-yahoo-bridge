@@ -7,7 +7,7 @@ var config = require('../lib/configuration');
    reasonable. Can we talk to the certifier, does it have the same
    keypair, etc. */
 
-module.exports = function () {
+module.exports = function() {
   var host = config.get('certifier_host'),
   port = config.get('certifier_port'),
   lib = port === 443 ? require('https') : require('http');
@@ -15,53 +15,62 @@ module.exports = function () {
     host: host,
     port: port,
     path: '/__heartbeat__'
-  }, function (resp) {
+  }, function(resp) {
     var heartbeat = '';
-    resp.on('data', function (data) {
+    resp.on('data', function(data) {
       heartbeat += data.toString('utf8');
     });
-    resp.on('end', function (data) {
+    resp.on('end', function(data) {
       if ('ok certifier' !== heartbeat.trim()) {
-          console.error('Expected a certifier heartbeat response, instead got [' + heartbeat + ']');
+        console.error('Expected a certifier heartbeat response, instead got [' + heartbeat + ']');
       }
     });
     if (200 === resp.statusCode) {
       var resp_json = "",
-          j = lib.get({
-          host: host,
-          port: port,
-          path: '/public-key'
-        }, function (resp) {
-          resp.on('data', function (data) {
-            resp_json += data.toString('utf8');
-          });
-          resp.on('end', function () {
-            if (200 === resp.statusCode) {
-              var ours = require('../lib/crypto').pubKey,
-                  theirs = JSON.parse(resp_json),
-                  complained = false;
-              Object.keys(ours).forEach(function (key) {
-                if (ours[key] !== theirs[key]) {
-                  if (! complained) {
-                    complained = true;
-                    console.log(ours[key]);
-                    console.log(theirs[key]);
-                    console.error("BigTent and the Certifier have different public keys. This can't end well.");
+      j = lib.get({
+        host: host,
+        port: port,
+        path: '/public-key'
+      }, function(resp) {
+        resp.on('data', function(data) {
+          resp_json += data.toString('utf8');
+        });
+        resp.on('end', function() {
+          if (200 === resp.statusCode) {
+            var ours,
+            theirs = JSON.parse(resp_json),
+            complained = false,
+            crypto = require('../lib/crypto');
+
+            crypto.pubKey(function(err, ours) {
+              if (err) {
+                console.error("Unable to load BigTent public key");
+                console.error(err);
+              } else {
+                Object.keys(ours).forEach(function(key) {
+                  if (ours[key] !== theirs[key]) {
+                    if (! complained) {
+                      complained = true;
+                      console.log(ours[key]);
+                      console.log(theirs[key]);
+                      console.error("BigTent and the Certifier have different public keys. This can't end well.");
+                    }
                   }
-                }
-              });
-            }
-          });
+                });
+              }
+            });
+          }
         });
-        j.on('error', function (err) {
-          console.error('Unable to read public key at ' + host + ':' + port + ' [' + err + ']');
-        });
+      });
+      j.on('error', function(err) {
+        console.error('Unable to read public key at ' + host + ':' + port + ' [' + err + ']');
+      });
     } else {
       console.error('Expected a 200 from /__heartbeat__ on certifier at ' + host + ':' + port + ', but got ' + resp.statusCode);
     }
 
   });
-  r.on('error', function (err) {
+  r.on('error', function(err) {
     console.error('Expected a certifier at ' + host + ':' + port + ', but unable to communicate with it. [' + err + ']');
   });
 };

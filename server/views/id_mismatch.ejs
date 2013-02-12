@@ -3,25 +3,43 @@
   <head>
     <meta charset="utf-8">
     <title><%= gettext("Authentication Error") %></title>
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="stylesheet" href="/css/stylo.css" type="text/css">
+
+  <!--[if lt IE 9]>
+        <%- cachify_js('/js/lib/html5shim.min.js') %>
+  <![endif]-->
+
+  <%- cachify_css('/css/style.min.css') %>
   </head>
-  <body class="idmis">
-    <div id="content">
-      <h2><%= gettext("Authentication Error") %></h2>
-      <p><%= format(gettext("Sorry, it looks like you were trying to log in as %s, but were logged in to %s as a different address."), [claimed, provider]) %></p>
-      <p><%- format(gettext("Please visit %s and ensure that you are logged in as %s."), [format('<a href="%s" target="_blank">%s</a>', [providerURL, provider]), escape(claimed)]) %></p>
-      <button><%= gettext("Try Again") %></button>
+
+  <body class="error">
+    <header id="header">
+       <h1><a class="home" target="_blank" href="/">Mozilla Persona Home</a></h1>
+    </header>
+
+    <div id="content" class="group">
+      <section id="error">
+        <div class="table">
+            <div class="vertical">
+                <div class="contents">
+
+                    <h2><%= gettext("Authentication Error") %></h2>
+                    <p><%= format(gettext("Sorry, it looks like you were trying to log in as %s, but were logged in to %s as a different address."), [claimed, provider]) %></p>
+                    <p><%- format(gettext("Please visit %s and ensure that you are logged in as %s."), [format('<a href="%s" target="_blank">%s</a>', [providerURL, provider]), escape(claimed)]) %></p>
+                    <button><%= gettext("Try Again") %></button>
+
+                </div><!-- :contents -->
+            </div>
+        </div>
+      </section>
     </div>
-<script src="<%= browserid_server %>/authentication_api.js"></script>
-<script src="/js/lib/jquery.min.js"></script>
-<script>
-// From mozilla/browserid resources/static/pages/page_helpers.js
-window.resizeTo(700, 375);
-$('button').click(function () {
-    navigator.id.raiseAuthenticationFailure('user authenticated as wrong user.');
-});
-</script>
+    <% if ('development' === dev_mode) { %>
+      <%- partial('debug_authentication_api') -%>
+    <% } else { %>
+      <script src="<%= browserid_server %>/authentication_api.js"></script>
+    <% } %>
+    <%- cachify_js('/js/lib/jquery.min.js') %>
+    <%- cachify_js('/js/error.min.js') %>
   </body>
 </html>

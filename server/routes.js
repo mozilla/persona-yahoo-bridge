@@ -17,15 +17,22 @@ valid_email = require('./lib/validation/email');
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
 
-  app.get('/authentication', function (req, res) {
+  app.use(function(req, res, next) {
+    res.locals({
+      browserid_server: config.get('browserid_server'),
+      dev_mode: config.get('env'),
+      issuer: config.get('issuer'),
+      layout: false
+    });
+    next();
+  });
+
+  app.get('/authentication', function(req, res) {
     var start = new Date();
     statsd.increment('routes.authentication.get');
 
     session.initialBidUrl(req);
-    res.render('authentication', {
-      layout: false,
-      browserid_server: config.get('browserid_server')
-    });
+    res.render('authentication');
     statsd.timing('routes.authentication', new Date() - start);
   });
 
@@ -40,7 +47,12 @@ exports.init = function(app) {
 
     // Issue #18 - Verify user input for email
     if (valid_email(req.params.email) === false) {
-      return res.send('Email is bad input', 400);
+      // Safari and Android stock browsers double encode the URI
+      // So let's double decode URI across the sky Issue #89
+      req.params.email = decodeURIComponent(req.params.email);
+      if (valid_email(req.params.email) === false) {
+        return res.send('Email is bad input', 400);
+      }
     }
 
     session.setClaimedEmail(req);
@@ -78,8 +90,6 @@ exports.init = function(app) {
     start = new Date(),
     current = session.getCurrentUser(req),
     ctx = {
-      layout: false,
-      browserid_server: config.get('browserid_server'),
       current_user: current ? current : null
     };
 
@@ -95,21 +105,13 @@ exports.init = function(app) {
   // GET /provision
   //   Begin BrowserID provisioning.
   app.get('/provision', function(req, res){
-    var
-    start = new Date(),
-    ctx = {
-      layout: false,
-      browserid_server: config.get('browserid_server')
-    };
-
+    var start = new Date();
     statsd.increment('routes.provision.get');
-
-    res.render('provision', ctx);
-
+    res.render('provision');
     statsd.timing('routes.provision', new Date() - start);
   });
 
-  var cryptoError = function (res, start) {
+  var cryptoError = function(res, start) {
     statsd.increment('routes.provision.err.crypto');
     res.writeHead(500);
     res.end();
@@ -152,13 +154,8 @@ exports.init = function(app) {
     }
 
     var certified_cb = function(err, cert) {
-      var user_cert = cert,
-      certificate;
+      var certificate;
 
-      if (crypto.chainedCert) {
-        console.log('CHAINING CERTS');
-        user_cert = util.format('%s~%s', crypto.chainedCert, cert);
-      }
       if (err) {
         return cryptoError(res, start);
       } else {
@@ -173,7 +170,7 @@ exports.init = function(app) {
             return cryptoError(res, start);
           }
 
-	} catch (e) {
+        } catch (e) {
           console.error('Bad output from certifier');
           if (e.stack) console.error(e.stack);
           return cryptoError(res, start);
@@ -194,16 +191,12 @@ exports.init = function(app) {
     var
     start = new Date(),
     ctx = {
+      duration: config.get('certificate_duration'),
       emails: [],
-      num_emails: 0,
-      layout: false
+      num_emails: 0
     };
 
     statsd.increment('routes.provision_js.get');
-
-    console.log('============ /provision.js ', req.headers);
-    console.log('req.isAuthenticated()', req.isAuthenticated());
-    console.log(req.session);
 
     if (req.isAuthenticated()) {
       ctx.emails = session.getActiveEmails(req);
@@ -224,9 +217,7 @@ exports.init = function(app) {
     statsd.increment('routes.error.get');
 
     res.render('error', {
-      browserid_server: config.get('browserid_server'),
-      claimed: session.getClaimedEmail(req),
-      layout: false
+      claimed: session.getClaimedEmail(req)
     });
 
     statsd.timing('routes.error', new Date() - start);
@@ -234,15 +225,26 @@ exports.init = function(app) {
 
   // GET /id_mismatch
   //   Error page for when a user auths as an email address other than the
-  //   intended one. E.g., a user told BigTent that they were foo@gmail.com, but
-  //   we got back an OpenID auth for bar@gmail.com.
+  //   intended one. E.g., a user told BigTent that they were foo@yahoo.com, but
+  //   we got back an OpenID auth for bar@yahoo.com.
   // TODO: Add load test activity
   app.get('/id_mismatch', function(req, res) {
     var
     start = new Date(),
     claimed = session.getClaimedEmail(req),
-    domain = claimed.split('@')[1],
+    domain,
     domainInfo = config.get('domain_info');
+
+
+    if (claimed && claimed.indexOf('@') !== -1) {
+      domain = claimed.split('@')[1];
+    } else if (req.query.email && req.query.email.indexOf('@') !== -1) {
+      claimed = req.query.email;
+      domain = claimed.split('@')[1];
+    } else {
+      claimed = "";
+      domain = "Unknown";
+    }
 
     statsd.increment('routes.id_mismatch.get');
 
@@ -251,11 +253,9 @@ exports.init = function(app) {
       res.redirect(session.getErrorUrl(req));
     } else {
       res.render('id_mismatch', {
-        browserid_server: config.get('browserid_server'),
         claimed: claimed,
         provider: domainInfo[domain].providerName,
-        providerURL: domainInfo[domain].providerURL,
-        layout: false
+        providerURL: domainInfo[domain].providerURL
       });
     }
 
@@ -278,54 +278,10 @@ exports.init = function(app) {
 
     statsd.increment('routes.cancelled.get');
 
-    res.render('cancelled', {
-      browserid_server: config.get('browserid_server'),
-      layout: false
-    });
+    res.render('cancelled');
 
     statsd.timing('routes.cancelled', new Date() - start);
   });
-
-  // Routes uses only for development / testing. Disabled by default.
-  if  (config.get('enable_testing_pages')) {
-    // GET /
-    //   Render a page that allows for directly starting the proxy auth flow
-    //   and managing BigTent-specific login state. This is only useful for
-    //   development and testing.
-    app.get('/', function(req, res){
-      var start = new Date();
-
-      statsd.increment('routes.homepage.get');
-
-      req.user = session.getCurrentUser(req);
-      if (req.user === null) { req.user = "None"; }
-
-      var active = Object.keys(session.getActiveEmails(req));
-
-      res.render('home', {
-        current: req.user,
-        active_emails: active,
-        browserid_server: config.get('browserid_server')
-      });
-
-      statsd.timing('routes.homepage', new Date() - start);
-    });
-
-    // GET /logout
-    //   Clear the user's BigTent session. This is only used for development
-    //   and testing.
-    app.get('/logout', function(req, res){
-      var start = new Date();
-
-      statsd.increment('routes.logout.get');
-
-      req.session.reset();
-      req.logout(); // passportism
-      res.redirect('/');
-
-      statsd.timing('routes.homepage', new Date() - start);
-    });
-  }
 
   // GET /.well-known/browserid
   //   Declare support as a BrowserID Identity Provider.
@@ -350,34 +306,50 @@ exports.init = function(app) {
         }
       }
     }
-
-    var pk = JSON.stringify(crypto.pubKey);
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'max-age=' + timeout);
-    res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
-    res.render('well_known_browserid', {
-      public_key: pk,
-      layout: false
+    crypto.pubKey(function(err, publicKey) {
+      // This should never happen
+      if (err) {
+        console.error("Route unable to load BigTent public key");
+        console.error(err);
+        throw new Error('Unabled to load BigTent public key');
+      }
+      var pk = JSON.stringify(publicKey);
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'max-age=' + timeout);
+      res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
+      res.render('well_known_browserid', {
+        public_key: pk
+      });
+      statsd.timing('routes.wellknown', new Date() - start);
     });
+  });
 
-    statsd.timing('routes.wellknown', new Date() - start);
+  app.get('/', function(req, res) {
+      res.setHeader('X-Old-Man', 'You kids get off my lawn!');
+      res.redirect('https://login.persona.org/');
   });
 
   // GET /__heartbeat__
   //   Report on whether or not this node is functioning as expected.
   app.get('/__heartbeat__', function(req, res) {
-    var url = util.format('http://%s:%s/__heartbeat__',
-                          config.get('certifier_host'),
-                          config.get('certifier_port'));
-    request(url, function (err, heartResp, body) {
-      if (heartResp.statusCode === 200 &&
-          'ok certifier' === body.trim()) {
-        res.writeHead(200);
-        res.write('ok');
-        res.end();
-      } else {
+    var
+    url = util.format('http://%s:%s/__heartbeat__',
+                      config.get('certifier_host'),
+                      config.get('certifier_port')),
+    opts = {
+      url: url,
+      timeout: 500
+    };
+    request(url, function(err, heartResp, body) {
+      if (err ||
+          200 !== heartResp.statusCode ||
+          'ok certifier' !== body.trim()) {
         res.writeHead(500);
         res.write('certifier down');
+        res.end();
+      } else {
+        res.writeHead(200);
+        res.write('ok');
         res.end();
       }
     });

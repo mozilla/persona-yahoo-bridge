@@ -1,0 +1,26 @@
+{
+  "browserid_server": "http://192.168.186.138:10002",
+  "certifier_host": "127.0.0.1",
+  "certifier_port": 8080,
+  "client_sessions": {
+    "cookie_name": "session_state",
+    "secret": "THIS MUST CHANGE",
+    "duration": 86400000
+  },
+  "env": "production",
+  "http_proxy": {
+    "host": "localhost",
+    "port": 1235
+  },
+  "issuer": "dev.bigtent.mozilla.org",
+  "use_https": true,
+  "translation_directory": "/home/ozten/bigtent/locale",
+  "domain_info": {
+    "yahoo.com": {
+      "strategy": "yahoo",
+      "providerName": "Yahoo",
+      "providerURL": "https://mail.yahoo.com"
+    }
+  },
+  "supported_languages": ["en-US"]
+}

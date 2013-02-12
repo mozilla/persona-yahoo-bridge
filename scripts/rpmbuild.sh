@@ -19,7 +19,7 @@ tar --exclude rpmbuild --exclude .git \
 set +e
 
 export GIT_REVISION=$(git log -1 --oneline)
-#export SVN_REVISION=$(svn info locale/ | sed -n -e "s,^Revision: ,,p")
+export SVN_REVISION=$(svn info locale/ | sed -n -e "s,^Revision: ,,p")
 
 rpmbuild --define "_topdir $PWD/rpmbuild" \
          --define "svnrev $SVN_REVISION" -ba scripts/browserid-bigtent.spec

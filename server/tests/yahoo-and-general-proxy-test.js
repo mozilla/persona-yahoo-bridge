@@ -10,7 +10,7 @@ routes = require('../routes'),
 start_stop = require('./lib/start-stop'),
 util = require('util');
 
-var suite = vows.describe('gmail-and-general-proxy-test');
+var suite = vows.describe('yahoo-and-general-proxy-test');
 
 // start up a pristine server
 start_stop.addStartupBatches(suite);
@@ -20,19 +20,23 @@ function base_url (path) {
 }
 
 suite.addBatch({
-  'Anonymous request with gmail.com email is sent to the Goog.': {
+  'Anonymous request with yahoo.com email is sent to Yahoo.': {
     topic: function () {
       var opts = {
-        followRedirect: false
+        followRedirect: false,
+        timeout: 3000
       };
-      request(base_url('/proxy/alice%40gmail.com'), opts, this.callback);
+      request(base_url('/proxy/alice%40yahoo.com'), opts, this.callback);
     },
     'Without issue': function (err, r, body) {
       assert.isNull(err);
     },
     'We get a redirect': function (err, r, body) {
+      assert.ok(r);
       assert.equal(r.statusCode, 302);
-      assert.equal(r.headers.location.indexOf('https://www.google.com/accounts/o8/ud'), 0);
+      assert.equal(r.headers.location.indexOf('https://open.login.yahooapis.com/openid/op/auth?'),
+                   0,
+                   'redirect [' + r.headers.location + '] is yahoo');
     }
   }
 });

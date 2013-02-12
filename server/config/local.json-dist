@@ -1,12 +1,16 @@
 {
   "browserid_server": "http://127.0.0.1:10002",
+  "certifier_host": "localhost",
+  "certifier_port": 8000,
   "client_sessions": {
     "cookie_name": "session_state",
     "secret": "YOU MUST CHANGE ME",
     "duration": 86400000
   },
+  "env": "development",
   "issuer": "localhost",
   "use_https": false,
+  "translation_directory": "/home/ozten/bigtent/static/i18n",
   "domain_info": {
     "gmail.com": {
       "strategy": "google",
@@ -25,5 +29,6 @@
     }
   },
   "pub_key_ttl": 120,
-  "enable_testing_pages": true
+  "pub_key_path": "var/key.publickey",
+  "supported_languages": ["en-US", "it-CH", "db-LB"]
 }

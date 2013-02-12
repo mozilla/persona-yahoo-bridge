@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+
+const assets = require('../server/lib/assets'),
+      cachify = require('connect-cachify'),
+      config = require('../server/lib/configuration'),
+      fs = require('fs'),
+      jsp = require('uglify-js').parser,
+      path = require('path'),
+      pro = require('uglify-js').uglify,
+      uglifycss = require('uglifycss');
+
+// /provision.min.js is dynamic
+// /js/lib/jquery.min.js is already minified
+// /js/lib/html5shim.min.js is already minified
+var sources = assets.sources;
+
+var base = path.join(__dirname, '..', 'static');
+
+cachify.setup({}, {
+  prefix: config.get('cachify_prefix'),
+  root: base
+});
+
+function extract_copyright(code) {
+  var tok = jsp.tokenizer(code), toks, ret = '';
+  toks = tok().comments_before;
+
+  if (toks.length >= 1) {
+    var c = toks[0];
+    // copyrights that we'll include MUST be before code body and have
+    // the form: /** */
+    if (c.value.substr(0, 1) === '*' && c.type === 'comment2') {
+      ret += '/*' + c.value + '*/';
+    }
+  }
+
+  return ret;
+};
+
+var cachify_embedded = function (css_src) {
+  // RegExp is set up to handle multiple url's per declaration, which is
+  // possible for things like background-images.
+  return css_src.replace(/url\s*\(['"]([^\)'"]+)\s*['"]\s*\)/g, function (str, url) {
+    // This will throw an error if url doesn't exist. This is good as we will
+    // catch typos during build.
+    return "url('" + cachify.cachify(url) + "')";
+  });
+};
+
+for (var min in sources['js']) {
+    var outfile = path.join(base, min);
+    for (var i=0; i < sources['js'][min].length; i++) {
+        var infile = path.join(base, sources['js'][min][i]);
+	if (0 === i) {
+  	  var orig_code = fs.readFileSync(infile, 'utf8');
+          var copyright = extract_copyright(orig_code) || '';
+          if (copyright.length) copyright += "\n\n";
+          fs.writeFileSync(outfile, copyright, 'utf8');
+	}
+        var ast = jsp.parse(orig_code);
+        ast = pro.ast_mangle(ast);
+        ast = pro.ast_squeeze(ast);
+        var final_code = pro.gen_code(ast);
+	var fd = fs.openSync(outfile, 'a');
+        fs.writeSync(fd, final_code + ';', null, 'utf8');
+    }
+}
+
+for (var min in sources['css']) {
+    var outfile = path.join(base, min);
+    for (var i=0; i < sources['css'][min].length; i++) {
+      var infile = path.join(base, sources['css'][min][i]);
+      var orig_code = fs.readFileSync(infile, 'utf8');
+      var cach_code = cachify_embedded(orig_code);
+      final_code = uglifycss.processString(cach_code);
+      var fd = fs.openSync(outfile, 'a');
+      fs.writeSync(fd, final_code, null, 'utf8');
+  }
+}
+
