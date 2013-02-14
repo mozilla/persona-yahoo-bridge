@@ -38,7 +38,7 @@ exports.startFunc = function (cfg, cb) {
       throw new Error('Unable to load bigtent certificate');
     }
     certifier(JSON.stringify(publicKey),
-            'alice@gmail.com',
+            'alice@yahoo.com',
             60 * 60 * 6,
             function (err, body) {
       userdb.releaseUser(user);

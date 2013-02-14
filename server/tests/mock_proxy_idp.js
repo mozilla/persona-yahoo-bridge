@@ -85,24 +85,24 @@ try {
 
   /* Yahoo */
   app.get('/openid20/www.yahoo.com/xrds', function (req, res) {
-    //res.contentType('application/xrds+xml');
     res.header('Content-Type', 'application/xrds+xml');
-    console.log('Sending xrds');
     res.render('openid20_www.yahoo.com_xrds.ejs');
   });
 
-  // Bug we don't calculate the signature dynamically
   app.post('/openid/op/auth', function (req, res) {
     res.render('openid_op_auth.txt.ejs');
   });
 
   app.get('/a/wS1JKacQi4p4xQo18GMr_WME7g--', function (req, res) {
-    //res.contentType('text/html');
     res.render('a_wS1JKacQi4p4xQo18GMr.html.ejs');
   });
 
   app.get('/openid20/user_profile/xrds', function (req, res) {
     res.render('openid20_user_profile_xrds.ejs');
+  });
+
+  app.get('/.well-known/host-meta', function(req, res) {
+    res.send('ok');
   });
 
   /* Hotmail */
@@ -115,6 +115,11 @@ try {
   app.get('/v5.0/me', function (req, res) {
     res.header('Content-Type', 'application/json');
     res.render('v5.ejs');
+  });
+
+  app.use(function (req, res, next) {
+    console.log('UNKNOWN request=', req);
+    next();
   });
 });
 

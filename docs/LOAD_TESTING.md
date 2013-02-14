@@ -15,8 +15,9 @@ Usage
 
     node server/tests/mock_proxy_idp.js
     export CONFIG_FILES=server/config/local.json
-    sudo HTTP_PROXY_PORT=8442 HTTPS_PROXY_PORT=8443 node server/bin/bigtent
-    loady -c server/tests/load_gen.js -s https://dev.bigtent.mozilla.org
+    sudo HTTP_PROXY_HOST=localhost HTTPS_PROXY_HOST=localhost \
+         HTTP_PROXY_PORT=8442 HTTPS_PROXY_PORT=8442 node server/bin/bigtent
+    CONFIG_FILES=server/config/local.json loady -c server/tests/load_gen.js -s https://dev.bigtent.mozilla.org
 
 Output
 ------

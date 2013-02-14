@@ -132,11 +132,15 @@ function returnFromYahoo (user, cfg, cb) {
     // TODO Fixing Issue #41 would make this actually work...
     // Then we could do /sign_in and have a working session...
     var msg = 'Failed to verify assertion (message: Invalid association handle)';
+    if (debug) console.log(err, body);
 
     if (500 === r.statusCode &&
         0 === body.indexOf(msg)) {
       // Success, but weak sauce
       cb(null);
+    } else if ('/id_mismatch?' === r.request.path) {
+      cleanup(user);
+      cb('Got id_mismatch page');
     } else if (err) {
       cleanup(user);
       cb(err);
@@ -154,7 +158,7 @@ if (require.main === module) {
   debug = true;
   userdb.addNewUser(userdb.getNewUser());
 
-  exports.startFunc({base: 'https://127.0.0.1'}, function (err) {
+  exports.startFunc({base: 'https://dev.bigtent.mozilla.org'}, function (err) {
     if (err) {
       console.log('Finished with ERROR');
       console.error(err);
