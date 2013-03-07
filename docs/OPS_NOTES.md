@@ -72,6 +72,10 @@ BigTent will alter the environment variables to add the following:
 
 These are used by lower level libraries during OpenID and OAuth flows.
 
+The config value `disable_bigtent` will shutdown the service and cause
+Persona to start treating the proxied email like a secondary again. The
+default is `false`.
+
 Per Service Deployment
 ----------------------
 

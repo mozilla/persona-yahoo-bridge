@@ -31,6 +31,11 @@ var conf = module.exports = convict({
     doc: "Skip checking for gettext .mo files for supported locales",
     format: 'boolean = false'
   },
+  disable_bigtent: {
+    doc: "You probably don't want this... completely disables this instance of BigTent.",
+    format: 'boolean = false',
+    env: 'DISABLE_BIGTENT'
+  },
   env: {
     doc: "What environment are we running in?  Note: all hosted environments are 'production'.  ",
     format: 'string ["production", "development"] = "production"',
