@@ -1,6 +1,6 @@
 {
   "supported_languages": [
-    "ca", "cs", "cy", "de", "en",
+    "ca", "cs", "cy", "de", "en-US",
     "es", "et", "eu", "fi", "fr", "fy", "gd", "gl",
     "he", "hr", "id", "it", "ja", "ko", "lij", "lt",
     "nl", "pa", "pt-BR", "rm", "ru",
