@@ -8,8 +8,12 @@ like Google, Yahoo, and Microsoft are running BrowserID enabled servers.
 In practice, this server **looks like an IdP**!
 
 Although it has a `/.well-known/browserid` file, *only the ``public-key``
-field is used*. The [BrowserID codebase](https://github.com/mozilla/browserid)
-has the provisioning and authentication urls hardcoded into it's configs.
+field is used*. The Certifier has this public key as well as the matching private key.
+
+BigTent takes advantage of the **dynamic well known** aspect of the BrowserID protocol.
+The Persona server requests https://login.persona.org/.well-known/browserid?domain=yahoo.com
+for example, and if the Persona service is configured with a hostname for `yahoo.com`, then
+it treats it like a delegated authority.
 
 Certifier
 ---------
