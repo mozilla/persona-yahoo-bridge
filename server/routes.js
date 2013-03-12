@@ -288,7 +288,13 @@ exports.init = function(app) {
   app.get('/.well-known/browserid', function(req, res) {
     var
     start = new Date(),
-    timeout = config.get('pub_key_ttl');
+    timeout = config.get('pub_key_ttl'),
+    serviceDisabled = config.get('disable_bigtent');
+
+    if (serviceDisabled) {
+      res.setHeader('Content-Type', 'application/json');
+      return res.send(JSON.stringify({disabled: true}));
+    }
 
     statsd.increment('routes.wellknown.get');
 
