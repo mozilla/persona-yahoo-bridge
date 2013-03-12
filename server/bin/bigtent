@@ -74,7 +74,7 @@ app.use(clientSessions({
 }));
 
 app.use(express.csrf());
-app.use(function (req, resp, next) {
+app.use(function(req, resp, next) {
   resp.local('csrf_token', req.session._csrf);
   next();
 });
@@ -121,6 +121,10 @@ app.error(function(err, req, res, next) {
   });
 });
 
+if (config.get('disable_bigtent')) {
+  logger.warn('DISABLED: This instance of BigTent is disabled. It will not proxy traffic.');
+}
+
 var lstnUrl;
 var port;
 
@@ -128,7 +132,7 @@ if (config.get('use_https')) {
   // Development only... Ops runs this behind nginx
   port = 443;
   app.listen(443);
-  app.on('error', function (e) {
+  app.on('error', function(e) {
     if ('EACCES' == e.code) {
       console.error('Permission Denied, maybe you should run this with sudo?');
     } else if ('EADDRINUSE' == e.code) {
@@ -143,7 +147,7 @@ if (config.get('use_https')) {
   lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
 }
 statsd.increment('server.started');
-process.nextTick(function () {
+process.nextTick(function() {
   // 1) Line is used by test/lib/start_stop.js
   // 2) Dev/Ops feedback
   console.log('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on ' + lstnUrl);
