@@ -72,7 +72,7 @@ exports.views = function (app) {
           logger.debug((typeof email), email);
           if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
             statsd.increment('routes.auth.google.return.email_matched');
-            var redirect_url = session.getBidUrl(req);
+            var redirect_url = session.getBidUrl(hostname, req);
             match = true;
 
             session.clearClaimedEmail(req);
