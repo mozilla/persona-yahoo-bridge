@@ -21,11 +21,11 @@ exports.initialBidUrl = function (req) {
   req.session.bid_state = req.query;
 };
 
-exports.getBidUrl = function (req) {
+exports.getBidUrl = function (baseUrl, req) {
   if (! req.session || ! req.session.bid_state) {
     throw "Invalid state, missing redirection url in session";
   }
-  return util.format('/sign_in?%s', qs.stringify(req.session.bid_state));
+  return util.format('%s/sign_in?%s', baseUrl, qs.stringify(req.session.bid_state));
 };
 
 exports.clearBidUrl = function (req) {
