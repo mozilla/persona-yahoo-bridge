@@ -61,7 +61,7 @@ exports.views = function(app) {
               statsd.increment('routes.auth.windowslive.callback.email_matched');
               session.clearClaimedEmail(req);
               session.setCurrentUser(req, email);
-              res.redirect(session.getBidUrl(req));
+              res.redirect(session.getBidUrl(hostname, req));
               statsd.timing(metric, new Date() - start);
             }
           }
