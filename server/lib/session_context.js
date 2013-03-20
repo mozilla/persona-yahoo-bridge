@@ -34,24 +34,24 @@ exports.clearBidUrl = function (req) {
   }
 };
 
-exports.getErrorUrl = function (req) {
-  var err = '/error';
+exports.getErrorUrl = function (baseUrl, req) {
+  var err = util.format('%s/error', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
   }
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
-exports.getCancelledUrl = function (req) {
-  var err = '/cancelled';
+exports.getCancelledUrl = function (baseUrl, req) {
+  var err = util.format('%s/cancelled', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
   }
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
-exports.getMismatchUrl = function (req) {
-  var err = '/id_mismatch';
+exports.getMismatchUrl = function (baseUrl, req) {
+  var err = util.format('%s/id_mismatch', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
   }
