@@ -67,6 +67,14 @@ app.use(express.logger({
 }));
 
 var sess_config = config.get('client_sessions');
+
+// BigTent must be deployed behind SSL.
+// Tell client-sessions everything will be alright
+app.use(function (req, res, next) {
+  req.connection.proxySecure = true;
+  next();
+});
+
 app.use(clientSessions({
   cookieName: sess_config.cookie_name,
   secret:     sess_config.secret,
