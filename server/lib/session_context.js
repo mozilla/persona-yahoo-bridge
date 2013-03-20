@@ -42,8 +42,8 @@ exports.getErrorUrl = function (baseUrl, req) {
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
-exports.getCancelledUrl = function (req) {
-  var err = '/cancelled';
+exports.getCancelledUrl = function (baseUrl, req) {
+  var err = util.format('%s/cancelled', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
   }

@@ -15,8 +15,8 @@ const CALLBACK_PATH = '/auth/windowslive/callback';
 
 var
 liveConfig = config.get('windows_live'),
-hostname = util.format("https://%s", config.get('issuer')),
-returnURL = util.format("%s%s", hostname, CALLBACK_PATH);
+baseUrl = util.format("https://%s", config.get('issuer')),
+returnURL = util.format("%s%s", baseUrl, CALLBACK_PATH);
 
 // Register the WindowsLiveStrategy with Passport
 passport.use(new WindowsLiveStrategy({
@@ -61,7 +61,7 @@ exports.views = function(app) {
               statsd.increment('routes.auth.windowslive.callback.email_matched');
               session.clearClaimedEmail(req);
               session.setCurrentUser(req, email);
-              res.redirect(session.getBidUrl(hostname, req));
+              res.redirect(session.getBidUrl(baseUrl, req));
               statsd.timing(metric, new Date() - start);
             }
           }
@@ -69,14 +69,14 @@ exports.views = function(app) {
       } else {
         statsd.increment('warn.routes.auth.windowslive.callback.no_emails');
         logger.warn('Windows Live should have user and user.emails' + req.user);
-        res.redirect(session.getErrorUrl(req));
+        res.redirect(session.getErrorUrl(baseUrl, req));
         statsd.timing(metric, new Date() - start);
       }
 
       if (!match) {
         statsd.increment('warn.routes.auth.windowslive.callback.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect(session.getMismatchUrl(req));
+        res.redirect(session.getMismatchUrl(baseUrl, req));
         statsd.timing(metric, new Date() - start);
       }
     }

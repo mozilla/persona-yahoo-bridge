@@ -14,9 +14,9 @@ util = require('util');
 const RETURN_PATH = '/auth/google/return';
 
 var
-hostname = util.format("https://%s", config.get('issuer')),
-return_url = util.format("%s%s", hostname, RETURN_PATH),
-realm = util.format("%s/", hostname);
+baseUrl = util.format("https://%s", config.get('issuer')),
+return_url = util.format("%s%s", baseUrl, RETURN_PATH),
+realm = util.format("%s/", baseUrl);
 
 // Google strategy requires these, but Yahoo and Hotmail works w/o serializers...
 passport.serializeUser(function(user, done) {
@@ -72,7 +72,7 @@ exports.views = function (app) {
           logger.debug((typeof email), email);
           if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
             statsd.increment('routes.auth.google.return.email_matched');
-            var redirect_url = session.getBidUrl(hostname, req);
+            var redirect_url = session.getBidUrl(baseUrl, req);
             match = true;
 
             session.clearClaimedEmail(req);
@@ -87,13 +87,13 @@ exports.views = function (app) {
       } else {
         statsd.increment('warn.routes.auth.google.return.no_emails');
         logger.warn("Google should have had user and user.emails" + req.user);
-        res.redirect(session.getErrorUrl(req));
+        res.redirect(session.getErrorUrl(baseUrl, req));
         statsd.timing(metric, new Date() - start);
       }
       if (!match) {
         statsd.increment('error.routes.auth.google.return.no_emails_matched');
         logger.error('No email matched...');
-        res.redirect(session.getMismatchUrl(req));
+        res.redirect(session.getMismatchUrl(baseUrl, req));
         statsd.timing(metric, new Date() - start);
       }
   });

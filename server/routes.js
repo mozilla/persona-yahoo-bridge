@@ -67,7 +67,7 @@ exports.init = function(app) {
 
     if (!domainInfo.hasOwnProperty(domain)) {
       logger.error('User landed on /proxy/:email for an unsupported domain');
-      res.redirect(session.getErrorUrl(req));
+      res.redirect(session.getErrorUrl(baseUrl, req));
     } else {
       var strategy = domainInfo[domain].strategy;
 
