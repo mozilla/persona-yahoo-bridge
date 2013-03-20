@@ -16,6 +16,7 @@ valid_email = require('./lib/validation/email');
 
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
+  var baseUrl = util.format("https://%s", config.get('issuer'));
 
   app.use(function(req, res, next) {
     res.locals({
@@ -250,7 +251,7 @@ exports.init = function(app) {
 
     if (!domainInfo.hasOwnProperty(domain)) {
       logger.error('User landed on /id_mismatch for an unsupported domain');
-      res.redirect(session.getErrorUrl(req));
+      res.redirect(session.getErrorUrl(baseUrl, req));
     } else {
       res.render('id_mismatch', {
         claimed: claimed,
@@ -265,7 +266,7 @@ exports.init = function(app) {
   // GET /cancel
   //   Handle the user cancelling the OpenID or OAuth flow.
   app.get('/cancel', function(req, res) {
-    res.redirect(session.getCancelledUrl(req));
+    res.redirect(session.getCancelledUrl(baseUrl, req));
   });
 
   // GET /cancelled
