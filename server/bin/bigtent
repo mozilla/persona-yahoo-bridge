@@ -70,7 +70,11 @@ var sess_config = config.get('client_sessions');
 app.use(clientSessions({
   cookieName: sess_config.cookie_name,
   secret:     sess_config.secret,
-  duration:   sess_config.duration
+  duration:   sess_config.duration,
+  cookie: {
+    secure: true,
+    httpOnly: true
+  }
 }));
 
 app.use(express.csrf());
