@@ -189,6 +189,9 @@ exports.init = function(app) {
   // GET /provision.js
   //   This script handles client-side provisioning logic.
   app.get('/provision.js', function(req, res) {
+    // this is a fully dynamic javascript file. it must never be cached
+    // see issue #165
+    res.setHeader('Cache-Control', 'private, max-age=0, no-cache, no-store');
     var
     start = new Date(),
     ctx = {
