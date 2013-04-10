@@ -16,6 +16,26 @@ valid_email = require('./lib/validation/email');
 
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
+  var baseUrl = util.format("https://%s", config.get('issuer'));
+
+  // see issue #169
+  // appropriate for all templates that do not change between server
+  // restarts (no user-specific data) - forces re-validation and causes
+  // caches to not conflate different locales to support instant locale
+  // switching.
+  function addHeadersToForceRevalidation(res) {
+    res.setHeader('Vary', 'Accept-Encoding, Accept-Language');
+    res.setHeader('Cache-Control', 'public, max-age=0');
+  }
+
+  // see issues #165 and #168
+  // appropriate for all resources that are user-specific - i.e. javascript
+  // or html files that have embedded user-specific data or errors in them.
+  // This header should prevent all browsers from caching these resources
+  // ever.
+  function addHeadersToPreventCaching(res) {
+    res.setHeader('Cache-Control', 'private, max-age=0, no-cache, no-store');
+  }
 
   app.use(function(req, res, next) {
     res.locals({
@@ -28,9 +48,9 @@ exports.init = function(app) {
   });
 
   app.get('/authentication', function(req, res) {
+    addHeadersToForceRevalidation(res);
     var start = new Date();
     statsd.increment('routes.authentication.get');
-
     session.initialBidUrl(req);
     res.render('authentication');
     statsd.timing('routes.authentication', new Date() - start);
@@ -39,6 +59,8 @@ exports.init = function(app) {
   // GET /proxy/:email
   //   Dispatch the user to an appropriate authentication library.
   app.get('/proxy/:email', function(req, res, next) {
+    addHeadersToForceRevalidation(res);
+
     var
     start = new Date(),
     domainInfo = config.get('domain_info');
@@ -66,7 +88,7 @@ exports.init = function(app) {
 
     if (!domainInfo.hasOwnProperty(domain)) {
       logger.error('User landed on /proxy/:email for an unsupported domain');
-      res.redirect(session.getErrorUrl(req));
+      res.redirect(session.getErrorUrl(baseUrl, req));
     } else {
       var strategy = domainInfo[domain].strategy;
 
@@ -86,6 +108,8 @@ exports.init = function(app) {
   //   library (passport_google, etc); those callbacks redirect here if the
   //   user successfully auths with the service.
   app.get('/sign_in', function(req, res) {
+    addHeadersToPreventCaching(res);
+
     var
     start = new Date(),
     current = session.getCurrentUser(req),
@@ -105,6 +129,8 @@ exports.init = function(app) {
   // GET /provision
   //   Begin BrowserID provisioning.
   app.get('/provision', function(req, res){
+    addHeadersToForceRevalidation(res);
+
     var start = new Date();
     statsd.increment('routes.provision.get');
     res.render('provision');
@@ -122,6 +148,8 @@ exports.init = function(app) {
   // POST /provision
   //   Finish BrowserID provisioning by signing a user's public key.
   app.post('/provision', function(req, res) {
+    addHeadersToPreventCaching(res);
+
     var
     start = new Date(),
     current_user = session.getCurrentUser(req),
@@ -188,6 +216,10 @@ exports.init = function(app) {
   // GET /provision.js
   //   This script handles client-side provisioning logic.
   app.get('/provision.js', function(req, res) {
+    // this is a fully dynamic javascript file. it must never be cached
+    // see issue #165
+    addHeadersToPreventCaching(res);
+
     var
     start = new Date(),
     ctx = {
@@ -212,6 +244,8 @@ exports.init = function(app) {
   // GET /error
   //   Generic error page for when we're unable to log a user in.
   app.get('/error', function(req, res) {
+    addHeadersToPreventCaching(res);
+
     var start = new Date();
 
     statsd.increment('routes.error.get');
@@ -229,6 +263,8 @@ exports.init = function(app) {
   //   we got back an OpenID auth for bar@yahoo.com.
   // TODO: Add load test activity
   app.get('/id_mismatch', function(req, res) {
+    addHeadersToPreventCaching(res);
+
     var
     start = new Date(),
     claimed = session.getClaimedEmail(req),
@@ -250,7 +286,7 @@ exports.init = function(app) {
 
     if (!domainInfo.hasOwnProperty(domain)) {
       logger.error('User landed on /id_mismatch for an unsupported domain');
-      res.redirect(session.getErrorUrl(req));
+      res.redirect(session.getErrorUrl(baseUrl, req));
     } else {
       res.render('id_mismatch', {
         claimed: claimed,
@@ -265,7 +301,8 @@ exports.init = function(app) {
   // GET /cancel
   //   Handle the user cancelling the OpenID or OAuth flow.
   app.get('/cancel', function(req, res) {
-    res.redirect(session.getCancelledUrl(req));
+    addHeadersToPreventCaching(res);
+    res.redirect(session.getCancelledUrl(baseUrl, req));
   });
 
   // GET /cancelled
@@ -274,6 +311,8 @@ exports.init = function(app) {
   //   flow and proceed with its failure case. Typically, this just
   //   re-starts the BrowserID flow for the user.
   app.get('/cancelled', function(req, res) {
+    addHeadersToForceRevalidation(res);
+
     var start = new Date();
 
     statsd.increment('routes.cancelled.get');
@@ -286,6 +325,8 @@ exports.init = function(app) {
   // GET /.well-known/browserid
   //   Declare support as a BrowserID Identity Provider.
   app.get('/.well-known/browserid', function(req, res) {
+    addHeadersToForceRevalidation(res);
+
     var
     start = new Date(),
     timeout = config.get('pub_key_ttl'),
@@ -331,13 +372,14 @@ exports.init = function(app) {
   });
 
   app.get('/', function(req, res) {
-      res.setHeader('X-Old-Man', 'You kids get off my lawn!');
-      res.redirect('https://login.persona.org/');
+    addHeadersToForceRevalidation(res);
+    res.redirect('https://login.persona.org/');
   });
 
   // GET /__heartbeat__
   //   Report on whether or not this node is functioning as expected.
   app.get('/__heartbeat__', function(req, res) {
+    addHeadersToPreventCaching(res);
     var
     url = util.format('http://%s:%s/__heartbeat__',
                       config.get('certifier_host'),
