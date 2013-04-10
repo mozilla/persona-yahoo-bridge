@@ -22,9 +22,18 @@ suite.addBatch({
     }
   },
   'Invalid emails should be caught': {
-    topic: 'alice@badexample',
-    'No TLD': function (email) {
-        assert.isFalse(validate(email));
+    'Malformed': function() {
+      assert.isFalse(validate('alice@invalid'));
+      assert.isFalse(validate('alice@@invalid.com'));
+      assert.isFalse(validate(''));
+    },
+    'Wrong data type': function() {
+      assert.isFalse(validate(true));
+      assert.isFalse(validate(false));
+      assert.isFalse(validate(undefined));
+      assert.isFalse(validate([]));
+      assert.isFalse(validate({}));
+      assert.isFalse(validate(123));
     }
   }
 });

@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (address) {
+    if (typeof address !== 'string') {
+        return false;
+    }
+
     // Copied from mozilla/browserid which got it from...
     // http://blog.gerv.net/2011/05/html5_email_address_regexp/
     var parts = address.split("@");
