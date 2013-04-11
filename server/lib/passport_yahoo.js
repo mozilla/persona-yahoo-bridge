@@ -51,8 +51,17 @@ exports.views = function(app) {
 
       statsd.increment('routes.auth.yahoo.return.get');
 
+      // keep track of emails reported by yahoo for logging in case
+      // of failure
+      var openid_emails = [];
+
       if (req.user && req.user.emails) {
         req.user.emails.forEach(function(email_obj, i) {
+
+          // add the email to the list of all emails reported by
+          // yahoo for logging in case of failure
+          openid_emails.push(email_obj.value);
+
           if (match) { return; }
 
           if (! email_obj.value) {
@@ -87,6 +96,7 @@ exports.views = function(app) {
       if (!match) {
         statsd.increment('warn.routes.auth.yahoo.return.no_emails_matched');
         logger.error('No email matched...');
+        session.setMismatchEmail(openid_emails.join(", "), req);
         res.redirect(session.getMismatchUrl(baseUrl, req));
         statsd.timing(metric, new Date() - start);
       }

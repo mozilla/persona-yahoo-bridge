@@ -290,6 +290,7 @@ exports.init = function(app) {
     } else {
       res.render('id_mismatch', {
         claimed: claimed,
+        mismatched: session.getMismatchEmail(req),
         provider: domainInfo[domain].providerName,
         providerURL: domainInfo[domain].providerURL
       });
