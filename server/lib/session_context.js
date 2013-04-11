@@ -58,6 +58,14 @@ exports.getMismatchUrl = function (baseUrl, req) {
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
+exports.getMismatchEmail = function (req) {
+  return req.session.mismatch_email || "";
+};
+
+exports.setMismatchEmail = function (email, req) {
+  req.session.mismatch_email = email;
+};
+
 /*
  * During authentication, a user will enter a certain email adress
  * into the Persona dialog. The user is claiming to own that email
