@@ -1,9 +1,17 @@
 {
   "browserid_server": "http://127.0.0.1:10002",
   "client_sessions": {
-    "cookie_name": "session_state",
+    "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
     "duration": 86400000
+  },
+  "account_link_sessions": {
+    "cookie_name": "accountdb",
+    "secret": "YOU MUST CHANGE ME AND BE DIFFERENT",
+    "duration": 31536000000
+  },
+  "account_link_token": {
+    "secret": "YOU MUST CHANGE ME AND ALSO BE DIFFERENT"
   },
   "domain_info": {
     "gmail.com": {
