@@ -38,5 +38,11 @@
   },
   "pub_key_ttl": 120,
   "pub_key_path": "var/key.publickey",
+  "smtp": {
+    "host": "smtp.socketlabs.com",
+    "user": "someuser",
+    "pass": "somepassword",
+    "port": 25
+  },
   "supported_languages": ["en-US", "it-CH", "db-LB"]
 }
