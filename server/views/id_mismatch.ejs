@@ -22,14 +22,24 @@
       <section id="error">
         <div class="table">
             <div class="vertical">
-                <div class="contents">
+                <div id="auth_error" class="contents">
 
                     <h2><%= gettext("Authentication Error") %></h2>
-                    <p><%= format(gettext("Sorry, it looks like you were trying to log in as %s, but were logged in to %s as a different address."), [claimed, provider]) %></p>
-                    <p><%- format(gettext("Please visit %s and ensure that you are logged in as %s."), [format('<a href="%s" target="_blank">%s</a>', [providerURL, provider]), escape(claimed)]) %></p>
-                    <button><%= gettext("Try Again") %></button>
+                    <p><%= format(gettext("Sorry, it looks like you were trying to log in as %(claimed)s, but you're actually logged into %(provider)s as %(other)s."),
+                             { claimed: claimed, provider: provider, other: mismatched }) %></p>
+                    <button class="continue"><%= gettext("Continue") %></button>
+                    <input type="hidden" name="csrf_token" value="<%= csrf_token %>" />
+                    <button class="cancel"><%= gettext("Use a different email") %></button>
 
                 </div><!-- :contents -->
+                <div id="link_accounts_prompt" class="contents" style="display: none;">
+                  <h2><%= gettext("Confirm your email address") %></h2>
+                  <p><%= format(gettext("Check your email at %(email)s."),
+                           { email: mismatched }) %></p>
+                  <p><%= format(gettext("Click the link in the confirmation email. This will connect %(email1)s to %(email2)s, fixing the problem on this browser."),
+                           { email1: claimed, email2: mismatched }) %></p>
+                  <button class="close">Close</button>
+                </div>
             </div>
         </div>
       </section>

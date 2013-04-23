@@ -3,9 +3,17 @@
   "certifier_host": "localhost",
   "certifier_port": 8000,
   "client_sessions": {
-    "cookie_name": "session_state",
+    "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
     "duration": 86400000
+  },
+  "account_link_sessions": {
+    "cookie_name": "accountdb",
+    "secret": "YOU MUST CHANGE ME AND BE DIFFERENT",
+    "duration": 31536000000
+  },
+  "account_link_token": {
+    "secret": "YOU MUST CHANGE ME AND ALSO BE DIFFERENT"
   },
   "env": "development",
   "issuer": "localhost",

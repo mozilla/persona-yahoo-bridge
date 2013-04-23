@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
+accountLink = require('./lib/account_linking'),
 certify = require('./lib/certifier'),
 config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
+emailer = require('./lib/email'),
 logger = require('./lib/logging').logger,
 passport = require('passport'),
 request = require('request'),
@@ -174,7 +176,8 @@ exports.init = function(app) {
     if (authed_email !== current_user) {
       var active_emails = session.getActiveEmails(req);
       if (active_emails[authed_email] === true) {
-        logger.debug('User has switched current email from ' + current_user + 'to ' + authed_email);
+        logger.debug('User has switched current email from ' + current_user +
+                     'to ' + authed_email);
         current_user = authed_email;
         session.setCurrentUser(req, authed_email);
         statsd.increment('routes.provision.email_flopped');
@@ -290,12 +293,73 @@ exports.init = function(app) {
     } else {
       res.render('id_mismatch', {
         claimed: claimed,
+        mismatched: session.getMismatchEmail(req),
         provider: domainInfo[domain].providerName,
         providerURL: domainInfo[domain].providerURL
       });
     }
 
     statsd.timing('routes.id_mismatch', new Date() - start);
+  });
+
+  // The user's claimed and OpenID (mismatched) emails didn't
+  // match and the user wants to link them together.
+  // We'll send them an email verification
+  app.post('/link_accounts_request', function(req, res) {
+    accountLink.generateSecret(req, res, function(err, email,
+                                                   mismatchEmail, secret) {
+      var domain, domainInfo, providerName;
+      try {
+        domain = email.split('@')[1];
+        domainInfo = config.get('domain_info');
+        providerName = domainInfo[domain].providerName;
+      } catch (e) {
+        return res.send(500, "Error preparing webmail provider name");
+      }
+      if (err) {
+        res.send(400, err);
+      } else {
+        var langContext = {
+          lang: req.lang,
+          locale: req.locale,
+          gettext: req.gettext,
+          ngettext: req.ngettext,
+          format: req.format
+        };
+        var ctx = {
+          mismatchEmail: mismatchEmail,
+          secret: secret,
+          webmail: providerName
+        };
+        emailer.sendLinkAccounts(email, ctx, langContext);
+        res.send('OK');
+      }
+    });
+  });
+
+  app.get('/link_accounts', function(req, res) {
+    var secret = req.query.token;
+    var errorMsg;
+
+    accountLink.validateSecret(req, res, secret, function(err, emails) {
+      if (err || emails.length !== 2) {
+        if (err) logger.error(err);
+        errorMsg = req.gettext("There was a problem with your link.");
+      } else {
+        // Pull emails out of email token, so links can be used without
+        // depending on session state
+        var claimEmail = emails[0];
+        var mismatchEmail = emails[1];
+        accountLink.recordLink(claimEmail, mismatchEmail, req);
+      }
+
+      var ctx = {
+        accountLinks: accountLink.getAllLinks(req),
+        error: errorMsg
+      };
+
+      res.render("link_accounts_confirm", ctx);
+    });
   });
 
   // GET /cancel

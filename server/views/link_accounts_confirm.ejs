@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= gettext('Loading') %></title>
+  <meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!--[if lt IE 9]>
+    <%- cachify_js('/js/lib/html5shim.min.js') %>
+  <![endif]-->
+
+  <%- cachify_css('/css/style.min.css') %>
+</head>
+<body class="email_landing">
+    <header id="header">
+       <h1><a class="home" target="_blank" href="/">Mozilla Persona Home</a></h1>
+    </header>
+
+<div id="hAlign">
+  <div id="vAlign">
+    <% if (error) { %>
+        <div id="token-error">
+          <h2><%= gettext('Authentication Error') %></h2>
+          <p><%= error %></p>
+        </div>
+    <% } else { %>
+        <div id="congrats">           
+            <h2>Email Verified</h2>
+
+            <p><%- gettext('Thank you for signing up with <strong>Persona</strong>. You can now use your Persona account to <em>Sign In</em> or <em>Sign Up</em> to websites all across the web!') %>
+            </p>
+
+            <p>
+              <%= gettext('Your new address is set up and ready to go.') %>
+            </p>
+        </div><!-- #congrats -->
+    <% } %>
+        <div id="status">
+              <table>
+                <% if (accountLinks.length > 0) { %>
+                  <tr><th>Persona email</th><th>Links to Yahoo email</th></tr>
+                <% } %>
+                <% for (var i=0; i < accountLinks.length; i++) { %>
+                  <tr><td><%= accountLinks[i][0] %></td>
+                      <td><%= accountLinks[i][1] %></td></tr>
+                <% } %>
+              </table>
+            <p>
+              <%= gettext("Please close this page and return to the website you were signing in from.") %>
+            </p>
+        </div><!-- #status -->
+  </div>
+</div>
+</body>
+</html>
