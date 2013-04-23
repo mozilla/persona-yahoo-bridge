@@ -17,24 +17,25 @@ util = require('util');
 // TODO @stomlinson suggested noting our initial URL and redirecting to that...
 // https://github.com/mozilla/browserid/issues/1502
 // Remove these once 1502 is fixed
-exports.initialBidUrl = function (req) {
+exports.initialBidUrl = function(req) {
   req.session.bid_state = req.query;
 };
 
-exports.getBidUrl = function (baseUrl, req) {
+exports.getBidUrl = function(baseUrl, req) {
   if (! req.session || ! req.session.bid_state) {
     throw "Invalid state, missing redirection url in session";
   }
-  return util.format('%s/sign_in?%s', baseUrl, qs.stringify(req.session.bid_state));
+  return util.format('%s/sign_in?%s', baseUrl,
+                     qs.stringify(req.session.bid_state));
 };
 
-exports.clearBidUrl = function (req) {
+exports.clearBidUrl = function(req) {
   if (req.session && req.session.bid_state) {
     delete req.session.bid_state;
   }
 };
 
-exports.getErrorUrl = function (baseUrl, req) {
+exports.getErrorUrl = function(baseUrl, req) {
   var err = util.format('%s/error', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
@@ -42,7 +43,7 @@ exports.getErrorUrl = function (baseUrl, req) {
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
-exports.getCancelledUrl = function (baseUrl, req) {
+exports.getCancelledUrl = function(baseUrl, req) {
   var err = util.format('%s/cancelled', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
@@ -50,12 +51,20 @@ exports.getCancelledUrl = function (baseUrl, req) {
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
-exports.getMismatchUrl = function (baseUrl, req) {
+exports.getMismatchUrl = function(baseUrl, req) {
   var err = util.format('%s/id_mismatch', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
   }
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
+};
+
+exports.getMismatchEmail = function(req) {
+  return req.session.mismatch_email || "";
+};
+
+exports.setMismatchEmail = function(email, req) {
+  req.session.mismatch_email = email;
 };
 
 /*
@@ -65,11 +74,11 @@ exports.getMismatchUrl = function (baseUrl, req) {
  * session.
  */
 
-exports.setClaimedEmail = function (req) {
+exports.setClaimedEmail = function(req) {
   req.session.claim = req.params.email;
 };
 
-exports.getClaimedEmail = function (req) {
+exports.getClaimedEmail = function(req) {
   if (! req.session || ! req.session.claim) {
     return null;
   } else {
@@ -77,7 +86,7 @@ exports.getClaimedEmail = function (req) {
   }
 };
 
-exports.clearClaimedEmail = function (req) {
+exports.clearClaimedEmail = function(req) {
   if (req.session && req.session.claim) {
     delete req.session.claim;
   }
@@ -91,7 +100,7 @@ exports.clearClaimedEmail = function (req) {
    dance.
 */
 
-exports.setCurrentUser = function (req, email) {
+exports.setCurrentUser = function(req, email) {
   req.session.current_email = email;
   if (! req.session.all_emails) {
     req.session.all_emails = {};
@@ -99,7 +108,7 @@ exports.setCurrentUser = function (req, email) {
   req.session.all_emails[email] = true;
 };
 
-exports.getCurrentUser = function (req) {
+exports.getCurrentUser = function(req) {
   if (! req.session || ! req.session.current_email) {
     return null;
   } else {
@@ -107,7 +116,7 @@ exports.getCurrentUser = function (req) {
   }
 };
 
-exports.getActiveEmails = function (req) {
+exports.getActiveEmails = function(req) {
   if (! req.session || ! req.session.all_emails) {
     return {};
   }

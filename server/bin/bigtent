@@ -70,7 +70,7 @@ var sess_config = config.get('client_sessions');
 
 // BigTent must be deployed behind SSL.
 // Tell client-sessions everything will be alright
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   req.connection.proxySecure = true;
   next();
 });
@@ -79,6 +79,18 @@ app.use(clientSessions({
   cookieName: sess_config.cookie_name,
   secret:     sess_config.secret,
   duration:   sess_config.duration,
+  cookie: {
+    secure: true,
+    httpOnly: true
+  }
+}));
+
+var account_link_config = config.get('account_link_sessions');
+
+app.use(clientSessions({
+  cookieName: account_link_config.cookie_name,
+  secret:     account_link_config.secret,
+  duration:   account_link_config.duration,
   cookie: {
     secure: true,
     httpOnly: true

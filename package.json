@@ -13,13 +13,14 @@
     "start": "node server/bin/bigtent"
   },
   "dependencies": {
-    "client-sessions": "0.0.5",
+    "client-sessions": "0.2.0",
     "connect-cachify": "0.0.11",
     "convict": "0.0.6",
     "ejs": "*",
     "express": "2.5.8",
     "i18n-abide": "0.0.8beta4",
     "jwcrypto": "0.4.2",
+    "nodemailer": "0.3.21",
     "passport": "0.1.8",
     "passport-google": "git://github.com/ozten/passport-google.git",
     "passport-windowslive": "git://github.com/ozten/passport-windowslive.git",

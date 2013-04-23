@@ -28,7 +28,7 @@
 }
 
 /* 52 */
-html, body {
+html,body {
   height: 100%;
 }
 
@@ -324,3 +324,36 @@ button{
   float: none;
   margin-top: 25px;
 }
+
+#hAlign {
+  margin: 100px auto;
+  width: 400px;
+}
+
+@media screen and (max-width: 420px) {
+  #hAlign {
+    background-color: red;
+    width: 90%
+  }
+}
+
+#vAlign {
+}
+
+#congrats h2, #congrats p, #token-error h2, #token-error p {
+  margin-bottom: 1em;
+}
+
+table { border-collapse:collapse; margin-bottom: 15px; }
+
+table, th, td {
+  border: solid 1px black;
+}
+
+td, th {
+  padding: 5px;
+  margin: 0px;
+}
+
+#token-error h2, #token-error p { color: rgb(170, 20, 1); }
+#token-error h2 { font-weight: 900; }

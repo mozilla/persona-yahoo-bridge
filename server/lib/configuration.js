@@ -21,9 +21,17 @@ var conf = module.exports = convict({
   certifier_host: 'string = "127.0.0.1"',
   certifier_port: "integer{1,65535} = 8080",
   client_sessions: {
-    cookie_name: 'string = "session_state"',
+    cookie_name: 'string = "session"',
     secret: 'string = "YOU MUST CHANGE ME"',
     duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
+  },
+  account_link_sessions: {
+    cookie_name: 'string = "account_links"',
+    secret: 'string = "YOU MUST CHANGE ME AND BE DIFFERENT"',
+    duration: 'integer = '  + (365 * 24 * 60 * 60 * 1000) // 1 year
+  },
+  account_link_token: {
+    secret: 'string = "YOU MUST CHANGE ME AND ALSO BE DIFFERENT"'
   },
   default_lang: 'string = "en-US"',
   debug_lang: 'string = "it-CH"',
@@ -86,7 +94,14 @@ var conf = module.exports = convict({
     client_secret: 'string = "NgepFX4ectJP-l-5XOymSqk4aLy7DJrE"'
   },
   pub_key_ttl: "integer = " + (6 * 60 * 60), // 6 hours
-  pub_key_path: 'string = "var/key.publickey"'
+  pub_key_path: 'string = "var/key.publickey"',
+  email_to_console: 'boolean = false',
+  smtp: {
+    host: 'string?',
+    user: 'string?',
+    pass: 'string?',
+    port: 'integer = 25'
+  }
 });
 
 // At the time this file is required, we'll determine the "process name" for this proc
