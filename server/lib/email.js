@@ -58,27 +58,13 @@ function compileTemplates() {
   }
 }
 
-var interceptor;
-
-/**
- * allow clients to intercept email messages programatically for local
- * testing. The `interceptor` is a function which accepts two arguments,
- *
- *   * `email` - the email that is being verified
- *   * `secret` - the verification secret (usually embedded into a url)
- *
- * Limitations: only a single interceptor may be set, generalize
- * as needed.
- */
-exports.setInterceptor = function(callback) {
-  interceptor = callback;
-};
-
 //TODO send in localeContext
 function doSend(email_type, email, context, langContext) {
   compileTemplates();
 
-  if (!templates[email_type]) throw new Error("unknown email type: " + email_type);
+  if (!templates[email_type]) {
+    throw new Error("unknown email type: " + email_type);
+  }
 
   var email_params = templates[email_type];
 
@@ -87,18 +73,7 @@ function doSend(email_type, email, context, langContext) {
       GETTEXT = langContext.gettext,
       format = langContext.format;
 
-  if (interceptor) {
-    interceptor(email, context.secret);
-  } else if (config.get('email_to_console')) {
-    /* console.log("\nTo:\n" + email + "\n");
-    var templateArgs = _.extend({
-      link: public_url,
-      gettext: GETTEXT,
-      format: format
-    }, context);
-    console.log(email_params.template(templateArgs)); */
-
-    // log verification email to console separated by whitespace.
+  if (config.get('email_to_console')) {
     console.log("\nVERIFICATION URL:\n" + public_url + "\n");
   } else {
     var templateArgs = _.extend({

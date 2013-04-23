@@ -25,7 +25,8 @@
                 <div id="auth_error" class="contents">
 
                     <h2><%= gettext("Authentication Error") %></h2>
-                    <p><%= format(gettext("Sorry, it looks like you were trying to log in as %s, but you're actually logged into %s as %s."), [claimed, provider, mismatched]) %></p>
+                    <p><%= format(gettext("Sorry, it looks like you were trying to log in as %(claimed)s, but you're actually logged into %(provider)s as %(other)s."),
+                             { claimed: claimed, provider: provider, other: mismatched }) %></p>
                     <button class="continue"><%= gettext("Continue") %></button>
                     <input type="hidden" name="csrf_token" value="<%= csrf_token %>" />
                     <button class="cancel"><%= gettext("Use a different email") %></button>
