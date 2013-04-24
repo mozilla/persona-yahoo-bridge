@@ -35,7 +35,7 @@
                 <div id="link_accounts_prompt" class="contents" style="display: none;">
                   <h2><%= gettext("Confirm your email address") %></h2>
                   <p><%= format(gettext("Check your email at %(email)s."),
-                           { email: mismatched }) %></p>
+                           { email: claimed }) %></p>
                   <p><%= format(gettext("Click the link in the confirmation email. This will connect %(email1)s to %(email2)s, fixing the problem on this browser."),
                            { email1: claimed, email2: mismatched }) %></p>
                   <button class="close">Close</button>
