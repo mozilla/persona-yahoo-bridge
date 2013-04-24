@@ -57,7 +57,7 @@ exports.views = function(app) {
 
       if (req.user && req.user.emails) {
         var rawClaimedEmail = session.getClaimedEmail(req) || "";
-        var claimedEmail = rawClaimed.toLowerCase();
+        var claimedEmail = rawClaimedEmail.toLowerCase();
         req.user.emails.forEach(function(email_obj, i) {
 
           // add the email to the list of all emails reported by
