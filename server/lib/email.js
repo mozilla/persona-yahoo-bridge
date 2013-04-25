@@ -46,7 +46,7 @@ function withTemplate(email_type, cb) {
   if (!templates[email_type]) {
     cb(new Error("unknown email type: " + email_type));
   } else if (templates[email_type].render) {
-    cb(null, templates[email_type], templates[email_type].render);
+    cb(null, templates[email_type].render);
   } else {
     fs.readFile(templates[email_type].templatePath, function(err, data) {
       if (err) { throw err; }
@@ -55,7 +55,7 @@ function withTemplate(email_type, cb) {
 
       templates[email_type].render = render;
 
-      cb(null, templates[email_type], render);
+      cb(null, render);
     });
   }
 }
@@ -74,7 +74,7 @@ function doSend(email_type, email, context, langContext) {
   if (config.get('email_to_console')) {
     console.log("\nVERIFICATION URL:\n" + public_url + "\n");
   } else {
-    withTemplate(email_type, function(err, template, render) {
+    withTemplate(email_type, function(err, render) {
       var templateArgs = _.extend({
         link: public_url,
         gettext: langContext.gettext,
@@ -84,7 +84,7 @@ function doSend(email_type, email, context, langContext) {
       var mailArgs = {
         sender: "Persona <no-reply@persona.org>",
         to: email,
-        subject: langContext.gettext(template.subject),
+        subject: langContext.gettext(templates[email_type].subject),
         text: render(templateArgs),
         headers: { 'X-BrowserID-VerificationURL': public_url }
       };
