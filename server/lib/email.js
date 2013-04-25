@@ -31,74 +31,70 @@ if (smtp_params && smtp_params.host) {
 
 const TEMPLATE_PATH = path.join(__dirname, "..", "views", "email_templates");
 
-// Templates are compiled once, on the first request. Then they are cached.
-var templates;
-var compiled = false;
-function compileTemplates() {
-  // This exists only as a hook for extracting strings with extract-pot
-  // At runtime, locale specific gettext will be used in doSend
-  var gettext = function(a) { return a; }
-  if (false === compiled) {
-    compiled = true;
+// The "gettext" function here is only used for static analysis.
+// A real, locale-aware gettext function is used when in doSend.
+var gettext = function(a) { return a; };
+var templates = {
+  "link_accounts": {
+    landing: 'link_accounts',
+    subject: gettext("Confirm email address for Persona"),
+    templatePath: path.join(TEMPLATE_PATH, 'link_accounts.ejs')
+  }
+};
 
-    // a map of all the different emails we send
-    templates = {
-      "link_accounts": {
-        landing: 'link_accounts',
-        subject: gettext("Confirm email address for Persona"),
-        template: fs.readFileSync(path.join(TEMPLATE_PATH, 'link_accounts.ejs'))
-      }
-    };
+function withTemplate(email_type, cb) {
+  if (!templates[email_type]) {
+    cb(new Error("unknown email type: " + email_type));
+  } else if (templates[email_type].render) {
+    cb(null, templates[email_type], templates[email_type].render);
+  } else {
+    fs.readFile(templates[email_type].templatePath, function(err, data) {
+      if (err) { throw err; }
 
-    // now turn file contents into compiled templates
-    Object.keys(templates).forEach(function(type) {
-      var tmpl = templates[type].template.toString();
-      templates[type].template = ejs.compile(tmpl);
+      var render = ejs.compile(data.toString());
+
+      templates[email_type].render = render;
+
+      cb(null, templates[email_type], render);
     });
   }
 }
 
 //TODO send in localeContext
 function doSend(email_type, email, context, langContext) {
-  compileTemplates();
-
   if (!templates[email_type]) {
     throw new Error("unknown email type: " + email_type);
   }
 
-  var email_params = templates[email_type];
-
-  var public_url = config.get('public_url') + "/" +
-          email_params.landing + "?token=" + encodeURIComponent(context.secret),
-      GETTEXT = langContext.gettext,
-      format = langContext.format;
+  var public_url = [
+    config.get('public_url'), '/', templates[email_type].landing,
+    '?token=', encodeURIComponent(context.secret)
+  ].join("");
 
   if (config.get('email_to_console')) {
     console.log("\nVERIFICATION URL:\n" + public_url + "\n");
   } else {
-    var templateArgs = _.extend({
-      link: public_url,
-      gettext: GETTEXT,
-      format: format
-    }, context);
+    withTemplate(email_type, function(err, template, render) {
+      var templateArgs = _.extend({
+        link: public_url,
+        gettext: langContext.gettext,
+        format: langContext.format
+      }, context);
 
-    var mailOpts = {
-      sender: "Persona <no-reply@persona.org>",
-      to: email,
-      // Note: everytime at runtime we get the appropriate
-      // localized string for the subject
-      subject: GETTEXT(email_params.subject),
-      text: email_params.template(templateArgs),
-      headers: {
-        'X-BrowserID-VerificationURL': public_url
-      }
-    };
+      var mailArgs = {
+        sender: "Persona <no-reply@persona.org>",
+        to: email,
+        subject: langContext.gettext(template.subject),
+        text: render(templateArgs),
+        headers: { 'X-BrowserID-VerificationURL': public_url }
+      };
 
-    emailer.send_mail(mailOpts, function(err, success) {
-      if (!success) {
-        logger.error("error sending email to: " + email + " - " + err);
-        statsd.increment('email.' + email_type + '.sent.error');
-      }
+      emailer.send_mail(mailArgs, function(err, response) {
+        if (err || !response) {
+          logger.error("error sending email to: " + email + " - " + err);
+          statsd.increment('email.' + email_type + '.sent.error');
+        }
+      });
     });
   }
 }
