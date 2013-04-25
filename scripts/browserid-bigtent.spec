@@ -2,7 +2,7 @@
 
 Name:          browserid-bigtent
 Version:       0.2013.04.23
-Release:       3%{?dist}_%{svnrev}
+Release:       4%{?dist}_%{svnrev}
 Summary:       BrowserID BigTent server
 Packager:      Pete Fritchman <petef@mozilla.com>
 Group:         Development/Libraries
