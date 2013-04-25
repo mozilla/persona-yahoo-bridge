@@ -81,7 +81,8 @@ app.use(clientSessions({
   duration:   sess_config.duration,
   cookie: {
     secure: true,
-    httpOnly: true
+    httpOnly: true,
+    maxAge: sess_config.duration
   }
 }));
 
@@ -93,7 +94,8 @@ app.use(clientSessions({
   duration:   account_link_config.duration,
   cookie: {
     secure: true,
-    httpOnly: true
+    httpOnly: true,
+    maxAge: account_link_config.duration
   }
 }));
 
