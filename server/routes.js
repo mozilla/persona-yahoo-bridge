@@ -342,19 +342,22 @@ exports.init = function(app) {
     var errorMsg;
 
     accountLink.validateSecret(req, res, secret, function(err, emails) {
+      var claimEmail, mismatchEmail;
+
       if (err || emails.length !== 2) {
         if (err) logger.error(err);
         errorMsg = req.gettext("There was a problem with your link.");
       } else {
         // Pull emails out of email token, so links can be used without
         // depending on session state
-        var claimEmail = emails[0];
-        var mismatchEmail = emails[1];
+        claimEmail = emails[0];
+        mismatchEmail = emails[1];
         accountLink.recordLink(claimEmail, mismatchEmail, req);
       }
 
       var ctx = {
-        accountLinks: accountLink.getAllLinks(req),
+        claimed: claimEmail,
+        other: mismatchEmail,
         error: errorMsg
       };
 
