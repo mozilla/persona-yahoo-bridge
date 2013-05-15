@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
-accountLink = require('./lib/account_linking'),
+pinCode = require('./lib/pin_code'),
 certify = require('./lib/certifier'),
 config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
@@ -184,6 +184,16 @@ exports.init = function(app) {
       }
     }
 
+    // PIN verification - Did the user prove they can use a different email
+    // address via PIN verification from the id_mismatch screen?
+    if (req.pincodedb && req.pincodedb.verified && req.pincodedb.verified[authed_email] === true) {
+      logger.debug('User has switched current email from ' + current_user +
+                   'to ' + authed_email);
+      current_user = authed_email;
+      session.setCurrentUser(req, authed_email);
+      statsd.increment('routes.provision.pin_based');
+    }
+
     var certified_cb = function(err, cert) {
       var certificate;
 
@@ -302,12 +312,11 @@ exports.init = function(app) {
     statsd.timing('routes.id_mismatch', new Date() - start);
   });
 
-  // The user's claimed and OpenID (mismatched) emails didn't
-  // match and the user wants to link them together.
-  // We'll send them an email verification
-  app.post('/link_accounts_request', function(req, res) {
-    accountLink.generateSecret(req, res, function(err, email,
-                                                   mismatchEmail, secret) {
+  // The user's claimed and OpenID (mismatched) emails didn't match.
+  // We'll send them an email verification with a PIN
+  // We'll put the PIN in a secure cookie
+  app.post('/pin_code_request', function(req, res) {
+    pinCode.generateSecret(req, res, function(err, email, pin) {
       var domain, domainInfo, providerName;
       try {
         domain = email.split('@')[1];
@@ -319,6 +328,8 @@ exports.init = function(app) {
       if (err) {
         res.send(400, err);
       } else {
+	// "1234567" becomes "123-4-567"
+	var formattedPin = [pin.substring(0,3), pin[3], pin.substring(4,7)].join('-');
         var langContext = {
           lang: req.lang,
           locale: req.locale,
@@ -327,41 +338,40 @@ exports.init = function(app) {
           format: req.format
         };
         var ctx = {
-          mismatchEmail: mismatchEmail,
-          secret: secret,
+          pin_code: formattedPin,
           webmail: providerName
         };
-        emailer.sendLinkAccounts(email, ctx, langContext);
+        emailer.sendPinVerification(email, ctx, langContext);
         res.send('OK');
       }
     });
   });
 
-  app.get('/link_accounts', function(req, res) {
-    var secret = req.query.token;
-    var errorMsg;
-
-    accountLink.validateSecret(req, res, secret, function(err, emails) {
-      var claimEmail, mismatchEmail;
-
-      if (err || emails.length !== 2) {
-        if (err) logger.error(err);
-        errorMsg = req.gettext("There was a problem with your link.");
+  app.post('/pin_code_check', function(req, res) {
+    var errorMsg, redirectUrl;
+    //TODO statsd
+    pinCode.validateSecret(req, res, function(err, pinMatched) {
+      if (err) {
+        logger.error(err);
+	return res.send(401, 'There was a problem with your request.');
+      } else if (pinMatched) {
+	pinCode.markVerified(session.getClaimedEmail(req), req);
+        session.setCurrentUser(req, session.getClaimedEmail(req));
+        redirectUrl = session.getBidUrl(baseUrl, req);
+        session.clearClaimedEmail(req);
+        session.clearBidUrl(req);
       } else {
-        // Pull emails out of email token, so links can be used without
-        // depending on session state
-        claimEmail = emails[0];
-        mismatchEmail = emails[1];
-        accountLink.recordLink(claimEmail, mismatchEmail, req);
+	errorMsg = req.gettext("Sorry, wrong PIN code");
       }
 
-      var ctx = {
-        claimed: claimEmail,
-        other: mismatchEmail,
+      var payload = {
+	pinMatched: pinMatched,
+        redirectUrl: redirectUrl,
         error: errorMsg
       };
 
-      res.render("link_accounts_confirm", ctx);
+      res.setHeader('Content-Type', 'application/json');
+      return res.send(JSON.stringify(payload));
     });
   });
 

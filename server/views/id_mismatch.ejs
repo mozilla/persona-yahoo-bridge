@@ -28,15 +28,23 @@
                     <p><%= format(gettext("It looks like you were trying to log in with %(claimed)s but were actually logged in with %(other)s. We can link these email addresses to enable you to sign in."),
                              { claimed: claimed, other: mismatched }) %></p>
                     <button class="cancel"><%= gettext("Cancel") %></button>
-                    <button class="continue"><%= gettext("Link accounts") %></button>
+                    <button class="js-continue continue"><%= gettext("Verify Email") %></button>
                     <input type="hidden" name="csrf_token" value="<%= csrf_token %>" />
 
                 </div><!-- :contents -->
-                <div id="link_accounts_prompt" class="contents" style="display: none;">
+                <div id="pin_code_prompt" class="contents" style="display: none;">
                   <h2><%= gettext("Confirm your email address") %></h2>
-                  <p><%= format(gettext("Check your email at %(claimed)s and click the verification link."),
+                  <p><%= format(gettext("Check your email at %(claimed)s."),
                            { claimed: claimed }) %></p>
-                  <button class="close">Close</button>
+                  <div>
+                    <form action="#" method="POST" id="check-pin">
+                      <label for="pin1">Please enter PIN from email:</label>
+		      <p id="check-pin-error"><%= gettext("Sorry, PIN doesn't match") %></p>
+                      <input id="pin1" data-next="pin2" class="autofocus" name="pin1" size="3" maxlength="3" value="" /> -
+                      <input name="pin2" data-next="pin3" class="autofocus" size="1" maxlength="1" value="" /> -
+                      <input name="pin3" size="3" maxlength="3" value="" /></div>
+                      <button class="continue">Continue</button>
+                    </form>
                 </div>
             </div>
         </div>
