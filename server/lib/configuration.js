@@ -25,14 +25,12 @@ var conf = module.exports = convict({
     secret: 'string = "YOU MUST CHANGE ME"',
     duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
   },
-  account_link_sessions: {
-    cookie_name: 'string = "account_links"',
+  pin_code_sessions: {
+    cookie_name: 'string = "pincodedb"',
     secret: 'string = "YOU MUST CHANGE ME AND BE DIFFERENT"',
-    duration: 'integer = '  + (365 * 24 * 60 * 60 * 1000) // 1 year
+    duration: 'integer = '  + (10 * 60 * 1000) // 10 minutes
   },
-  account_link_token: {
-    secret: 'string = "YOU MUST CHANGE ME AND ALSO BE DIFFERENT"'
-  },
+  pin_length: 'integer{1,100} = 6',
   default_lang: 'string = "en-US"',
   debug_lang: 'string = "it-CH"',
   disable_locale_check: {

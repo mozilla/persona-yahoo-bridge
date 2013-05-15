@@ -13,7 +13,7 @@
     "start": "node server/bin/bigtent"
   },
   "dependencies": {
-    "client-sessions": "0.2.0",
+    "client-sessions": "0.3.0",
     "connect-cachify": "0.0.11",
     "convict": "0.0.6",
     "ejs": "*",
@@ -34,7 +34,7 @@
     "winston": "0.5.6"
   },
   "devDependencies": {
-    "awsbox": "0.3.3",
+    "awsbox": "0.4.4",
     "http-proxy": "0.8.1",
     "loady": "git://github.com/mozilla/loady.git",
     "vows": "0.5.13"

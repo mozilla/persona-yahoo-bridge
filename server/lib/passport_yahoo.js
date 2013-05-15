@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const accountLink = require('./account_linking'),
+const pinCode = require('./pin_code'),
 config = require('../lib/configuration'),
 YahooStrategy = require('passport-yahoo').Strategy,
 logger = require('./logging').logger,
@@ -37,10 +37,6 @@ exports.init = function(app) {
 
 exports.views = function(app) {
   // GET /auth/yahoo/return
-  //   Use passport.authenticate() as route middleware to authenticate the
-  //   request.  If authentication fails, the user will be redirected back to the
-  //   login page.  Otherwise, the primary route function function will be called,
-  //   which, in this example, will redirect the user to the home page.
   app.get(RETURN_PATH,
     passport.authenticate('yahoo', { failureRedirect: '/cancel' }),
     function(req, res) {
@@ -72,15 +68,14 @@ exports.views = function(app) {
           }
           var email = email_obj.value.toLowerCase();
           if (! match) {
-            logger.debug((typeof email), email);
             if (email === claimedEmail ||
-                accountLink.validateLinkage(claimedEmail, email, req)) {
+                pinCode.wasValidated(claimedEmail, req)) {
 
               if (email === claimedEmail) {
                 statsd.increment('routes.auth.yahoo.return.email_matched');
               } else {
-                // With a valid link, it is okay to treat the claimed email
-                // like the user's current email
+                // With a previously PIN verified claimed email,
+                // it is okay to treat it like the user's current email
                 email = claimedEmail;
                 statsd.increment('routes.auth.yahoo.return.emails_linked');
               }
@@ -111,7 +106,7 @@ exports.views = function(app) {
         // We store these wrong email addresses (okay address... Yahoo only returns
         // one) under "mismatchedEmail". We will use this later to either:
         // * Inform the user there is an auth error a@yahoo.com versus b@yahoo.com
-        // * Let the user do email verification loop and link a@yahoo.com to b@yahoo.com
+        // * Let the user do email verification loop for a@yahoo.com
         session.setMismatchEmail(openid_emails.join(", "), req);
         res.redirect(session.getMismatchUrl(baseUrl, req));
         statsd.timing(metric, new Date() - start);
