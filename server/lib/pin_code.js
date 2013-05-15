@@ -7,7 +7,7 @@ logger = require('./logging').logger,
 Sekrit = require('./sekrit'),
 session = require('./session_context');
 
-sekrit = new Sekrit({});
+var sekrit = new Sekrit({});
 
 /**
  * Validates user session and creates secret PIN
@@ -22,7 +22,9 @@ exports.generateSecret = function(req, res, cb) {
     return cb(new Error("Session is missing claimed email"));
   }
   sekrit.createPinCode(claim, function(err, pinCode) {
-    if (! req.pincodedb) throw new Error("Invalid state, missing pin code db cookie");
+    if (! req.pincodedb)
+      throw new Error("Invalid state, missing pin code db cookie");
+
     if (! req.pincodedb) {
       req.pincodedb = {};
     }
@@ -45,7 +47,7 @@ exports.generateSecret = function(req, res, cb) {
  */
 exports.validateSecret = function(req, res, cb) {
   // Issue #218 Take extra time to validate PIN
-  setTimeout(function () {
+  setTimeout(function() {
     if (!req.pincodedb) {
       return cb(new Error("Invalid state, missing pin code db cookie"));
     }
@@ -70,7 +72,7 @@ exports.markVerified = function(claimEmail, req) {
 
 /*
  * Checks user's pin code cookie for a successful PIN verification
- * on a claimed identity. This will be usable for 
+ * on a claimed identity. This will be usable for
  * `pin_code_sessions.duration` milliseconds (10 minutes for example)
  */
 exports.wasValidated = function(claimEmail, req) {

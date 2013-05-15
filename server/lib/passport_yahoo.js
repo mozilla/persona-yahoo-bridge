@@ -37,10 +37,6 @@ exports.init = function(app) {
 
 exports.views = function(app) {
   // GET /auth/yahoo/return
-  //   Use passport.authenticate() as route middleware to authenticate the
-  //   request.  If authentication fails, the user will be redirected back to the
-  //   login page.  Otherwise, the primary route function function will be called,
-  //   which, in this example, will redirect the user to the home page.
   app.get(RETURN_PATH,
     passport.authenticate('yahoo', { failureRedirect: '/cancel' }),
     function(req, res) {
@@ -72,12 +68,14 @@ exports.views = function(app) {
           }
           var email = email_obj.value.toLowerCase();
           if (! match) {
-            if (email === claimedEmail || pinCode.wasValidated(claimedEmail, req)) {
+            if (email === claimedEmail ||
+                pinCode.wasValidated(claimedEmail, req)) {
+
               if (email === claimedEmail) {
                 statsd.increment('routes.auth.yahoo.return.email_matched');
               } else {
-                // With a previously PIN verified claimed email, it's okay to treat it
-                // like the user's current email
+                // With a previously PIN verified claimed email,
+                // it is okay to treat it like the user's current email
                 email = claimedEmail;
                 statsd.increment('routes.auth.yahoo.return.emails_linked');
               }

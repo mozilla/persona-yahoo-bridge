@@ -1,3 +1,29 @@
 {
+  "browserid_server": "https://login.dev.anosrep.org",
+  "certifier_host": "localhost", 
+  "certifier_port": 8081,
+  "client_sessions": {
+    "cookie_name": "session",
+    "secret": "sdfjsdfljsdlfkjsdflkjsdf slkdfjYOU MUST CHANGE MEsdfsdlkjfsdf",
+    "duration": 86400000
+  },
+  "pin_code_sessions": {
+    "cookie_name": "pincodedb",
+    "secret": "YOU MUST CHANGE ME AND BE DIFFERENT rawww",
+    "duration": 600000
+  },
+  "email_to_console": false,
+  "env": "development",
+  "issuer": "issue216pinflow.personatest.org",
+  "use_https": false,
+  "domain_info": {
+    "yahoo.com": {
+      "strategy": "yahoo",
+      "providerName": "Yahoo",
+      "providerURL": "https://mail.yahoo.com"
+    }
+  },
+  "express_log_format": "tiny",
+  "supported_languages": ["en-US"],
   "var_path": "/home/app/var"
 }

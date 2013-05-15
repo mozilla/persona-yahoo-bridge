@@ -20,7 +20,7 @@
       var size = parseInt($(this).attr('maxlength'), 10);
       var next = '[name=' + $(this).attr('data-next') + ']';
       if (value.length >= size) {
-	$(next).focus();
+        $(next).focus();
       }
     });
     $('#check-pin-error').hide();
@@ -29,17 +29,19 @@
       $('#check-pin-error').hide('fast');
       $('input, button').attr('disabled', true);
       $.post('/pin_code_check', {
-	"_csrf": $('[name=csrf_token]').val(),
+        "_csrf": $('[name=csrf_token]').val(),
         "pin": [$('[name=pin1]').val(),
-		$('[name=pin2]').val(),
-		$('[name=pin3]').val()].join('')
+                $('[name=pin2]').val(),
+                $('[name=pin3]').val()].join('')
       }, function(data) {
-	$('input, button').removeAttr('disabled');
-        if (data.error || data.pinMatched === false || data.pinMatched === 'false') {
-	  $('#check-pin-error').show('slow');
-	} else {
-	  window.location = data.redirectUrl;
-	}
+        $('input, button').removeAttr('disabled');
+        if (data.error || data.pinMatched === false ||
+	    data.pinMatched === 'false') {
+
+          $('#check-pin-error').show('slow');
+        } else {
+          window.location = data.redirectUrl;
+        }
       });
     });
 

@@ -186,7 +186,9 @@ exports.init = function(app) {
 
     // PIN verification - Did the user prove they can use a different email
     // address via PIN verification from the id_mismatch screen?
-    if (req.pincodedb && req.pincodedb.verified && req.pincodedb.verified[authed_email] === true) {
+    if (req.pincodedb && req.pincodedb.verified &&
+        req.pincodedb.verified[authed_email] === true) {
+
       logger.debug('User has switched current email from ' + current_user +
                    'to ' + authed_email);
       current_user = authed_email;
@@ -316,6 +318,9 @@ exports.init = function(app) {
   // We'll send them an email verification with a PIN
   // We'll put the PIN in a secure cookie
   app.post('/pin_code_request', function(req, res) {
+    var start = new Date();
+
+    statsd.increment('routes.pin_code_request.post');
     pinCode.generateSecret(req, res, function(err, email, pin) {
       var domain, domainInfo, providerName;
       try {
@@ -323,13 +328,17 @@ exports.init = function(app) {
         domainInfo = config.get('domain_info');
         providerName = domainInfo[domain].providerName;
       } catch (e) {
+        statsd.increment('routes.err.pin_code_request.bad_provider');
+        statsd.timing('routes.pin_code_request', new Date() - start);
         return res.send(500, "Error preparing webmail provider name");
       }
       if (err) {
+        statsd.increment('routes.err.pin_code_request.error_gen_secret');
+        statsd.timing('routes.pin_code_request', new Date() - start);
         res.send(400, err);
       } else {
-	// "1234567" becomes "123-4-567"
-	var formattedPin = [pin.substring(0,3), pin[3], pin.substring(4,7)].join('-');
+        // "1234567" becomes "123-4-567"
+        var formattedPin = [pin.substring(0,3), pin[3], pin.substring(4,7)].join('-');
         var langContext = {
           lang: req.lang,
           locale: req.locale,
@@ -342,34 +351,39 @@ exports.init = function(app) {
           webmail: providerName
         };
         emailer.sendPinVerification(email, ctx, langContext);
+        statsd.timing('routes.pin_code_request', new Date() - start);
         res.send('OK');
       }
     });
   });
 
   app.post('/pin_code_check', function(req, res) {
-    var errorMsg, redirectUrl;
-    //TODO statsd
+    var errorMsg, redirectUrl, start = new Date();
+    statsd.increment('routes.pin_code_check.post');
     pinCode.validateSecret(req, res, function(err, pinMatched) {
       if (err) {
         logger.error(err);
-	return res.send(401, 'There was a problem with your request.');
+        statsd.increment('routes.err.pin_code_check.validate_secret');
+        statsd.timing('routes.pin_code_check', new Date() - start);
+        return res.send(401, 'There was a problem with your request.');
+
       } else if (pinMatched) {
-	pinCode.markVerified(session.getClaimedEmail(req), req);
+        pinCode.markVerified(session.getClaimedEmail(req), req);
         session.setCurrentUser(req, session.getClaimedEmail(req));
         redirectUrl = session.getBidUrl(baseUrl, req);
         session.clearClaimedEmail(req);
         session.clearBidUrl(req);
       } else {
-	errorMsg = req.gettext("Sorry, wrong PIN code");
+        statsd.increment('routes.err.pin_code_check.pin_mismatch');
+        errorMsg = req.gettext("Sorry, wrong PIN code");
       }
 
       var payload = {
-	pinMatched: pinMatched,
+        pinMatched: pinMatched,
         redirectUrl: redirectUrl,
         error: errorMsg
       };
-
+      statsd.timing('routes.pin_code_check', new Date() - start);
       res.setHeader('Content-Type', 'application/json');
       return res.send(JSON.stringify(payload));
     });
