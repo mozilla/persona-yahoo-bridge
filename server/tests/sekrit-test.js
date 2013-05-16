@@ -7,31 +7,14 @@ assert = require('assert'),
 vows = require('vows'),
 sekrit = require('../lib/sekrit');
 
-var suite = vows.describe('account-linking-test');
+var suite = vows.describe('sekrit-test');
 
 suite.addBatch({
   'Sekrit signing': {
-    topic: function() {
-      this.callback(null, new sekrit({ secret: 'Boo ya' }));
-    },
-    'We can sign emails': function(err, secret) {
-      secret.createAccountLink('a@b.com', 'y@z.com', function(err, token) {
-        secret.checkAccountLink(token, function(err, emails) {
-          assert(! err);
-          assert.equal(emails[0], 'a@b.com');
-          assert.equal(emails[1], 'y@z.com');
-        });
-      });
-    },
-    'We can not make up tokens': function(err, secret) {
-      // Valid token except a@b.com is foo@bar.com
-      var token = 'u58fUi60G8z4ZcvTWYz_kA.Zm9vQGJhci5jb20.eUB6LmNvbQ.wp7Di8KD' +
-                  'wrBWw6VcERDDsMOccsKAwqfDrn0cDcOza8OXw7ItwpPCm0_DoAbCmcKFwq' +
-                  'zChA';
-      secret.checkAccountLink(token, function(err, emails) {
-        assert.ok(err);
-        assert.equal(emails.length, 0);
-       });
+    topic: function() { sekrit.createPinCode(this.callback); },
+    'We can sign emails': function(err, pin) {
+	assert.isNull(err);
+	assert.equal(7, pin.length);
     }
   }
 });

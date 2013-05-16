@@ -4,10 +4,8 @@
 
 const config = require('./configuration'),
 logger = require('./logging').logger,
-Sekrit = require('./sekrit'),
+sekrit = require('./sekrit'),
 session = require('./session_context');
-
-var sekrit = new Sekrit({});
 
 /**
  * Validates user session and creates secret PIN
@@ -15,13 +13,15 @@ var sekrit = new Sekrit({});
  *
  * cb is function(err, pin)
  */
-exports.generateSecret = function(req, res, cb) {
+exports.generateSecret = function(req, cb) {
+  // TODO why do we manage the session and the claimed email
+  // THis is a mistake
   var claim = session.getClaimedEmail(req);
 
   if (!claim) {
     return cb(new Error("Session is missing claimed email"));
   }
-  sekrit.createPinCode(claim, function(err, pinCode) {
+  sekrit.createPinCode(function(err, pinCode) {
     if (! req.pincodedb)
       throw new Error("Invalid state, missing pin code db cookie");
 
@@ -45,15 +45,15 @@ exports.generateSecret = function(req, res, cb) {
  * cb is function(err, pinCodeValid)
  * pinCodeValid is a boolean
  */
-exports.validateSecret = function(req, res, cb) {
+exports.validateSecret = function(req, cb) {
   // Issue #218 Take extra time to validate PIN
   setTimeout(function() {
     if (!req.pincodedb) {
-      return cb(new Error("Invalid state, missing pin code db cookie"));
+      return cb(new Error("Invalid state, missing pin code db cookie"), false);
     }
     var expectedPin = req.pincodedb.expected_pin;
     if (! req.body || ! req.body.pin) {
-      return cb(new Error("Invalid request"));
+      return cb(new Error("Invalid request"), false);
     }
     return cb(null, expectedPin === req.body.pin);
   }, 2000);
@@ -79,18 +79,7 @@ exports.wasValidated = function(claimEmail, req) {
   var cEmail = claimEmail.toLowerCase();
 
   if (req.pincodedb && req.pincodedb.verified) {
-    return req.pincodedb.verified[claimEmail];
+    return !! req.pincodedb.verified[claimEmail];
   }
   return false;
-};
-
-exports.getAllLinks = function(req) {
-  var links = [];
-
-  if (req.accountdb && req.accountdb.links) {
-    try {
-      links = JSON.parse(req.accountdb.links);
-    } catch (e) { return false; }
-  }
-  return links;
 };

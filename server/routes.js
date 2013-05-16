@@ -321,7 +321,7 @@ exports.init = function(app) {
     var start = new Date();
 
     statsd.increment('routes.pin_code_request.post');
-    pinCode.generateSecret(req, res, function(err, email, pin) {
+    pinCode.generateSecret(req, function(err, email, pin) {
       var domain, domainInfo, providerName;
       try {
         domain = email.split('@')[1];
@@ -360,7 +360,7 @@ exports.init = function(app) {
   app.post('/pin_code_check', function(req, res) {
     var errorMsg, redirectUrl, start = new Date();
     statsd.increment('routes.pin_code_check.post');
-    pinCode.validateSecret(req, res, function(err, pinMatched) {
+    pinCode.validateSecret(req, function(err, pinMatched) {
       if (err) {
         logger.error(err);
         statsd.increment('routes.err.pin_code_check.validate_secret');
