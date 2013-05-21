@@ -8,7 +8,7 @@
  * - Making it difficult to guess
  */
 exports.createPinCode = function(cb) {
-  var pin = Math.floor(Math.random() * 9999999) + "";
-  while (pin.length < 7) pin = "0" + pin;
+  var pin = Math.floor(Math.random() * 999999) + "";
+  while (pin.length < 6) pin = "0" + pin;
   cb(null, pin);
 };

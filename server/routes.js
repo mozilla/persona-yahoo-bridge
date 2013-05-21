@@ -338,7 +338,7 @@ exports.init = function(app) {
         res.send(400, err);
       } else {
         // "1234567" becomes "123-4-567"
-        var formattedPin = [pin.substring(0,3), pin[3], pin.substring(4,7)].join('-');
+        var formattedPin = pin;
         var langContext = {
           lang: req.lang,
           locale: req.locale,
