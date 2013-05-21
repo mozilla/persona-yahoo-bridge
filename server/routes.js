@@ -67,7 +67,7 @@ exports.init = function(app) {
     start = new Date(),
     domainInfo = config.get('domain_info');
 
-    statsd.increment('routes.proxy.get');
+    statsd.increment('routes.proxy.get'); 
 
     // Issue #18 - Verify user input for email
     if (valid_email(req.params.email) === false) {
