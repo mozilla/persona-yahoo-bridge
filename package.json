@@ -13,7 +13,7 @@
     "start": "node server/bin/bigtent"
   },
   "dependencies": {
-    "client-sessions": "0.2.0",
+    "client-sessions": "0.3.0",
     "connect-cachify": "0.0.11",
     "convict": "0.0.6",
     "ejs": "*",
