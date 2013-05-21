@@ -42,7 +42,6 @@
     function setMinHeight(){
       var windowHeight = $(window).height();
       var headerHeight = $('header').height();
-      //$('#content').css('minHeight', windowHeight - headerHeight - 25);
     }
 
   function showTooltip(target) {
