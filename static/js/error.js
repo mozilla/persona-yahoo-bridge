@@ -25,9 +25,8 @@
       }, function(data) {
         $('input, button').removeAttr('disabled');
         if (data.error || data.pinMatched === false ||
-	    data.pinMatched === 'false') {
-
-          $('#check-pin-error').show('slow');
+            data.pinMatched === 'false') {
+            showTooltip($('[name=pin]'));
         } else {
           window.location = data.redirectUrl;
         }
@@ -45,3 +44,18 @@
       var headerHeight = $('header').height();
       $('#content').css('minHeight', windowHeight - headerHeight);
     }
+
+  function showTooltip(target) {
+    var tooltip = $('.tooltip'),
+        targetOffset = target.offset();
+
+    targetOffset.top -= (tooltip.parent().outerHeight() + 5);
+    targetOffset.left += 10;
+
+    tooltip.css(targetOffset);
+    tooltip.fadeIn(function() {
+      setTimeout(function() {
+        $('.tooltip').fadeOut();
+      }, 2000);
+    });
+  }

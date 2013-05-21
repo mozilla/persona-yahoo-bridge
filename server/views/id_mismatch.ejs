@@ -41,9 +41,11 @@
                            { claimed: claimed }) %></p>
                   <div>
                     <form action="#" method="POST" id="check-pin">
-                      <label for="pin1">Please enter PIN from email:</label>
-		      <p id="check-pin-error"><%= gettext("Sorry, PIN doesn't match") %></p>
-                      <div><input id="pin" name="pin" size="6" maxlength="6" value="" /></div>
+                      <label for="pin">Please enter PIN from email:</label>
+		      <div class="tooltip" id="check-pin-error"><span class="contents"><%= gettext("Sorry, PIN doesn't match") %></span>
+			<div class="arrow-down"></div>
+		      </div>
+                      <div><input id="pin" name="pin" type="text" size="6" maxlength="6" value="" /></div>
                       <button class="continue">Sign in</button>
                     </form>
                 </div>
