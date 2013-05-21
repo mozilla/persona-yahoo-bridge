@@ -1,6 +1,6 @@
 {
   "env": {
-    "CONFIG_FILES": "$HOME/code/server/config/production.json,$HOME/code/server/config/aws.json,$HOME/config.json"
+    "CONFIG_FILES": "$HOME/code/server/config/aws.json,$HOME/config.json"
   },
   "processes": [ "server/bin/bigtent" ],
   "hooks": {
