@@ -142,8 +142,7 @@ h2 {
   line-height: 100%;
 }
 
-/* 471 */
-#wait, #delay, #error {
+.vertical {
   background-color: #dadee1;
   background-image: url("/i/grain.png"), -webkit-gradient(linear, left top, left bottom, from(#dadee1), to(#c7ccd0));
   background-image: url("/i/grain.png"), -webkit-linear-gradient(top, #dadee1, #c7ccd0);
@@ -166,8 +165,10 @@ h2 {
 /* 503 */
 #error .contents, #wait .contents {
     max-width: 430px;
-    margin: 0 auto;
+    margin: 0px auto;
 }
+
+#error { padding-top: 15px; }
 
 /* browserid/resources/static/dialog/css/style.css */
 
@@ -189,8 +190,10 @@ body {
 header, footer {
     position: absolute;
     z-index: 2;
-    box-shadow: 0 0 24px rgba(0, 0, 0, 0.05) inset;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.05) inset;    
 }
+
+footer { display: none; }
 
 /* 46 */
 header {
@@ -255,7 +258,6 @@ section {
 /* min-height is calculated in JS */
 #content {
     position: absolute;
-    overflow: hidden;
     left: 0;
     right: 0;
     top: 61px;
@@ -323,6 +325,7 @@ section {
 button{
   float: none;
   margin-top: 25px;
+  margin-bottom: 10px;
 }
 
 #hAlign {
