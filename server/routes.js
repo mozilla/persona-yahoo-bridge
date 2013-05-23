@@ -67,7 +67,7 @@ exports.init = function(app) {
     start = new Date(),
     domainInfo = config.get('domain_info');
 
-    statsd.increment('routes.proxy.get'); 
+    statsd.increment('routes.proxy.get');
 
     // Issue #18 - Verify user input for email
     if (valid_email(req.params.email) === false) {
@@ -176,8 +176,6 @@ exports.init = function(app) {
     if (authed_email !== current_user) {
       var active_emails = session.getActiveEmails(req);
       if (active_emails[authed_email] === true) {
-        logger.debug('User has switched current email from ' + current_user +
-                     'to ' + authed_email);
         current_user = authed_email;
         session.setCurrentUser(req, authed_email);
         statsd.increment('routes.provision.email_flopped');
@@ -188,9 +186,6 @@ exports.init = function(app) {
     // address via PIN verification from the id_mismatch screen?
     if (req.pincodedb && req.pincodedb.verified &&
         req.pincodedb.verified[authed_email] === true) {
-
-      logger.debug('User has switched current email from ' + current_user +
-                   'to ' + authed_email);
       current_user = authed_email;
       session.setCurrentUser(req, authed_email);
       statsd.increment('routes.provision.pin_based');
@@ -337,8 +332,6 @@ exports.init = function(app) {
         statsd.timing('routes.pin_code_request', new Date() - start);
         res.send(400, err);
       } else {
-        // "1234567" becomes "123-4-567"
-        var formattedPin = pin;
         var langContext = {
           lang: req.lang,
           locale: req.locale,
@@ -347,7 +340,7 @@ exports.init = function(app) {
           format: req.format
         };
         var ctx = {
-          pin_code: formattedPin,
+          pin_code: pin,
           webmail: providerName
         };
         emailer.sendPinVerification(email, ctx, langContext);
@@ -454,7 +447,8 @@ exports.init = function(app) {
       var pk = JSON.stringify(publicKey);
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'max-age=' + timeout);
-      res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
+      res.setHeader('Last-Modified',
+		    new Date(well_known_last_mod).toUTCString());
       res.render('well_known_browserid', {
         public_key: pk
       });

@@ -4,8 +4,6 @@ Make sure you have persona_secrets.
 
     ./node_modules/.bin/awsbox -h
 
-TODO: I keep forgetting to specify SSL 
-
 ## One time step
 
     $ ssh app@yourvm.personatest.org

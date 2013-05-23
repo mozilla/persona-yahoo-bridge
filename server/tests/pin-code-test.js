@@ -26,40 +26,40 @@ suite.addBatch({
         pinCode.generateSecret(req, this.callback);
       },
       'We can generate a PIN code': function(err, email, pin) {
-	assert.isNull(err);
-	assert.equal('a@foo.com', email);
-	assert.equal(7, pin.length);
-	assert.equal(false, isNaN(parseInt(pin, 10)));
+        assert.isNull(err);
+        assert.equal('a@foo.com', email);
+        assert.equal(6, pin.length);
+        assert.equal(false, isNaN(parseInt(pin, 10)));
       },
       'Validate': {
-	topic: function(err, email, pin) {
+        topic: function(err, email, pin) {
           var req = {
-	    body: { pin: pin },
-	    pincodedb: { expected_pin: pin }
-	  };
+            body: { pin: pin },
+            pincodedb: { expected_pin: pin }
+          };
           goodTime = new Date();
-	  pinCode.validateSecret(req, this.callback);
-	},
-	'Is good for matches': function(err, isValid) {
-	  assert.isNull(err);
-	  assert.ok(isValid);
-	  assert.ok(new Date() - goodTime > 2000); // Should take more 2 seconds
-	}
+          pinCode.validateSecret(req, this.callback);
+        },
+        'Is good for matches': function(err, isValid) {
+          assert.isNull(err);
+          assert.ok(isValid);
+          assert.ok(new Date() - goodTime > 2000); // Should take more 2 seconds
+        }
       },
       'Not Valid': {
-	topic: function(err, email, pin) {
-	  var req = {
-	    body: { pin: '1234567' },
-	    pincodedb: { expected_pin: pin }
-	  };
+        topic: function(err, email, pin) {
+          var req = {
+            body: { pin: '123456' },
+            pincodedb: { expected_pin: pin }
+          };
           badTime = new Date();
-	  pinCode.validateSecret(req, this.callback);
-	},
-	'Will not match': function(err, isValid) {
-	  assert.isNull(err);
-	  assert.equal(false, isValid);
-	  assert.ok(new Date() - badTime > 2000); // Should take more 2 seconds
-	}
+          pinCode.validateSecret(req, this.callback);
+        },
+        'Will not match': function(err, isValid) {
+          assert.isNull(err);
+          assert.equal(false, isValid);
+          assert.ok(new Date() - badTime > 2000); // Should take more 2 seconds
+        }
       }
     },
     'foobar': function(req) {

@@ -19,6 +19,7 @@ exports.generateSecret = function(req, cb) {
   var claim = session.getClaimedEmail(req);
 
   if (!claim) {
+    logger.error("Session is missing claimed email");
     return cb(new Error("Session is missing claimed email"));
   }
   sekrit.createPinCode(function(err, pinCode) {
@@ -53,6 +54,7 @@ exports.validateSecret = function(req, cb) {
     }
     var expectedPin = req.pincodedb.expected_pin;
     if (! req.body || ! req.body.pin) {
+      logger.error("Invalid request format");
       return cb(new Error("Invalid request"), false);
     }
     return cb(null, expectedPin === req.body.pin);

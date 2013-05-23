@@ -13,8 +13,8 @@ suite.addBatch({
   'Sekrit signing': {
     topic: function() { sekrit.createPinCode(this.callback); },
     'We can sign emails': function(err, pin) {
-	assert.isNull(err);
-	assert.equal(7, pin.length);
+        assert.isNull(err);
+        assert.equal(6, pin.length);
     }
   }
 });
