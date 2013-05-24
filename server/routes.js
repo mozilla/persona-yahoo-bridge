@@ -8,7 +8,6 @@ certify = require('./lib/certifier'),
 config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
 emailer = require('./lib/email'),
-escape = require('escape-html'),
 logger = require('./lib/logging').logger,
 passport = require('passport'),
 request = require('request'),
@@ -302,8 +301,7 @@ exports.init = function(app) {
         claimed: claimed,
         mismatched: session.getMismatchEmail(req),
         provider: domainInfo[domain].providerName,
-        providerURL: domainInfo[domain].providerURL,
-        escape: escape
+        providerURL: domainInfo[domain].providerURL
       });
     }
 

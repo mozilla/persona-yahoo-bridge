@@ -14,19 +14,18 @@ session = require('./session_context');
  * cb is function(err, pin)
  */
 exports.generateSecret = function(req, cb) {
+  if (! req.pincodedb)
+    return cb(new Error("Invalid state, missing pin code db cookie"));
+
   sekrit.createPinCode(function(err, pinCode) {
-    if (! req.pincodedb)
-      throw new Error("Invalid state, missing pin code db cookie");
-
-    req.pincodedb = {};
-
-    // Remember User's PIN for later verification
-    // We have no backend database.
-    req.pincodedb.expected_pin = pinCode;
-
     if (err) {
       cb(err);
     } else {
+      req.pincodedb = {};
+
+      // Remember User's PIN for later verification
+      // We have no backend database.
+      req.pincodedb.expected_pin = pinCode;
       cb(null, pinCode);
     }
   });

@@ -15,10 +15,11 @@ const PIN_LEN = config.get('pin_length');
 exports.createPinCode = function(cb) {
   var pin = "";
   crypto.randomBytes(PIN_LEN, function(ex, bytes) {
+    if (ex) return cb(ex);
     for (var i=0; i < PIN_LEN; i++) {
       // Get a random decimal
       pin += bytes.readUInt8(i) % 10;
     }
-    cb(ex, pin);
+    cb(null, pin);
   });
 };
