@@ -27,8 +27,8 @@
                     <h2><%= gettext("Accounts don't match") %></h2>
                     <p><%- format(gettext('It looks like you were trying to login with %(claimed_email)s but were actually logged in with %(mismatched_email)s. ' + 
 		      'If this is an alias, we recommend you use an original Yahoo email account instead. We do not offer full support for Yahoo aliases.'),
-                           { claimed_email: "<b>" + claimed + "</b>",
-			     mismatched_email: "<b>" + mismatched + "</b>" }) %></p>
+                           { claimed_email: "<b>" + escape(claimed) + "</b>",
+			     mismatched_email: "<b>" + escape(mismatched) + "</b>" }) %></p>
                     <button class="cancel"><%= gettext("Go back") %></button>
                     <button class="js-continue continue"><%= gettext("Continue") %></button>
                     <input type="hidden" name="csrf_token" value="<%= csrf_token %>" />

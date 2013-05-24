@@ -14,21 +14,11 @@ session = require('./session_context');
  * cb is function(err, pin)
  */
 exports.generateSecret = function(req, cb) {
-  // TODO why do we manage the session and the claimed email
-  // THis is a mistake
-  var claim = session.getClaimedEmail(req);
-
-  if (!claim) {
-    logger.error("Session is missing claimed email");
-    return cb(new Error("Session is missing claimed email"));
-  }
   sekrit.createPinCode(function(err, pinCode) {
     if (! req.pincodedb)
       throw new Error("Invalid state, missing pin code db cookie");
 
-    if (! req.pincodedb) {
-      req.pincodedb = {};
-    }
+    req.pincodedb = {};
 
     // Remember User's PIN for later verification
     // We have no backend database.
@@ -37,7 +27,7 @@ exports.generateSecret = function(req, cb) {
     if (err) {
       cb(err);
     } else {
-      cb(null, claim, pinCode);
+      cb(null, pinCode);
     }
   });
 };
@@ -70,6 +60,8 @@ exports.markVerified = function(claimEmail, req) {
     req.pincodedb.verified = {};
   }
   req.pincodedb.verified[claimEmail] = true;
+  // Remove next when mozilla/node-client-sessions Issue#42 is fixed
+  req.pincodedb.force_update = new Date();
 };
 
 /*

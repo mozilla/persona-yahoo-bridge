@@ -4,17 +4,20 @@
 
 const
 assert = require('assert'),
+config = require('../lib/configuration'),
 vows = require('vows'),
 sekrit = require('../lib/sekrit');
+
+const PIN_LEN = config.get('pin_length');
 
 var suite = vows.describe('sekrit-test');
 
 suite.addBatch({
-  'Sekrit signing': {
+  'Sekrit PINs': {
     topic: function() { sekrit.createPinCode(this.callback); },
-    'We can sign emails': function(err, pin) {
+    'We can create PINs': function(err, pin) {
         assert.isNull(err);
-        assert.equal(6, pin.length);
+        assert.equal(PIN_LEN, pin.length);
     }
   }
 });

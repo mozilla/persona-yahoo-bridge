@@ -17,6 +17,7 @@
     "connect-cachify": "0.0.11",
     "convict": "0.0.6",
     "ejs": "*",
+    "escape-html": "0.0.1",
     "express": "2.5.8",
     "i18n-abide": "0.0.8beta4",
     "jwcrypto": "0.4.2",

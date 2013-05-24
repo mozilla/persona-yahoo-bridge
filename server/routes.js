@@ -8,6 +8,7 @@ certify = require('./lib/certifier'),
 config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
 emailer = require('./lib/email'),
+escape = require('escape-html'),
 logger = require('./lib/logging').logger,
 passport = require('passport'),
 request = require('request'),
@@ -184,8 +185,7 @@ exports.init = function(app) {
 
     // PIN verification - Did the user prove they can use a different email
     // address via PIN verification from the id_mismatch screen?
-    if (req.pincodedb && req.pincodedb.verified &&
-        req.pincodedb.verified[authed_email] === true) {
+    if (pinCode.wasValidated(authed_email, req)) {
       current_user = authed_email;
       session.setCurrentUser(req, authed_email);
       statsd.increment('routes.provision.pin_based');
@@ -302,7 +302,8 @@ exports.init = function(app) {
         claimed: claimed,
         mismatched: session.getMismatchEmail(req),
         provider: domainInfo[domain].providerName,
-        providerURL: domainInfo[domain].providerURL
+        providerURL: domainInfo[domain].providerURL,
+        escape: escape
       });
     }
 
@@ -316,8 +317,18 @@ exports.init = function(app) {
     var start = new Date();
 
     statsd.increment('routes.pin_code_request.post');
-    pinCode.generateSecret(req, function(err, email, pin) {
-      var domain, domainInfo, providerName;
+    pinCode.generateSecret(req, function(err, pin){
+      if (err) {
+        logger.error(err);
+        return res.send(400, "Unable to generate secret");
+      }
+      var domain, domainInfo, providerName,
+          email = session.getClaimedEmail(req);
+
+      if (!email) {
+        logger.error("Session is missing claimed email");
+        return res.send(400, "Session is missing claimed email");
+      }
       try {
         domain = email.split('@')[1];
         domainInfo = config.get('domain_info');
@@ -448,7 +459,7 @@ exports.init = function(app) {
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'max-age=' + timeout);
       res.setHeader('Last-Modified',
-		    new Date(well_known_last_mod).toUTCString());
+                    new Date(well_known_last_mod).toUTCString());
       res.render('well_known_browserid', {
         public_key: pk
       });
