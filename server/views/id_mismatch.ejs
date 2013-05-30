@@ -2,9 +2,9 @@
 <html lang="<%= lang %>" dir="<%= lang_dir %>">
   <head>
     <meta charset="utf-8">
-    <title><%= gettext("Authentication Error") %></title>
+    <title><%= gettext("Accounts don't match") %></title>
     <meta name="viewport" content="initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,width=device-width" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
   <!--[if lt IE 9]>
         <%- cachify_js('/js/lib/html5shim.min.js') %>
@@ -22,13 +22,32 @@
       <section id="error">
         <div class="table">
             <div class="vertical">
-                <div class="contents">
+                <div id="auth_error" class="contents">
 
-                    <h2><%= gettext("Authentication Error") %></h2>
-                    <p><%= format(gettext("Sorry, it looks like you were trying to log in as %s, but were logged in to %s as a different address."), [claimed, provider]) %> (<%- mismatched %>)</p>
-                    <button><%= gettext("Try Again") %></button>
+                    <h2><%= gettext("Accounts don't match") %></h2>
+                    <p><%- format(gettext('It looks like you were trying to login with %(claimed_email)s but were actually logged in with %(mismatched_email)s. ' + 
+		      'If this is an alias, we recommend you use an original Yahoo email account instead. We do not offer full support for Yahoo aliases.'),
+                           { claimed_email: "<b>" + escape(claimed) + "</b>",
+			     mismatched_email: "<b>" + escape(mismatched) + "</b>" }) %></p>
+                    <button class="cancel"><%= gettext("Go back") %></button>
+                    <button class="js-continue continue"><%= gettext("Continue") %></button>
+                    <input type="hidden" name="csrf_token" value="<%= csrf_token %>" />
 
                 </div><!-- :contents -->
+                <div id="pin_code_prompt" class="contents" style="display: none;">
+                  <h2><%= gettext("Confirm your email address") %></h2>
+                  <p><%= format(gettext("Check your email at %(claimed)s."),
+                           { claimed: claimed }) %></p>
+                  <div>
+                    <form action="#" method="POST" id="check-pin">
+                      <label for="pin"><%= gettext('Please enter PIN from email:') %></label>
+		      <div class="tooltip" id="check-pin-error"><span class="contents"><%= gettext("Sorry, PIN doesn't match") %></span>
+			<div class="arrow-down"></div>
+		      </div>
+                      <div><input id="pin" name="pin" type="text" size="6" maxlength="6" value="" /></div>
+                      <button class="continue"><%= gettext('Sign in') %></button>
+                    </form>
+                </div>
             </div>
         </div>
       </section>

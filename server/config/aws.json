@@ -1,5 +1,8 @@
 {
-  "browserid_server": "http://127.0.0.1:10002",
+  "browserid_server": "https://login.dev.anosrep.org",
+  "issuer": "issue216pinflow.personatest.org",
+  "certifier_host": "localhost", 
+  "certifier_port": 8081,
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
@@ -10,23 +13,17 @@
     "secret": "YOU MUST CHANGE ME AND BE DIFFERENT",
     "duration": 600000
   },
+  "email_to_console": false,
+  "env": "development",
+  "use_https": false,
   "domain_info": {
-    "gmail.com": {
-      "strategy": "google",
-      "providerName": "Google",
-      "providerURL": "https://gmail.com"
-    },
     "yahoo.com": {
       "strategy": "yahoo",
       "providerName": "Yahoo",
       "providerURL": "https://mail.yahoo.com"
-    },
-    "hotmail.com": {
-      "strategy": "windowslive",
-      "providerName": "Hotmail",
-      "providerURL": "http://hotmail.com"
     }
   },
-  "issuer": "localhost",
-  "use_https": false
+  "express_log_format": "tiny",
+  "supported_languages": ["en-US"],
+  "var_path": "/home/app/var"
 }
