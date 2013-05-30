@@ -44,11 +44,13 @@ suite.addBatch({
         'Is good for matches': function(err, isValid) {
           assert.isNull(err);
           assert.ok(isValid);
-          assert.ok(new Date() - goodTime > 2000); // Should take more 2 seconds
+	    var end = new Date();
+            assert.ok(end - goodTime >= 2000,
+		      'Was hoping for more than 2000 millis, but got ' + (end - goodTime));
         }
       },
       'Not Valid': {
-        topic: function(err, email, pin) {
+        topic: function(err, pin) {
           var req = {
             body: { pin: '123456' },
             pincodedb: { expected_pin: pin }
@@ -59,7 +61,9 @@ suite.addBatch({
         'Will not match': function(err, isValid) {
           assert.isNull(err);
           assert.equal(false, isValid);
-          assert.ok(new Date() - badTime > 2000); // Should take more 2 seconds
+	    var end = new Date();
+            assert.ok(end - badTime >= 2000,
+		      'Was hoping for more than 2000 millis, but got ' + (end - badTime));
         }
       }
     },
