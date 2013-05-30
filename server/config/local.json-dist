@@ -3,9 +3,14 @@
   "certifier_host": "localhost",
   "certifier_port": 8000,
   "client_sessions": {
-    "cookie_name": "session_state",
+    "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
     "duration": 86400000
+  },
+  "pin_code_sessions": {
+    "cookie_name": "pincodedb",
+    "secret": "YOU MUST CHANGE ME AND BE DIFFERENT",
+    "duration": 600000
   },
   "env": "development",
   "issuer": "localhost",
@@ -30,5 +35,11 @@
   },
   "pub_key_ttl": 120,
   "pub_key_path": "var/key.publickey",
+  "smtp": {
+    "host": "smtp.socketlabs.com",
+    "user": "someuser",
+    "pass": "somepassword",
+    "port": 25
+  },
   "supported_languages": ["en-US", "it-CH", "db-LB"]
 }

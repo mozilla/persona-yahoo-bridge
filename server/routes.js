@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
+pinCode = require('./lib/pin_code'),
 certify = require('./lib/certifier'),
 config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
+emailer = require('./lib/email'),
 logger = require('./lib/logging').logger,
 passport = require('passport'),
 request = require('request'),
@@ -174,11 +176,18 @@ exports.init = function(app) {
     if (authed_email !== current_user) {
       var active_emails = session.getActiveEmails(req);
       if (active_emails[authed_email] === true) {
-        logger.debug('User has switched current email from ' + current_user + 'to ' + authed_email);
         current_user = authed_email;
         session.setCurrentUser(req, authed_email);
         statsd.increment('routes.provision.email_flopped');
       }
+    }
+
+    // PIN verification - Did the user prove they can use a different email
+    // address via PIN verification from the id_mismatch screen?
+    if (pinCode.wasValidated(authed_email, req)) {
+      current_user = authed_email;
+      session.setCurrentUser(req, authed_email);
+      statsd.increment('routes.provision.pin_based');
     }
 
     var certified_cb = function(err, cert) {
@@ -299,6 +308,89 @@ exports.init = function(app) {
     statsd.timing('routes.id_mismatch', new Date() - start);
   });
 
+  // The user's claimed and OpenID (mismatched) emails didn't match.
+  // We'll send them an email verification with a PIN
+  // We'll put the PIN in a secure cookie
+  app.post('/pin_code_request', function(req, res) {
+    var start = new Date();
+
+    statsd.increment('routes.pin_code_request.post');
+    pinCode.generateSecret(req, function(err, pin){
+      if (err) {
+        logger.error(err);
+        return res.send(400, "Unable to generate secret");
+      }
+      var domain, domainInfo, providerName,
+          email = session.getClaimedEmail(req);
+
+      if (!email) {
+        logger.error("Session is missing claimed email");
+        return res.send(400, "Session is missing claimed email");
+      }
+      try {
+        domain = email.split('@')[1];
+        domainInfo = config.get('domain_info');
+        providerName = domainInfo[domain].providerName;
+      } catch (e) {
+        statsd.increment('routes.err.pin_code_request.bad_provider');
+        statsd.timing('routes.pin_code_request', new Date() - start);
+        return res.send(500, "Error preparing webmail provider name");
+      }
+      if (err) {
+        statsd.increment('routes.err.pin_code_request.error_gen_secret');
+        statsd.timing('routes.pin_code_request', new Date() - start);
+        res.send(400, err);
+      } else {
+        var langContext = {
+          lang: req.lang,
+          locale: req.locale,
+          gettext: req.gettext,
+          ngettext: req.ngettext,
+          format: req.format
+        };
+        var ctx = {
+          pin_code: pin,
+          webmail: providerName
+        };
+        emailer.sendPinVerification(email, ctx, langContext);
+        statsd.timing('routes.pin_code_request', new Date() - start);
+        res.send('OK');
+      }
+    });
+  });
+
+  app.post('/pin_code_check', function(req, res) {
+    var errorMsg, redirectUrl, start = new Date();
+    statsd.increment('routes.pin_code_check.post');
+    pinCode.validateSecret(req, function(err, pinMatched) {
+      if (err) {
+        logger.error(err);
+        statsd.increment('routes.err.pin_code_check.validate_secret');
+        statsd.timing('routes.pin_code_check', new Date() - start);
+        return res.send(401, 'There was a problem with your request.');
+
+      } else if (pinMatched) {
+        pinCode.markVerified(session.getClaimedEmail(req), req);
+        session.setCurrentUser(req, session.getClaimedEmail(req));
+        redirectUrl = session.getBidUrl(baseUrl, req);
+        session.clearClaimedEmail(req);
+        session.clearBidUrl(req);
+      } else {
+        statsd.increment('routes.err.pin_code_check.pin_mismatch');
+        errorMsg = req.gettext("Sorry, wrong PIN code");
+      }
+
+      var payload = {
+        pinMatched: pinMatched,
+        redirectUrl: redirectUrl,
+        error: errorMsg
+      };
+      statsd.timing('routes.pin_code_check', new Date() - start);
+      res.setHeader('Content-Type', 'application/json');
+      return res.send(JSON.stringify(payload));
+    });
+  });
+
   // GET /cancel
   //   Handle the user cancelling the OpenID or OAuth flow.
   app.get('/cancel', function(req, res) {
@@ -364,7 +456,8 @@ exports.init = function(app) {
       var pk = JSON.stringify(publicKey);
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'max-age=' + timeout);
-      res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
+      res.setHeader('Last-Modified',
+                    new Date(well_known_last_mod).toUTCString());
       res.render('well_known_browserid', {
         public_key: pk
       });

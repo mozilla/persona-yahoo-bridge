@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('../lib/configuration'),
+const pinCode = require('./pin_code'),
+config = require('../lib/configuration'),
 YahooStrategy = require('passport-yahoo').Strategy,
 logger = require('./logging').logger,
 passport = require('passport'),
@@ -36,15 +37,10 @@ exports.init = function(app) {
 
 exports.views = function(app) {
   // GET /auth/yahoo/return
-  //   Use passport.authenticate() as route middleware to authenticate the
-  //   request.  If authentication fails, the user will be redirected back to the
-  //   login page.  Otherwise, the primary route function function will be called,
-  //   which, in this example, will redirect the user to the home page.
   app.get(RETURN_PATH,
     passport.authenticate('yahoo', { failureRedirect: '/cancel' }),
     function(req, res) {
       // Are we who we said we are?
-      // Question - What is the right way to handle a@gmail.com as input, but b@gmail.com as output?
       var start = new Date(),
           metric = 'routes.auth.yahoo.return',
           match = false;
@@ -56,6 +52,8 @@ exports.views = function(app) {
       var openid_emails = [];
 
       if (req.user && req.user.emails) {
+        var rawClaimedEmail = session.getClaimedEmail(req) || "";
+        var claimedEmail = rawClaimedEmail.toLowerCase();
         req.user.emails.forEach(function(email_obj, i) {
 
           // add the email to the list of all emails reported by
@@ -68,11 +66,20 @@ exports.views = function(app) {
             statsd.increment('warn.routes.auth.yahoo.return.no_email_value');
             logger.warn("Yahoo should have had list of emails with a value property on each " + email_obj);
           }
-          var email = email_obj.value;
+          var email = email_obj.value.toLowerCase();
           if (! match) {
-            logger.debug((typeof email), email);
-            if (email.toLowerCase() === session.getClaimedEmail(req).toLowerCase()) {
-              statsd.increment('routes.auth.yahoo.return.email_matched');
+            if (email === claimedEmail ||
+                pinCode.wasValidated(claimedEmail, req)) {
+
+              if (email === claimedEmail) {
+                statsd.increment('routes.auth.yahoo.return.email_matched');
+              } else {
+                // With a previously PIN verified claimed email,
+                // it is okay to treat it like the user's current email
+                email = claimedEmail;
+                statsd.increment('routes.auth.yahoo.return.emails_linked');
+              }
+
               var redirect_url = session.getBidUrl(baseUrl, req);
               match = true;
 
@@ -96,6 +103,10 @@ exports.views = function(app) {
       if (!match) {
         statsd.increment('warn.routes.auth.yahoo.return.no_emails_matched');
         logger.error('No email matched...');
+        // We store these wrong email addresses (okay address... Yahoo only returns
+        // one) under "mismatchedEmail". We will use this later to either:
+        // * Inform the user there is an auth error a@yahoo.com versus b@yahoo.com
+        // * Let the user do email verification loop for a@yahoo.com
         session.setMismatchEmail(openid_emails.join(", "), req);
         res.redirect(session.getMismatchUrl(baseUrl, req));
         statsd.timing(metric, new Date() - start);
