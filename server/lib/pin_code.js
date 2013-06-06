@@ -3,9 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('./configuration'),
+EventCounter = require('./event_counter'),
 logger = require('./logging').logger,
 sekrit = require('./sekrit'),
 session = require('./session_context');
+
+var eventCounter = EventCounter({
+  capacity: config.get('max_pin_codes'),
+  attempts: config.get('max_pin_attempts'),
+  ttlInSeconds: config.get('pin_counter_ttl_seconds')
+});
 
 /**
  * Validates user session and creates secret PIN
@@ -21,8 +28,6 @@ exports.generateSecret = function(req, cb) {
     if (err) {
       cb(err);
     } else {
-      req.pincodedb = {};
-
       // Remember User's PIN for later verification
       // We have no backend database.
       req.pincodedb.expected_pin = pinCode;
@@ -38,16 +43,20 @@ exports.generateSecret = function(req, cb) {
 exports.validateSecret = function(req, cb) {
   // Issue #218 Take extra time to validate PIN
   setTimeout(function() {
+    var claimedEmail = session.getClaimedEmail(req);
     if (!req.pincodedb) {
       return cb(new Error("Invalid state, missing pin code db cookie"), false);
+    } else if (false === eventCounter.allowed(claimedEmail)) {
+      return cb(new Error("Pin verification disabled"), false);
     }
+    eventCounter.increment(claimedEmail)
     var expectedPin = req.pincodedb.expected_pin;
     if (! req.body || ! req.body.pin) {
       logger.error("Invalid request format");
       return cb(new Error("Invalid request"), false);
     }
     return cb(null, expectedPin === req.body.pin);
-  }, 2000);
+  }, 1000);
 };
 
 /*
