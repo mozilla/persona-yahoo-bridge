@@ -2,10 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Index into two element array
+const DATE = 0;
+const COUNTER = 1;
+
 /**
  * An in memory data structure for a fixed capacity counter.
- * Each counter has an expiration for individual records
- * such that a user can retry after earlier attempts expire.
+ * Each counter has an expiration.
+ * A user can retry after earlier attempts expire.
  * Also, records expire, once their individual attempts
  * have expired, making room for new counters.
  */
@@ -34,12 +38,12 @@ module.exports = function(options) {
         throw new Error(
           'Programming error, attempted to create more counters that allowed');
       }
-      if (counters[email].length >= MAX_ATTEMPTS) {
+      if (counters[email][COUNTER] >= MAX_ATTEMPTS) {
         throw new Error(
           'Maximum events reached, unable to increment counter for ' +
           email + ' ' + counters[email].length);
       }
-      counters[email].push(new Date().getTime());
+      counters[email][COUNTER]++;
     },
     /**
      * Checks an EventCounter instance to see if we can increment a
@@ -55,33 +59,31 @@ module.exports = function(options) {
       if (Object.keys(counters).length + 1 >= MAX_COUNTERS) {
         this._gc();
       }
-      if (counters[email] && counters[email].length >= MAX_ATTEMPTS) {
+      if (counters[email] && counters[email][COUNTER] >= MAX_ATTEMPTS) {
         this._expireCounter(email);
       }
       if (Object.keys(counters).length + 1 >= MAX_COUNTERS) return false;
 
       this._ensureCounters(email);
-      return counters[email].length < MAX_ATTEMPTS;
+      return counters[email][COUNTER] < MAX_ATTEMPTS;
     },
 
     /* private */
     "_ensureCounters": function(email) {
       if (!counters[email]) {
-        counters[email] = [];
+        counters[email] = [new Date(), 0];
       }
     },
     "_expireCounter": function(email) {
-      var timestamps = counters[email],
-          expired = [],
+      var timestamp = counters[email][DATE],
+          then,
           that = this;
 
       then = new Date(that._getTime()),
       then.setSeconds(then.getSeconds() - options.ttlInSeconds);
 
-      // Walk backwards to avoid having to sort arrays, etc.
-      for (var i=expired.length - 1; i >= 0; i--) {
-        var index = expired[i];
-        counters[email].splice(index);
+      if (timestamp < then.getTime()) {
+        delete counters[email];
       }
     },
     "_gc": function() {
@@ -94,9 +96,6 @@ module.exports = function(options) {
 
       emails.forEach(function(email) {
         that._expireCounter(email);
-        if (0 === counters[email].length) {
-          delete counters[email];
-        }
       });
     },
     "_getTime": function() {
