@@ -34,7 +34,15 @@
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <% } %>
 <script type="text/javascript">
-localStorage.height = window.outerHeight || document.documentElement.offsetHeight;
+// IE8 never tells you the height of the window including browser chrome.
+// As a workaround, we know we open the dialog to 375x700 by default, so assume
+// that's the current height of the window.
+// The height of the chrome is then 375 minus window.outerHeight.
+// IE8 doesn't have outerHeight, it has document.documentElement.offsetHeight.
+// Regardless, once we know the size of the chrome, we can resize correctly
+// by adding chromeSize to 375 when we resize.
+localStorage.height = window.outerHeight ||
+  375 + (375 - document.documentElement.offsetHeight);
 localStorage.width = window.outerWidth || document.documentElement.offsetWidth;
 
 navigator.id.beginAuthentication(function(email) {
