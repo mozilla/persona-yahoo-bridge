@@ -1,5 +1,3 @@
-    // From mozilla/browserid resources/static/pages/page_helpers.js
-    window.resizeTo(700, 375);
     $('button.cancel').click(function(e) {
       e.preventDefault();
         navigator.id.raiseAuthenticationFailure(
