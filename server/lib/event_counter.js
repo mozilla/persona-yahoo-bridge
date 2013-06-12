@@ -90,10 +90,6 @@ module.exports = function(options) {
       var emails = Object.keys(counters),
           that = this;
 
-      if (! that._getTime) {
-        throw new Error('What missing _getTime');
-      }
-
       emails.forEach(function(email) {
         that._expireCounter(email);
       });
