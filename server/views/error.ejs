@@ -39,6 +39,10 @@
       <script src="<%= browserid_server %>/authentication_api.js"></script>
     <% } %>    
     <%- cachify_js('/js/lib/jquery.min.js') %>
+    <%- cachify_js('/js/resize-dialog.min.js') %>
+    <script>
+    BIGTENT.resizeDialog();
+    </script>
     <%- cachify_js('/js/error.min.js') %>
   </body>
 </html>

@@ -33,10 +33,10 @@
 <% } else { %>
 <script type="text/javascript" src="<%= browserid_server %>/authentication_api.js"></script>
 <% } %>
-<script type="text/javascript">
-localStorage.height = window.outerHeight || document.documentElement.offsetHeight;
-localStorage.width = window.outerWidth || document.documentElement.offsetWidth;
 
+<%- cachify_js('/js/resize-dialog.min.js') %>
+<script type="text/javascript">
+BIGTENT.recordDialogSize();
 navigator.id.beginAuthentication(function(email) {
   if (email) {
     window.location.pathname = '/proxy/' + encodeURIComponent(email);
