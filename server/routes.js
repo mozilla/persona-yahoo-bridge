@@ -318,14 +318,16 @@ exports.init = function(app) {
     pinCode.generateSecret(req, function(err, pin){
       if (err) {
         logger.error(err);
-        return res.send(400, "Unable to generate secret");
+        res.status(400);
+        return res.send("Unable to generate secret");
       }
       var domain, domainInfo, providerName,
           email = session.getClaimedEmail(req);
 
       if (!email) {
         logger.error("Session is missing claimed email");
-        return res.send(400, "Session is missing claimed email");
+        res.status(400);
+        return res.send("Session is missing claimed email");
       }
       try {
         domain = email.split('@')[1];
@@ -334,12 +336,14 @@ exports.init = function(app) {
       } catch (e) {
         statsd.increment('routes.err.pin_code_request.bad_provider');
         statsd.timing('routes.pin_code_request', new Date() - start);
-        return res.send(500, "Error preparing webmail provider name");
+        res.status(500);
+        return res.send("Error preparing webmail provider name");
       }
       if (err) {
         statsd.increment('routes.err.pin_code_request.error_gen_secret');
         statsd.timing('routes.pin_code_request', new Date() - start);
-        res.send(400, err);
+        res.status(400);
+        res.send(err);
       } else {
         var langContext = {
           lang: req.lang,
@@ -367,7 +371,8 @@ exports.init = function(app) {
         logger.error(err);
         statsd.increment('routes.err.pin_code_check.validate_secret');
         statsd.timing('routes.pin_code_check', new Date() - start);
-        return res.send(401, 'There was a problem with your request.');
+        res.status(401);
+        return res.send('There was a problem with your request.');
 
       } else if (pinMatched) {
         pinCode.markVerified(session.getClaimedEmail(req), req);
