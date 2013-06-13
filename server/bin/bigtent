@@ -143,6 +143,12 @@ app.use(express.static(static_root));
 app.error(function(err, req, res, next) {
   logger.error(err.stack || err);
   res.render('error', {
+        dev_mode: false,
+        browserid_server: '',
+        layout: false,
+        lang: req.lang || 'en-us',
+        lang_dir: req.lang || 'ltr',
+        gettext: req.gettext || function(x) {return x; },
         claimed: session.getClaimedEmail(req)
   });
 });
