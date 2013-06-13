@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
-accountLink = require('./lib/account_linking'),
+pinCode = require('./lib/pin_code'),
 certify = require('./lib/certifier'),
 config = require('./lib/configuration'),
 crypto = require('./lib/crypto.js'),
@@ -176,12 +176,18 @@ exports.init = function(app) {
     if (authed_email !== current_user) {
       var active_emails = session.getActiveEmails(req);
       if (active_emails[authed_email] === true) {
-        logger.debug('User has switched current email from ' + current_user +
-                     'to ' + authed_email);
         current_user = authed_email;
         session.setCurrentUser(req, authed_email);
         statsd.increment('routes.provision.email_flopped');
       }
+    }
+
+    // PIN verification - Did the user prove they can use a different email
+    // address via PIN verification from the id_mismatch screen?
+    if (pinCode.wasValidated(authed_email, req)) {
+      current_user = authed_email;
+      session.setCurrentUser(req, authed_email);
+      statsd.increment('routes.provision.pin_based');
     }
 
     var certified_cb = function(err, cert) {
@@ -302,22 +308,42 @@ exports.init = function(app) {
     statsd.timing('routes.id_mismatch', new Date() - start);
   });
 
-  // The user's claimed and OpenID (mismatched) emails didn't
-  // match and the user wants to link them together.
-  // We'll send them an email verification
-  app.post('/link_accounts_request', function(req, res) {
-    accountLink.generateSecret(req, res, function(err, email,
-                                                   mismatchEmail, secret) {
-      var domain, domainInfo, providerName;
+  // The user's claimed and OpenID (mismatched) emails didn't match.
+  // We'll send them an email verification with a PIN
+  // We'll put the PIN in a secure cookie
+  app.post('/pin_code_request', function(req, res) {
+    var start = new Date();
+
+    statsd.increment('routes.pin_code_request.post');
+    pinCode.generateSecret(req, function(err, pin){
+      if (err) {
+        logger.error(err);
+        res.status(400);
+        return res.send("Unable to generate secret");
+      }
+      var domain, domainInfo, providerName,
+          email = session.getClaimedEmail(req);
+
+      if (!email) {
+        logger.error("Session is missing claimed email");
+        res.status(400);
+        return res.send("Session is missing claimed email");
+      }
       try {
         domain = email.split('@')[1];
         domainInfo = config.get('domain_info');
         providerName = domainInfo[domain].providerName;
       } catch (e) {
-        return res.send(500, "Error preparing webmail provider name");
+        statsd.increment('routes.err.pin_code_request.bad_provider');
+        statsd.timing('routes.pin_code_request', new Date() - start);
+        res.status(500);
+        return res.send("Error preparing webmail provider name");
       }
       if (err) {
-        res.send(400, err);
+        statsd.increment('routes.err.pin_code_request.error_gen_secret');
+        statsd.timing('routes.pin_code_request', new Date() - start);
+        res.status(400);
+        res.send(err);
       } else {
         var langContext = {
           lang: req.lang,
@@ -327,41 +353,46 @@ exports.init = function(app) {
           format: req.format
         };
         var ctx = {
-          mismatchEmail: mismatchEmail,
-          secret: secret,
+          pin_code: pin,
           webmail: providerName
         };
-        emailer.sendLinkAccounts(email, ctx, langContext);
+        emailer.sendPinVerification(email, ctx, langContext);
+        statsd.timing('routes.pin_code_request', new Date() - start);
         res.send('OK');
       }
     });
   });
 
-  app.get('/link_accounts', function(req, res) {
-    var secret = req.query.token;
-    var errorMsg;
+  app.post('/pin_code_check', function(req, res) {
+    var errorMsg, redirectUrl, start = new Date();
+    statsd.increment('routes.pin_code_check.post');
+    pinCode.validateSecret(req, function(err, pinMatched) {
+      if (err) {
+        logger.error(err);
+        statsd.increment('routes.err.pin_code_check.validate_secret');
+        statsd.timing('routes.pin_code_check', new Date() - start);
+        res.status(401);
+        return res.send('There was a problem with your request.');
 
-    accountLink.validateSecret(req, res, secret, function(err, emails) {
-      var claimEmail, mismatchEmail;
-
-      if (err || emails.length !== 2) {
-        if (err) logger.error(err);
-        errorMsg = req.gettext("There was a problem with your link.");
+      } else if (pinMatched) {
+        pinCode.markVerified(session.getClaimedEmail(req), req);
+        session.setCurrentUser(req, session.getClaimedEmail(req));
+        redirectUrl = session.getBidUrl(baseUrl, req);
+        session.clearClaimedEmail(req);
+        session.clearBidUrl(req);
       } else {
-        // Pull emails out of email token, so links can be used without
-        // depending on session state
-        claimEmail = emails[0];
-        mismatchEmail = emails[1];
-        accountLink.recordLink(claimEmail, mismatchEmail, req);
+        statsd.increment('routes.err.pin_code_check.pin_mismatch');
+        errorMsg = req.gettext("Sorry, wrong PIN code");
       }
 
-      var ctx = {
-        claimed: claimEmail,
-        other: mismatchEmail,
+      var payload = {
+        pinMatched: pinMatched,
+        redirectUrl: redirectUrl,
         error: errorMsg
       };
-
-      res.render("link_accounts_confirm", ctx);
+      statsd.timing('routes.pin_code_check', new Date() - start);
+      res.setHeader('Content-Type', 'application/json');
+      return res.send(JSON.stringify(payload));
     });
   });
 
@@ -430,7 +461,8 @@ exports.init = function(app) {
       var pk = JSON.stringify(publicKey);
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'max-age=' + timeout);
-      res.setHeader('Last-Modified', new Date(well_known_last_mod).toUTCString());
+      res.setHeader('Last-Modified',
+                    new Date(well_known_last_mod).toUTCString());
       res.render('well_known_browserid', {
         public_key: pk
       });

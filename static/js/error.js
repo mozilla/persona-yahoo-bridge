@@ -6,16 +6,37 @@
             'user authenticated as wrong user.');
     });
 
-    $('button.continue').click(function(e) {
+    $('button.js-continue').click(function(e) {
       e.preventDefault();
       $('#auth_error').hide();
-      $.post('/link_accounts_request', {"_csrf": $('[name=csrf_token]').val()});
-      $('#link_accounts_prompt').show();
+      $.post('/pin_code_request', {"_csrf": $('[name=csrf_token]').val()});
+      $('#pin_code_prompt').show();
+      $('[name=pin]').focus();
     });
 
-    $('button.close').click(function(e) {
+    $('#check-pin-error').hide();
+    $('#check-pin').submit(function(e) {
       e.preventDefault();
-      window.close();
+      $('#check-pin-error').hide('fast');
+      $('input, button').attr('disabled', true);
+      var jxhr = $.post('/pin_code_check', {
+        "_csrf": $('[name=csrf_token]').val(),
+        "pin": $('[name=pin]').val()
+      }, function(data) {
+        $('input, button').removeAttr('disabled');
+        if (data.error || data.pinMatched === false ||
+            data.pinMatched === 'false') {
+            showTooltip($('[name=pin]'));
+        } else {
+          window.location = data.redirectUrl;
+        }
+      });
+      jxhr.fail(function(a, b, c) {
+        // This happens when too many PIN attempts have
+        // taken place (for this address or in general)
+        // Leave form disabled, show error
+        showTooltip($('[name=pin]'));
+      });
     });
 
     $(window).load(function(){
@@ -27,5 +48,19 @@
     function setMinHeight(){
       var windowHeight = $(window).height();
       var headerHeight = $('header').height();
-      $('#content').css('minHeight', windowHeight - headerHeight);
     }
+
+  function showTooltip(target) {
+    var tooltip = $('.tooltip'),
+        targetOffset = target.offset();
+
+    targetOffset.top -= (tooltip.parent().outerHeight() + 5);
+    targetOffset.left += 10;
+
+    tooltip.css(targetOffset);
+    tooltip.fadeIn(function() {
+      setTimeout(function() {
+        $('.tooltip').fadeOut();
+      }, 2000);
+    });
+  }

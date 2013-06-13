@@ -7,18 +7,15 @@
     "secret": "YOU MUST CHANGE ME",
     "duration": 86400000
   },
-  "account_link_sessions": {
-    "cookie_name": "accountdb",
+  "pin_code_sessions": {
+    "cookie_name": "pincodedb",
     "secret": "YOU MUST CHANGE ME AND BE DIFFERENT",
-    "duration": 31536000000
-  },
-  "account_link_token": {
-    "secret": "YOU MUST CHANGE ME AND ALSO BE DIFFERENT"
+    "duration": 600000
   },
   "env": "development",
   "issuer": "localhost",
   "use_https": false,
-  "translation_directory": "/home/ozten/bigtent/static/i18n",
+  "translation_directory": "static",
   "domain_info": {
     "gmail.com": {
       "strategy": "google",

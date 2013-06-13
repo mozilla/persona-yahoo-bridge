@@ -25,13 +25,23 @@ var conf = module.exports = convict({
     secret: 'string = "YOU MUST CHANGE ME"',
     duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
   },
-  account_link_sessions: {
-    cookie_name: 'string = "account_links"',
+  pin_code_sessions: {
+    cookie_name: 'string = "pincodedb"',
     secret: 'string = "YOU MUST CHANGE ME AND BE DIFFERENT"',
-    duration: 'integer = '  + (365 * 24 * 60 * 60 * 1000) // 1 year
+    duration: 'integer = '  + (10 * 60 * 1000) // 10 minutes
   },
-  account_link_token: {
-    secret: 'string = "YOU MUST CHANGE ME AND ALSO BE DIFFERENT"'
+  pin_length: 'integer{1,100} = 6',
+  max_pin_codes: {
+    doc: "Maximum number of unique email addresses we'll keep counters on, before system wide lockout",
+    format: 'integer = 1000000'
+  },
+  max_pin_attempts: {
+    doc: "Maximum number of bad PIN attempts allowed, before user lockout",
+    format: 'integer = 5'
+  },
+  pin_counter_ttl_seconds: {
+    doc: "Time in seconds before expiring a counter",
+    format: 'integer = 600' // 10 minutes
   },
   default_lang: 'string = "en-US"',
   debug_lang: 'string = "it-CH"',

@@ -35,10 +35,10 @@ const TEMPLATE_PATH = path.join(__dirname, "..", "views", "email_templates");
 // A real, locale-aware gettext function is used when in doSend.
 var gettext = function(a) { return a; };
 var templates = {
-  "link_accounts": {
-    landing: 'link_accounts',
+  "pin_verification": {
+    landing: 'pin_verification',
     subject: gettext("Confirm email address for Persona"),
-    templatePath: path.join(TEMPLATE_PATH, 'link_accounts.ejs')
+    templatePath: path.join(TEMPLATE_PATH, 'pin_verification.ejs')
   }
 };
 
@@ -66,17 +66,11 @@ function doSend(email_type, email, context, langContext) {
     throw new Error("unknown email type: " + email_type);
   }
 
-  var public_url = [
-    config.get('public_url'), '/', templates[email_type].landing,
-    '?token=', encodeURIComponent(context.secret)
-  ].join("");
-
   if (config.get('email_to_console')) {
-    console.log("\nVERIFICATION URL:\n" + public_url + "\n");
+    console.log("\nVERIFICATION PIN:\n" + context.pin_code + "\n");
   } else {
     withTemplate(email_type, function(err, render) {
       var templateArgs = _.extend({
-        link: public_url,
         gettext: langContext.gettext,
         format: langContext.format
       }, context);
@@ -85,8 +79,7 @@ function doSend(email_type, email, context, langContext) {
         sender: "Persona <no-reply@persona.org>",
         to: email,
         subject: langContext.gettext(templates[email_type].subject),
-        text: render(templateArgs),
-        headers: { 'X-BrowserID-VerificationURL': public_url }
+        text: render(templateArgs)
       };
 
       emailer.send_mail(mailArgs, function(err, response) {
@@ -99,6 +92,6 @@ function doSend(email_type, email, context, langContext) {
   }
 }
 
-exports.sendLinkAccounts = function(email, msgContext, langContext) {
-  doSend('link_accounts', email, msgContext, langContext);
+exports.sendPinVerification = function(email, msgContext, langContext) {
+  doSend('pin_verification', email, msgContext, langContext);
 };

@@ -86,16 +86,16 @@ app.use(clientSessions({
   }
 }));
 
-var account_link_config = config.get('account_link_sessions');
+var pin_code_config = config.get('pin_code_sessions');
 
 app.use(clientSessions({
-  cookieName: account_link_config.cookie_name,
-  secret:     account_link_config.secret,
-  duration:   account_link_config.duration,
+  cookieName: pin_code_config.cookie_name,
+  secret:     pin_code_config.secret,
+  duration:   pin_code_config.duration,
   cookie: {
     secure: true,
     httpOnly: true,
-    maxAge: account_link_config.duration
+    maxAge: pin_code_config.duration
   }
 }));
 

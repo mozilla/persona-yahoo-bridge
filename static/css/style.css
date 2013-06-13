@@ -142,8 +142,7 @@ h2 {
   line-height: 100%;
 }
 
-/* 471 */
-#wait, #delay, #error {
+.vertical {
   background-color: #dadee1;
   background-image: url("/i/grain.png"), -webkit-gradient(linear, left top, left bottom, from(#dadee1), to(#c7ccd0));
   background-image: url("/i/grain.png"), -webkit-linear-gradient(top, #dadee1, #c7ccd0);
@@ -166,8 +165,10 @@ h2 {
 /* 503 */
 #error .contents, #wait .contents {
     max-width: 430px;
-    margin: 0 auto;
+    margin: 0px auto;
 }
+
+#error { padding-top: 15px; }
 
 /* browserid/resources/static/dialog/css/style.css */
 
@@ -189,8 +190,10 @@ body {
 header, footer {
     position: absolute;
     z-index: 2;
-    box-shadow: 0 0 24px rgba(0, 0, 0, 0.05) inset;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.05) inset;    
 }
+
+footer { display: none; }
 
 /* 46 */
 header {
@@ -255,7 +258,6 @@ section {
 /* min-height is calculated in JS */
 #content {
     position: absolute;
-    overflow: hidden;
     left: 0;
     right: 0;
     top: 61px;
@@ -323,6 +325,7 @@ section {
 button{
   float: none;
   margin-top: 25px;
+  margin-bottom: 10px;
 }
 
 #hAlign {
@@ -355,5 +358,52 @@ td, th {
   margin: 0px;
 }
 
-#token-error h2, #token-error p { color: rgb(170, 20, 1); }
-#token-error h2 { font-weight: 900; }
+input[type=text] {
+      color: #383838;
+    font-size: 13px;
+    padding: 5px;
+    margin-top: 6px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #b2b2b2;
+    outline: none;
+    border-radius: 3px;
+    box-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+}
+
+.tooltip {
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 0 1px #333;
+  line-height: 16px;
+  background-color: #aa1401;
+  background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(218, 81, 50, 0.9)), to(rgba(169, 19, 0, 1)));
+  background-image: -webkit-linear-gradient(top, rgba(218, 81, 50, 0.9), rgba(169, 19, 0, 1));
+  background-image:    -moz-linear-gradient(top, rgba(218, 81, 50, 0.9), rgba(169, 19, 0, 1));
+  background-image:     -ms-linear-gradient(top, rgba(218, 81, 50, 0.9), rgba(169, 19, 0, 1));
+  background-image:      -o-linear-gradient(top, rgba(218, 81, 50, 0.9), rgba(169, 19, 0, 1));
+  background-image:         linear-gradient(top, rgba(218, 81, 50, 0.9), rgba(169, 19, 0, 1));
+  border-radius: 4px;
+  padding: 10px 15px;
+  box-shadow: 0 1px #666;
+
+  display: none;
+  max-width: 275px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 5;
+}
+
+.tooltip .arrow-down {
+  /* This is an awesome CSS only arrow! */
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #aa1401;
+  border-top: 10px solid rgba(169, 19, 0, 1);
+  position: absolute;
+  bottom: -10px;
+  left: 20px;
+}
