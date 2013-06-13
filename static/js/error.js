@@ -19,7 +19,7 @@
       e.preventDefault();
       $('#check-pin-error').hide('fast');
       $('input, button').attr('disabled', true);
-      $.post('/pin_code_check', {
+      var jxhr = $.post('/pin_code_check', {
         "_csrf": $('[name=csrf_token]').val(),
         "pin": $('[name=pin]').val()
       }, function(data) {
@@ -30,6 +30,12 @@
         } else {
           window.location = data.redirectUrl;
         }
+      });
+      jxhr.fail(function(a, b, c) {
+        // This happens when too many PIN attempts have
+        // taken place (for this address or in general)
+        // Leave form disabled, show error
+        showTooltip($('[name=pin]'));
       });
     });
 

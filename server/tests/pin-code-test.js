@@ -44,9 +44,9 @@ suite.addBatch({
         'Is good for matches': function(err, isValid) {
           assert.isNull(err);
           assert.ok(isValid);
-	    var end = new Date();
-            assert.ok(end - goodTime >= 2000,
-		      'Was hoping for more than 2000 millis, but got ' + (end - goodTime));
+            var end = new Date();
+            assert.ok(end - goodTime >= 1000,
+                      'Was hoping for more than 1000 millis, but got ' + (end - goodTime));
         }
       },
       'Not Valid': {
@@ -61,9 +61,9 @@ suite.addBatch({
         'Will not match': function(err, isValid) {
           assert.isNull(err);
           assert.equal(false, isValid);
-	    var end = new Date();
-            assert.ok(end - badTime >= 2000,
-		      'Was hoping for more than 2000 millis, but got ' + (end - badTime));
+            var end = new Date();
+            assert.ok(end - badTime >= 1000,
+                      'Was hoping for more than 1000 millis, but got ' + (end - badTime));
         }
       }
     },
