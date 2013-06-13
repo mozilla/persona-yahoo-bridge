@@ -15,7 +15,7 @@
   "env": "development",
   "issuer": "localhost",
   "use_https": false,
-  "translation_directory": "/home/ozten/bigtent/static/i18n",
+  "translation_directory": "static",
   "domain_info": {
     "gmail.com": {
       "strategy": "google",
