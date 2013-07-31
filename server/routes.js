@@ -86,7 +86,7 @@ exports.init = function(app) {
       windowslive: { scope: 'wl.emails' }
     };
 
-    var domain = req.params.email.split('@')[1];
+    var domain = valid_email.domain(req.params.email);
 
     if (!domainInfo.hasOwnProperty(domain)) {
       logger.error('User landed on /proxy/:email for an unsupported domain');
@@ -282,10 +282,10 @@ exports.init = function(app) {
 
 
     if (claimed && claimed.indexOf('@') !== -1) {
-      domain = claimed.split('@')[1];
+      domain = valid_email.domain(claimed);
     } else if (req.query.email && req.query.email.indexOf('@') !== -1) {
       claimed = req.query.email;
-      domain = claimed.split('@')[1];
+      domain = valid_email.domain(claimed);
     } else {
       claimed = "";
       domain = "Unknown";
@@ -330,7 +330,7 @@ exports.init = function(app) {
         return res.send("Session is missing claimed email");
       }
       try {
-        domain = email.split('@')[1];
+        domain = valid_email.domain(email);
         domainInfo = config.get('domain_info');
         providerName = domainInfo[domain].providerName;
       } catch (e) {

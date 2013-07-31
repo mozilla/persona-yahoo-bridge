@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (address) {
+exports = module.exports = function (address) {
     if (typeof address !== 'string') {
         return false;
     }
@@ -19,3 +19,7 @@ module.exports = function (address) {
            // domain side allowed to be up to 253 bytes long
            && parts[1] && parts[1].length <= 253;
 };
+
+exports.domain = function domainFromEmail(email) {
+    return email.split('@')[1].toLowerCase();
+}
