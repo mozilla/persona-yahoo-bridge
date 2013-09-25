@@ -75,12 +75,19 @@ app.use(function(req, res, next) {
   next();
 });
 
+var secureCookies = true;
+if (false === config.get('use_https') &&
+    'development' === config.get('env')) {
+  logger.warn('Allowing insecure Cookies');
+  secureCookies = false;
+}
+
 app.use(clientSessions({
   cookieName: sess_config.cookie_name,
   secret:     sess_config.secret,
   duration:   sess_config.duration,
   cookie: {
-    secure: true,
+    secure: secureCookies,
     httpOnly: true,
     maxAge: sess_config.duration
   }
@@ -93,7 +100,7 @@ app.use(clientSessions({
   secret:     pin_code_config.secret,
   duration:   pin_code_config.duration,
   cookie: {
-    secure: true,
+    secure: secureCookies,
     httpOnly: true,
     maxAge: pin_code_config.duration
   }
@@ -157,9 +164,10 @@ if (config.get('disable_bigtent')) {
   logger.warn('DISABLED: This instance of BigTent is disabled. It will not proxy traffic.');
 }
 
-var lstnUrl;
+var baseUrl;
 var port;
 
+// use_https was mainly used for development, but is typically false now
 if (config.get('use_https')) {
   // Development only... Ops runs this behind nginx
   port = 443;
@@ -172,16 +180,17 @@ if (config.get('use_https')) {
     }
     throw e;
   });
-  lstnUrl = util.format('https://%s', config.get('issuer'));
+  baseUrl = util.format('https://%s', config.get('issuer'));
 } else {
-  port = process.env.PORT || 3030;
+  port = config.get('bigtent_port');
   app.listen(port, '0.0.0.0');
-  lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
+
 }
+
 statsd.increment('server.started');
 process.nextTick(function() {
   // 1) Line is used by test/lib/start_stop.js
   // 2) Dev/Ops feedback
-  console.log('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on ' + lstnUrl);
+  console.log('Everyone is welcome in the Persona ID Big Tent... Even you. Listening on ' + session.getBaseUrl());
   healthCheck();
 });
