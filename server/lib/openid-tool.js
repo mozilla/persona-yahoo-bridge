@@ -6,6 +6,17 @@ const email = require('./validation/email');
 
 function validParams(params) {
   /* jshint maxcomplexity:15 */
+  var signed = (params['openid.signed'] || '').split(',');
+
+  // first, make sure the Claimed ID is a Yahoo one.
+  if (signed.indexOf('claimed_id') === -1 ) { return false; }
+  var yahooAccountRegex = /^https:\/\/me.yahoo.com\/a\//;
+  if (!yahooAccountRegex.test(params['openid.claimed_id'])) { return false; }
+
+  // And because this is only a Yahoo bridge, hardcode the OpenID Endpoint
+  var yahooEndpoint = 'https://open.login.yahooapis.com/openid/op/auth';
+  if (params['openid.op_endpoint'] !== yahooEndpoint) { return false; }
+  if (signed.indexOf('op_endpoint') === -1 ) { return false; }
 
   // Find all AXSchema email types
   var emailTypes = [];
@@ -37,19 +48,10 @@ function validParams(params) {
 
   if (params[nsPath] !== 'http://openid.net/srv/ax/1.0') { return false; }
   // The namespace, email type, and email value must all be signed
-  var signed = (params['openid.signed'] || '').split(',');
   if (signed.indexOf('ns.' + namespace) === -1) { return false; }
   if (signed.indexOf(namespace + '.value.' + typename) === -1) { return false; }
   if (signed.indexOf(namespace + '.type.' + typename) === -1) { return false; }
 
-  // Lastly, because this is only a Yahoo bridge, hardcode the OpenID Endpoint
-  var yahooEndpoint = 'https://open.login.yahooapis.com/openid/op/auth';
-  if (params['openid.op_endpoint'] !== yahooEndpoint) { return false; }
-  if (signed.indexOf('op_endpoint') === -1 ) { return false; }
-  // ...and make sure the Claimed ID is a Yahoo one.
-  var yahooAccountRegex = /^https:\/\/me.yahoo.com\/a\//;
-  if (!yahooAccountRegex.test(params['openid.claimed_id'])) { return false; }
-  if (signed.indexOf('claimed_id') === -1 ) { return false; }
   return true;
 }
 
