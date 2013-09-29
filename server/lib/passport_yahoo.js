@@ -40,9 +40,11 @@ exports.views = function(app) {
   // GET /auth/yahoo/return
   app.get(RETURN_PATH,
     function(req, res, next) {
+      // Bug#920301 detect MITM which would have removed email value from
+      // the signed components.
       if (! oidTool.validParams(req.query)) {
         statsd.increment('warn.routes.auth.yahoo.return.mitm');
-        logger.error('MITM detected' + signed);
+        logger.error('MITM detected');
         throw new Error('email not signed');
       }
       next();
@@ -53,10 +55,6 @@ exports.views = function(app) {
       var start = new Date(),
           metric = 'routes.auth.yahoo.return',
           match = false;
-
-      // Bug#920301 detect MITM which would have removed email value from
-      // the signed components.
-      var signed = req.query['openid.signed'] || '';
 
       statsd.increment('routes.auth.yahoo.return.get');
 

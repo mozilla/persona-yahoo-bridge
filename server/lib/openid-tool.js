@@ -19,7 +19,7 @@ function validParams(params) {
     var value = params['openid.'+key];
     if (typeof value !== 'string') { return false; }
     if (/\n/.test(value)) { return false; }
-  };
+  });
 
   // first, make sure the Claimed ID is a Yahoo one.
   if (signed.indexOf('claimed_id') === -1 ) { return false; }
