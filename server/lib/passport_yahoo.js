@@ -6,12 +6,14 @@ const pinCode = require('./pin_code'),
 config = require('../lib/configuration'),
 YahooStrategy = require('passport-yahoo').Strategy,
 logger = require('./logging').logger,
+oidTool = require('./openid-tool'),
 passport = require('passport'),
 session = require('./session_context'),
 statsd = require('./statsd'),
 util = require('util');
 
 const RETURN_PATH = '/auth/yahoo/return';
+const OPENID_EMAIL_PARAM = 'ax.value.email';
 
 var
 baseUrl = util.format("https://%s", config.get('issuer')),
@@ -44,6 +46,17 @@ exports.views = function(app) {
       var start = new Date(),
           metric = 'routes.auth.yahoo.return',
           match = false;
+
+      // Bug#920301 detect MITM which would have removed email value from
+      // the signed components.
+      var signed = req.query['openid.signed'] || '';
+
+      if (signed.split(',').indexOf(OPENID_EMAIL_PARAM) === -1 ||
+          ! oidTool.validParams(req.query)) {
+        statsd.increment('warn.routes.auth.yahoo.return.mitm');
+        logger.error('MITM detected' + signed);
+        throw new Error('email not signed');
+      }
 
       statsd.increment('routes.auth.yahoo.return.get');
 
