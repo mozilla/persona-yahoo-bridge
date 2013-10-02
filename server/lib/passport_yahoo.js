@@ -13,7 +13,6 @@ statsd = require('./statsd'),
 util = require('util');
 
 const RETURN_PATH = '/auth/yahoo/return';
-const OPENID_EMAIL_PARAM = 'ax.value.email';
 
 var
 baseUrl = util.format("https://%s", config.get('issuer')),
@@ -40,23 +39,22 @@ exports.init = function(app) {
 exports.views = function(app) {
   // GET /auth/yahoo/return
   app.get(RETURN_PATH,
+    function(req, res, next) {
+      // Bug#920301 detect MITM which would have removed email value from
+      // the signed components.
+      if (! oidTool.validParams(req.query)) {
+        statsd.increment('warn.routes.auth.yahoo.return.mitm');
+        logger.error('MITM detected');
+        throw new Error('email not signed');
+      }
+      next();
+    },
     passport.authenticate('yahoo', { failureRedirect: '/cancel' }),
     function(req, res) {
       // Are we who we said we are?
       var start = new Date(),
           metric = 'routes.auth.yahoo.return',
           match = false;
-
-      // Bug#920301 detect MITM which would have removed email value from
-      // the signed components.
-      var signed = req.query['openid.signed'] || '';
-
-      if (signed.split(',').indexOf(OPENID_EMAIL_PARAM) === -1 ||
-          ! oidTool.validParams(req.query)) {
-        statsd.increment('warn.routes.auth.yahoo.return.mitm');
-        logger.error('MITM detected' + signed);
-        throw new Error('email not signed');
-      }
 
       statsd.increment('routes.auth.yahoo.return.get');
 
@@ -81,14 +79,12 @@ exports.views = function(app) {
           }
           var email = email_obj.value.toLowerCase();
           if (! match) {
-
             if (email === claimedEmail ||
                 pinCode.wasValidated(claimedEmail, req)) {
 
               if (email === claimedEmail) {
                 statsd.increment('routes.auth.yahoo.return.email_matched');
               } else {
-
                 // With a previously PIN verified claimed email,
                 // it is okay to treat it like the user's current email
                 email = claimedEmail;
