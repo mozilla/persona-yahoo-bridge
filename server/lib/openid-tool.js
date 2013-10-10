@@ -24,7 +24,7 @@ function validParams(params) {
   // first, make sure the Claimed ID is a Yahoo one.
   if (signed.indexOf('claimed_id') === -1 ) { return false; }
   if (typeof params['openid.claimed_id'] !== 'string') { return false; }
-  if (params['openid.claimed_id'].indexOf('https://me.yahoo.com/a/') !== 0) {
+  if (params['openid.claimed_id'].indexOf('https://me.yahoo.com/') !== 0) {
     return false;
   }
 
