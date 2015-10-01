@@ -138,7 +138,7 @@ app.use(function(req, res, next) {
 });
 
 var static_root = path.join(__dirname, '..', '..', 'static');
-app.use(express.static(static_root));
+app.use(express.static(static_root, { redirect: false }));
 
 app.error(function(err, req, res, next) {
   logger.error(err.stack || err);
