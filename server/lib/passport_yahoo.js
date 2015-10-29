@@ -15,9 +15,8 @@ util = require('util');
 const RETURN_PATH = '/auth/yahoo/return';
 
 var
-baseUrl = util.format("https://%s", config.get('issuer')),
-return_url = util.format("%s%s", baseUrl, RETURN_PATH),
-realm = util.format("%s/", baseUrl);
+return_url = util.format("%s%s", session.getBaseUrl(), RETURN_PATH),
+realm = util.format("%s/", session.getBaseUrl());
 
 // Register the YahooStrategy with Passport.
 var strategy = new YahooStrategy({
@@ -65,6 +64,7 @@ exports.views = function(app) {
       if (req.user && req.user.emails) {
         var rawClaimedEmail = session.getClaimedEmail(req) || "";
         var claimedEmail = rawClaimedEmail.toLowerCase();
+
         req.user.emails.forEach(function(email_obj, i) {
 
           // add the email to the list of all emails reported by
@@ -91,7 +91,7 @@ exports.views = function(app) {
                 statsd.increment('routes.auth.yahoo.return.emails_linked');
               }
 
-              var redirect_url = session.getBidUrl(baseUrl, req);
+              var redirect_url = session.getBidUrl(req);
               match = true;
 
               session.clearClaimedEmail(req);
@@ -107,7 +107,7 @@ exports.views = function(app) {
       } else {
         logger.warn("Yahoo should have had user and user.emails" + req.user);
         statsd.increment('warn.routes.auth.yahoo.return.no_emails');
-        res.redirect(session.getErrorUrl(baseUrl, req));
+        res.redirect(session.getErrorUrl(req));
         statsd.timing(metric, new Date() - start);
       }
 
@@ -119,7 +119,7 @@ exports.views = function(app) {
         // * Inform the user there is an auth error a@yahoo.com versus b@yahoo.com
         // * Let the user do email verification loop for a@yahoo.com
         session.setMismatchEmail(openid_emails.join(", "), req);
-        res.redirect(session.getMismatchUrl(baseUrl, req));
+        res.redirect(session.getMismatchUrl(req));
         statsd.timing(metric, new Date() - start);
       }
 

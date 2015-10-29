@@ -18,7 +18,6 @@ valid_email = require('./lib/validation/email');
 
 exports.init = function(app) {
   var well_known_last_mod = new Date().getTime();
-  var baseUrl = util.format("https://%s", config.get('issuer'));
 
   // see issue #169
   // appropriate for all templates that do not change between server
@@ -90,7 +89,7 @@ exports.init = function(app) {
 
     if (!domainInfo.hasOwnProperty(domain)) {
       logger.error('User landed on /proxy/:email for an unsupported domain');
-      res.redirect(session.getErrorUrl(baseUrl, req));
+      res.redirect(session.getErrorUrl(req));
     } else {
       var strategy = domainInfo[domain].strategy;
 
@@ -280,7 +279,6 @@ exports.init = function(app) {
     domain,
     domainInfo = config.get('domain_info');
 
-
     if (claimed && claimed.indexOf('@') !== -1) {
       domain = claimed.split('@')[1];
     } else if (req.query.email && req.query.email.indexOf('@') !== -1) {
@@ -292,10 +290,9 @@ exports.init = function(app) {
     }
 
     statsd.increment('routes.id_mismatch.get');
-
     if (!domainInfo.hasOwnProperty(domain)) {
       logger.error('User landed on /id_mismatch for an unsupported domain');
-      res.redirect(session.getErrorUrl(baseUrl, req));
+      res.redirect(session.getErrorUrl(req));
     } else {
       res.render('id_mismatch', {
         claimed: claimed,
@@ -306,6 +303,10 @@ exports.init = function(app) {
     }
 
     statsd.timing('routes.id_mismatch', new Date() - start);
+  });
+
+  app.get('/test_url', function(req, res) {
+    res.send(JSON.stringify(req.query['openid.signed']));
   });
 
   // The user's claimed and OpenID (mismatched) emails didn't match.
@@ -377,7 +378,7 @@ exports.init = function(app) {
       } else if (pinMatched) {
         pinCode.markVerified(session.getClaimedEmail(req), req);
         session.setCurrentUser(req, session.getClaimedEmail(req));
-        redirectUrl = session.getBidUrl(baseUrl, req);
+        redirectUrl = session.getBidUrl(req);
         session.clearClaimedEmail(req);
         session.clearBidUrl(req);
       } else {
@@ -400,7 +401,7 @@ exports.init = function(app) {
   //   Handle the user cancelling the OpenID or OAuth flow.
   app.get('/cancel', function(req, res) {
     addHeadersToPreventCaching(res);
-    res.redirect(session.getCancelledUrl(baseUrl, req));
+    res.redirect(session.getCancelledUrl(req));
   });
 
   // GET /cancelled

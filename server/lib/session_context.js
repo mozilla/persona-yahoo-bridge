@@ -3,11 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
+config = require('./configuration'),
 qs = require('qs'),
 util = require('util');
 
 /* Encapsulates session related features */
 
+var baseUrl = util.format('http://%s:%s', config.get('issuer'), config.get('bigtent_port'));
+if (true === config.get('use_https')) {
+  baseUrl = util.format('https://%s', config.get('issuer'));
+}
+
+exports.getBaseUrl = function() {
+  return baseUrl;
+};
 
 /* Bid URL - The URL that we start and finish on is important to
    BrowserID functioning properly */
@@ -21,7 +30,7 @@ exports.initialBidUrl = function(req) {
   req.session.bid_state = req.query;
 };
 
-exports.getBidUrl = function(baseUrl, req) {
+exports.getBidUrl = function(req) {
   if (! req.session || ! req.session.bid_state) {
     throw "Invalid state, missing redirection url in session";
   }
@@ -35,7 +44,7 @@ exports.clearBidUrl = function(req) {
   }
 };
 
-exports.getErrorUrl = function(baseUrl, req) {
+exports.getErrorUrl = function(req) {
   var err = util.format('%s/error', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
@@ -43,7 +52,7 @@ exports.getErrorUrl = function(baseUrl, req) {
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
-exports.getCancelledUrl = function(baseUrl, req) {
+exports.getCancelledUrl = function(req) {
   var err = util.format('%s/cancelled', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;
@@ -51,7 +60,7 @@ exports.getCancelledUrl = function(baseUrl, req) {
   return util.format('%s?%s', err, qs.stringify(req.session.bid_state));
 };
 
-exports.getMismatchUrl = function(baseUrl, req) {
+exports.getMismatchUrl = function(req) {
   var err = util.format('%s/id_mismatch', baseUrl);
   if (! req.session || ! req.session.bid_state) {
     return err;

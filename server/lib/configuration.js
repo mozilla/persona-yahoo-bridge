@@ -82,7 +82,16 @@ var conf = module.exports = convict({
     env: 'SUPPORTED_LANGUAGES'
   },
   express_log_format: 'string [ "default_bid", "dev_bid", "default", "dev", "short", "tiny" ] = "default"',
-  use_https: 'boolean = false',
+  use_https: {
+    doc: 'Should this deamon bind provide services over SSL',
+    format: 'boolean = false',
+    env: 'USE_HTTPS'
+  },
+  bigtent_port: {
+    doc: 'Port deamon binds too. Use https will override this to 443',
+    format: "integer{1,65535} = 3030",
+    env: 'PORT'
+  },
   // NOTE: domain_info should follow the JSONSchema:
   //   {
   //     "type": "object",
